@@ -70,6 +70,17 @@ function start_dev_server() {
         ateliersoude-django-app-$USERLOWER
 }
 
+function unit_tests() {
+    docker exec -it ateliersoude-django-$USERLOWER python -Wall ateliersoude/manage.py test;
+}
+
+function coverage() {
+    docker exec -it ateliersoude-django-$USERLOWER coverage run ateliersoude/manage.py test -v 2;
+}
+
+function copy_html_to_local() {
+    docker cp ateliersoude-django-$USERLOWER:htmlcov/ .
+}
 
 function get_ports() {
     echo "************** external ports used by the docker container **************"
@@ -96,6 +107,11 @@ case "${ACTION}" in
         docker exec -ti ateliersoude-django-$USERLOWER /bin/bash -c 'kill -HUP `pgrep -f gunicorn:\ master` 2>/dev/null'
         if [[ "$?" -eq 0 ]]; then echo OK; else echo FAIL; fi
         ;;
+    "tests")
+	unit_tests
+	coverage
+	copy_html_to_local
+	;;
     *)
         cat <<EOF
 $0 <action> [<port> [<loglevel>]]: Specify an action:
@@ -103,6 +119,7 @@ $0 <action> [<port> [<loglevel>]]: Specify an action:
     - rebuild (gunicorn + static files)
     - reload (gunicorn, update for code changes, faster)
     - dev (launch dev server and keep a terminal open, static changes instantly visible)
+    - tests (launch unit test battery)
 Note that at first launch a rebuild_db is needed
 EOF
         exit 1
