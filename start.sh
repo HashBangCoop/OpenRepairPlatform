@@ -71,11 +71,10 @@ function start_dev_server() {
 }
 
 function unit_tests() {
-    docker exec -it ateliersoude-django-$USERLOWER python -Wall ateliersoude/manage.py test;
-}
-
-function coverage() {
-    docker exec -it ateliersoude-django-$USERLOWER coverage run ateliersoude/manage.py test -v 2;
+    docker exec -it ateliersoude-django-$USERLOWER coverage run ateliersoude/manage.py test plateformeweb.tests -v 2;
+    docker exec -it ateliersoude-django-$USERLOWER coverage run ateliersoude/manage.py test ateliersoude.tests -v 2;
+    docker exec -it ateliersoude-django-$USERLOWER coverage run ateliersoude/manage.py test users.tests -v 2;
+    docker exec -it ateliersoude-django-$USERLOWER coverage html;
 }
 
 function copy_html_to_local() {
@@ -109,7 +108,6 @@ case "${ACTION}" in
         ;;
     "tests")
 	unit_tests
-	coverage
 	copy_html_to_local
 	;;
     *)
