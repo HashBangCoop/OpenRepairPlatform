@@ -116,17 +116,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         "Returns the short name for the user."
         return self.first_name
 
-
+    # TODO à faire pour les autres modeles
     def get_absolute_url(self):
-       return reverse('user_detail', kwargs={'pk':self.pk})
-      
+        return reverse('user_detail', kwargs={'pk':self.pk})
 
+    # TODO à revoir
     def email_user(self, subject, message, from_email=None):
         """
         Sends an email to this User.
         """
         send_mail(subject, message, from_email, [self.email])
-
 
     def __iter__(self):
         for field in self._meta.get_fields():
@@ -136,4 +135,3 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             except:
                 field_name = field.name
             yield (field_name, value)
-

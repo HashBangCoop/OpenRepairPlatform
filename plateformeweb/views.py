@@ -24,9 +24,8 @@ def homepage(request):
     context = {"events": events}
     return render(request, 'plateformeweb/home.html', context)
 
-
-
 # TODO move all this in separate apps?
+
 
 class OrganizationView(DetailView):
     model = Organization
@@ -34,7 +33,7 @@ class OrganizationView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
-        
+
 
 class OrganizationListView(ListView):
     model = Organization
@@ -101,7 +100,7 @@ class PlaceFormView():
     model = Place
     fields = ["name", "description", "type", "address", "picture",
               "organization"]
-              
+
     def get_form(self, form_class=None):
         if form_class is None:
             form_class = self.get_form_class()
@@ -129,7 +128,7 @@ class PlaceEditView(PermissionRequiredMixin, PlaceFormView, AjaxUpdateView):
     queryset = Place.objects
 
 
-# --- Activity Types --- 
+# --- Activity Types ---
 
 
 class ActivityView(DetailView):
@@ -274,9 +273,7 @@ class BookingFormView():
     def get_success_url(self):
         return render(request, 'plateformeweb/event_list.html', message="c'est tout bon")
 
-   
+
 class BookingEditView(BookingFormView, AjaxUpdateView):
     template_name = 'plateformeweb/booking_form.html'
     queryset = Event.objects
-
-
