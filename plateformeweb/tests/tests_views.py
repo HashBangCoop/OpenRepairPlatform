@@ -63,8 +63,7 @@ class TestAllViews(TestCase):
             reverse('activity_list'),
             reverse('activity_detail', kwargs={'pk': self.activity.pk, 'slug': self.activity.slug }),
             reverse('event_list'),
-            reverse('event_detail', kwargs={'pk': self.event.pk, 'slug': self.event.slug }),
-            reverse('booking_form', kwargs={'pk': self.event.pk })
+            reverse('event_detail', kwargs={'pk': self.event.pk, 'slug': self.event.slug })
         ]
 
         for page in authorized_views:
@@ -85,8 +84,7 @@ class TestAllViews(TestCase):
             reverse('activity_list'),
             reverse('activity_detail', kwargs={'pk': self.activity.pk, 'slug': self.activity.slug }),
             reverse('event_list'),
-            reverse('event_detail', kwargs={'pk': self.event.pk, 'slug': self.event.slug }),
-            reverse('booking_form', kwargs={'pk': self.event.pk })
+            reverse('event_detail', kwargs={'pk': self.event.pk, 'slug': self.event.slug })
         ]
 
         for page in authorized_views:
@@ -111,10 +109,8 @@ class TestAllViews(TestCase):
             reverse('activity_detail', kwargs={'pk': self.activity.pk, 'slug': self.activity.slug }),
             reverse('event_list'),
             reverse('event_create'),
-            reverse('booking_form', kwargs={'pk': self.event.pk }),
             reverse('event_edit', kwargs={'pk': self.event.pk }),
             reverse('event_detail', kwargs={'pk': self.event.pk, 'slug': self.event.slug }),
-            reverse('mass_event_create'),
             '/admin/auth/group/',
             '/admin/users/customuser/',
             '/admin/plateformeweb/event/',
