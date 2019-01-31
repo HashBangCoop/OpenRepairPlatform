@@ -80,7 +80,7 @@ function create_env_file(){
     echo "DJANGO_DEBUG=$DJANGO_DEBUG" >> ./deployment/.env
     echo "SMTP_HOST=$SMTP_HOST" >> ./deployment/.env
     echo "EMAIL_ADRESSE=$EMAIL_ADRESSE" >> ./deployment/.env
-    echo "EMAIL_PASSWORD='$EMAIL_PASSWORD" >> ./deployment/.env
+    echo "EMAIL_PASSWORD=$EMAIL_PASSWORD" >> ./deployment/.env
 }
 
 
