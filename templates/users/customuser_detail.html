@@ -13,13 +13,28 @@
 {% endwith %}
 {% endblock %}
 
-{% block TitleAndEdit %}
-<!-- organizationperson -->
-<div class="row p-2 float-left" id="list-organization">
-        <ul class="list-group">
+{% block header_ban %}
+    {% with object="user-profile"%}
+        {{ block.super }}
+    {% endwith %}
+{% endblock header_ban %}
 
+{% block TitleAndEdit %}
+<!-- edit profil -->
+{% if target_user.pk == request.user.pk %}
+    <a class="card-link mr-3 fm-update btn btn-primary float-right btn-circle-responsive" href="{% url "user_profile" %}">
+        <i class="fa fa-pencil-square-o 2-xs pt-1"></i>
+    Editer mon profil
+    </a>
+{% endif %}
+
+{% with name=target_user.get_full_name %}
+{{block.super}}
+{% endwith %}
+
+<div class="ml-5">
             {% for organization in target_user.organizationperson_set.all %}
-            <li class="list-group-item">
+            <small>
 
                 {% if organization.role == 0 %}
                     Visiteur 
@@ -35,21 +50,12 @@
                 <a href="{% url 'organization_detail' organization.organization.id organization.organization.slug %}">
                         {{ organization.organization.name }}
                 </a>
-            </li>
+            </small>
             {% empty %}
-            <p>Ce profil n'est rattaché à aucune organisation</p>
+            <small>Ce profil n'est rattaché à aucune organisation</small>
             {% endfor %}
-           
-        </ul>
 </div>
 
-<!-- edit profil -->
-{% if target_user.pk == request.user.pk %}
-    <a class="card-link mr-3 fm-update btn btn-primary float-right" href="{% url "user_profile" %}">
-        <i class="fa fa-pencil-square-o 2-xs pt-1"></i>
-    Editer mon profil
-    </a>
-{% endif %}
 {% endblock TitleAndEdit %}
 
 {% block context %}

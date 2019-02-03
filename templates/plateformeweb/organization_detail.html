@@ -22,15 +22,19 @@
 <!-- end define -->
 
 {% block TitleAndEdit %}
-<h5 class="float-left">{{ organization.name }}</h5>
-    
+
 {% if request.user.is_authenticated and request.user in organization.volunteers or organization.admins %}
-    <a class="card-link mr-3 fm-update btn btn-primary float-right" href="{% url 'organization_edit' organization.id %}"
-    data-fm-head="Update" data-fm-callback="reload">&nbsp
-        <i class="fa fa-pencil-square-o 2-xs pt-1"></i>
-    Editer
-    </a>
+<a class="card-link mr-3 fm-update btn btn-primary float-right" href="{% url 'organization_edit' organization.id %}"
+data-fm-head="Update" data-fm-callback="reload">&nbsp
+    <i class="fa fa-pencil-square-o 2-xs pt-1"></i>
+Editer
+</a>
 {% endif %}
+
+{% with name=organization %}
+{{block.super}}
+{% endwith %}
+    
 {% endblock TitleAndEdit %}
 
 {% block context %}
@@ -44,7 +48,7 @@
 {% endblock stream %}
 
 {% block about %}
-<h5 class="border-bottom border-gray pb-2 mb-0 clear ">Description</h5>
+
 
     {{ organization.description|markdown }}
 

@@ -15,17 +15,17 @@
 
 
 {% block content %}
-{% render_breadcrumbs %}
 
 {% block header_ban %}
 <div class="container-fluid profil-header-bar sticky-position sticky-top {{object}}">
+        {% render_breadcrumbs %}
     <div class="row">
-
         <div class="col-md-3 col-sm-0">
         </div> 
        
         <div class="col-md-9 col-sm-12 header-bar-title">
         {% block TitleAndEdit %}
+        <h5 class="ml-5">{{ name }}</h5>
         {% endblock TitleAndEdit %}
         </div>
 
@@ -34,7 +34,7 @@
 {% endblock %}
 
 <div class="row main-container">
-<section class="col-md-3" style=" position: relative; top:-100px;" > 
+<section class="col-md-3 sticky-head" > 
         {% block context %} 
         {% endblock context %}
 </section>   

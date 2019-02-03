@@ -10,9 +10,11 @@
 
 {% block list %}
 
-<div class="{{class}} card">
-    <a href="{% url 'place_detail' place.id place.slug %}">
-        <img class="img-fluid img-place {{img_class}} " src="{{ place.picture.url }}">
+<div class="{{class}} card card-place">
+    <a class="row" href="{% url 'place_detail' place.id place.slug %}">
+        <div class="{{img_class}}">
+            <img class="img-fluid img-place" src="{{ place.picture.url }}">
+        </div>
         <div class="card-body {{about_class}}">
                 <h6 class="card-subtitle mb-2 text-muted">{{ place.type }}</h6>
 

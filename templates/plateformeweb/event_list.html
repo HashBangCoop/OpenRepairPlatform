@@ -23,9 +23,9 @@
 <script src="{% static 'js/make_modal.js' %}"> </script>
 
 
-<section id="event-list" class="container-fluid row gradient-bg">
+<section id="event-list" class="container-fluid row">
 
-    <div style="position:relative; z-index: 2;" class="col-md-3 col-sm-12 bg-white">
+    <div style="position:relative; z-index: 2;" class="col-md-2 col-sm-12 bg-white">
     <div class="bg-white sticky-position sticky-top" style="top:100px;">
 
         <h5>Organisation</h5>
@@ -64,7 +64,7 @@
 
 <div class="col-lg col-md-12 col-sm-12 event-list card-columns">
 
-    <div v-for="event in selected_event_list" class="card">
+    <div v-for="event in selected_event_list" class="card card-event">
       {% include "plateformeweb/event_vuejs.html" with img_class="" about_class="col-lg" %}
     </div>
 

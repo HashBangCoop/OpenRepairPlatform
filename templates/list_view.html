@@ -13,12 +13,11 @@
 {% block content %}
 
     <section class="sub_header sticky-position sticky-top">
-
         <!-- breadcrumb -->
         {{ block.super }}
 
         <div class="bg-white text-secondary">
-   
+                {% render_breadcrumbs %}
             <h1 class="text-center mx-auto"> {% block title %} {% endblock %}</h1>
 
         </div>

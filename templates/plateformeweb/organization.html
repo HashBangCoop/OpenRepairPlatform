@@ -1,15 +1,22 @@
 {% load staticfiles %}
 {% load fontawesome %}
 {% load avatar_tags %}
+{% load django_markdown django_markdown_static %}
 
 
 {% block list %}
 
-<div class="{{class}}">
-    <a class="card" href="{% url 'organization_detail' organization.id organization.slug %}">
-    <img class="img-place {{img_class}}" src="{{ organization.picture.url }}">
-    <div class="card-body {{about_class}}">
-            <h5 class="card-title">{{ organization.name }}</h5>         
+<div class="{{class}} card card-organization">
+    <a class="card-link row" href="{% url 'organization_detail' organization.id organization.slug %}">
+    <div class="{{img_class}}">
+        <img class="img-fluid" src="{{ organization.picture.url }}">
+    </div>
+    <div class="{{about_class}}"> 
+            <h5 class="card-title">{{ organization.name }}</h5>  
+
+            {% if request.resolver_match.url_name == "organization_list" %}
+            <p class="card-text">{{ organization.description|markdown|truncatewords_html:50 }}</p>   
+            {% endif %}    
     </div>
     </a>
 </div>

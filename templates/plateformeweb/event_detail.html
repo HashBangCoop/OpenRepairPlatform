@@ -26,6 +26,7 @@
 <!--- Item banner -->
 {% block TitleAndEdit %}
 
+
 {% if not request.user.is_authenticated %}
 {% else %}
     {% if request.user in event.organizers.all %}
@@ -48,26 +49,22 @@
     {% endif %}
 {% endif %}
 
-<h5 class="row">
-    {{ event.type }} du {{ event.starts_at|date:"d M" }} à
-    <a href="{% url 'place_detail' event.location.id event.location.slug %}">
+    {% with name=event %}
+    {{block.super}}
+    {% endwith %}
+        
+    <span class='ml-5'>
+        <a href="{% url 'place_detail' event.location.id event.location.slug %}">
           {{ event.location.name }}
     </a>
-    <div class="float-left ml-3">
-            {% if event.available_seats == 0 %}
-                <span class="badge badge-warning">Complet</span>
-            {% else %}
-                <span class="badge badge-primary">{{ event.available_seats }}
-                <small>Places</small></span>
-            {% endif %}
-    </div>
-</h5>
 
-<div class="row">
-    par <a href="{% url 'organization_detail' event.organization.id event.organization.slug %}">
-            {{ event.organization.name }}
-      </a>
-</div>
+        {% if event.available_seats == 0 %}
+            <span class="badge badge-warning">Complet</span>
+        {% else %}
+            <span class="badge badge-primary">{{ event.available_seats }}
+            <small>Places</small></span>
+        {% endif %}
+    </span>
 
 {% endblock TitleAndEdit %}
 <!-- End item banner -->
@@ -75,11 +72,11 @@
 
 {% block context %}
 <!-- About event -->
-    <div class="card sticky-position sticky-top sticky-keep" >
+    <div class="card card-event sticky-position sticky-top sticky-keep d-none d-md-block" >
         <img class="img-fluid img-place" src="{{ event.type.picture.url }}">
     </div>
 
-    <div class="m-3 pt-3 p-2 card">
+    <div class="p-2 card">
             <p>
                 {% for condition in event.condition.all %}
                     <span>{{condition.resume}}</span>
@@ -88,36 +85,21 @@
                 {% endfor %}
             </p>
     </div>
-
-    <a href="{% url 'activity_detail' event.type.id event.type.slug %}">
-        <div class="m-3 pt-3 p-2 card">
-            <p>
-            {{event.type.description|truncatechars:100|markdown}}
-            </p>
-            <a href="{% url 'activity_detail' event.type.id event.type.slug %}">En savoir +</a>
-        </div>
-    </a>
+    <div class="p-2 card">
+        <a href="{% url 'activity_detail' event.type.id event.type.slug %}">
+        <h5>{{event.type.name}}</h5>
+        {{event.type.description|truncatechars:100|markdown}}
+        </a>
+    </div>
 <!-- End about event -->
+
+{% include "plateformeweb/organization.html" with organization=event.organization class="" img_class="col-4" about_class="col-8" %}
+
+{% include "plateformeweb/place.html" with place=event.location class="" img_class="col-4" about_class="col-8" %}
 
 
 <!-- Location -->
-<div class="m-3 pt-3 p-2 bg-white">
-        <h6>
-            {% fontawesome_icon 'map-marker' %}
-            <a href="{% url 'place_detail' event.location.id event.location.slug %}">
-                {{ event.location.name }}</a>,
-            {{ event.location.address }}
-        </h6>
-         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css"
-   integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
-   crossorigin=""/>
 
-  <script src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js"
-   integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
-   crossorigin=""></script>
-
-  <div style="height:250px;" id="event_map"></div>
-</div>
 <!-- End location -->
 
 
@@ -161,8 +143,6 @@
 
 <!-- end add users to event -->
 {% if request.user.is_authenticated and request.user in admin_or_volunteer %}
-
-
 <!-- validating presents possibilities for volonteers -->
 {% include "plateformeweb/add_user.html" %}
 {% endif %}
@@ -239,8 +219,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
 <script>
+    
   var organization_pk = {{event.organization.pk}};
   var event_pk = {{event.pk}};
+
   var options = {
       shouldSort: true,
       findAllMatches: true,

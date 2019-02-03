@@ -6,7 +6,7 @@ from .common import *
 SECRET_KEY = 'H/hXAUnb1ZKNGpToim2cg38dxiyHM6b+zB9zozhpTzkP'
 
 # TODO for the address module; change it!
-GOOGLE_API_KEY = "AIzaSyCNZ-rIhY1zyq2LFghBV4x7mUQvtJCOK88"
+GOOGLE_API_KEY = "AIzaSyAYCYw3z7WEG8ttiZ53WyEvrOd0fDDlHeU"
 
 # STATICFILES_STORAGE disabled in test environement
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

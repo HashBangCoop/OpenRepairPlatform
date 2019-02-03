@@ -34,7 +34,7 @@
             </div>
               <div class="navbar navbar-expand-lg d-flex justify-content-end">
                   {% if admin_of_organizations %}
-                    <div class="navbar-brand" >
+                    <div class="" >
                         <a class="nav-link mr-3" href="{% url 'event_create' %}"
                         title="create event">
                         <i class="fa fa-calendar fa-lg"></i>
@@ -45,14 +45,14 @@
                   {% if user.is_authenticated %}
               
 
-                    <div class="navbar-brand avatar"><a class="nav-link mr-3" href="{{ user.get_absolute_url }}">{% avatar user %} {{ user.first_name }}</a></div>
+                    <div class="avatar"><a class="nav-link mr-3" href="{{ user.get_absolute_url }}">{% avatar user %} {{ user.first_name }}</a></div>
                   {% else %}
-                    <div class="navbar-brand" ><a class="nav-link mr-3" href="{% url "login" %}"><i class="fa fa-user-circle-o fa-2x"></i></a></div>
+                    <div class="" ><a class="nav-link mr-3" href="{% url "login" %}"><i class="fa fa-user-circle-o fa-2x"></i></a></div>
                   {% endif %}
                   {% if user.is_authenticated %}
 
                   <!-- Menu dropdown -->
-                  <div class="navbar-brand arrow-login">
+                  <div class="arrow-login">
                       <a class="nav-link mr-3 dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class=""></i></a>
                       <div class="dropdown-menu " aria-labelledby="navbarDropdownMenuLink">
                         <a class="dropdown-item" href="{{ user.get_absolute_url }}"> voir profil </a>
