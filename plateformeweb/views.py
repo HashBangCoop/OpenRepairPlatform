@@ -162,7 +162,6 @@ class PlaceFormView():
         if form_class is None:
             form_class = self.get_form_class()
         form = super().get_form(form_class)
-        form.fields['address'] =  AddressField()
         form.fields['description'] = CharField(widget=MarkdownWidget())
         return form
 
@@ -171,7 +170,7 @@ class PlaceFormView():
                             args=(self.object.pk, self.object.slug,))
 
 
-class PlaceCreateView(PlaceFormView, CreateView):
+class PlaceCreateView(PlaceFormView, AjaxCreateView):
     #permission_required = 'plateformeweb.create_place'
 
     def validate_image(self, image):
