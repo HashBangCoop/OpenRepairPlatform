@@ -67,6 +67,12 @@ h1, h2, h3, h4, h5 {
   line-height: 40px !important;
 
 }
+
+.btn-danger{
+  background-color: #FF5959;
+}
+
+
 .btn-primary {
   color: #fff !important;
   background-color: #1de0b6 !important;
@@ -471,7 +477,7 @@ input[type="checkbox"], input[type="radio"],input[type="number"]  {
   background-color: #cecece;
   height: 140px;
   padding: 10px;
-  top:70px;
+  /*top:70px;*/
 }
 .organization {
   background-color: #1de0b6 !important;
@@ -482,6 +488,10 @@ input[type="checkbox"], input[type="radio"],input[type="number"]  {
 }
 .user-profile{
   background-color: #083342;
+}
+
+.user-profile h5{
+ color: #FFF !important;
 }
 
 .user-profile {
@@ -591,6 +601,14 @@ input[type="checkbox"], input[type="radio"],input[type="number"]  {
 
 /* media queries */
 
+@media (min-width:576px) {
+
+.card-columns.event-list{
+  column-count: 4 !important;
+  column-gap: 2rem !important;
+
+}
+
 @media (max-width: 768px) {
 
   h5{
@@ -628,5 +646,7 @@ input[type="checkbox"], input[type="radio"],input[type="number"]  {
 .sticky-keep{
   top:150px !important;
 }
-
+.card-columns{
+  column-count: 1 !important;
+}
 }

@@ -44,7 +44,7 @@
 
         <div class="row d-flex justify-content-center">
         {% for activity in organization.activity_set.all %}
-            {% include "plateformeweb/activity.html" with class="col-4" img_class="col-4"%}
+            {% include "plateformeweb/activity.html" with class="row" img_class="col-md-4" about_class="col-md-6"%}
         {% endfor %}
         </div>
 
@@ -57,7 +57,7 @@
 
         <div class="row d-flex justify-content-center">
         {% for place in organization.place_set.all %}
-            {% include "plateformeweb/place.html" with class="col-md-4" img_class="col-4" %}
+            {% include "plateformeweb/place.html" with class="row" img_class="col-md-4" about_class="col-md-6" %}
         {% endfor %}
         </div>
     </div>

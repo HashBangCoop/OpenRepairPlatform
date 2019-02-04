@@ -34,16 +34,16 @@
                 </h5>
             </div>
                           
-            <span> organisé par
+            <small> organisé par
                 <!--   <a :href="organizations[event.organization_pk].organization_detail_url"></a>-->
                         [[ organizations[event.organization_pk].name ]]
             
-            </span><br>
-            <span>
+            </small><br>
+            <small>
                 <!--   <a :href="places[event.place_pk].place_detail_url">-->
                     {% fontawesome_icon 'map-marker' %}
                     [[places[event.place_pk].truncated_name]]
-            </span>
+                </small>
 
                 <!-- book -->
         </div>
