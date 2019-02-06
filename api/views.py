@@ -20,6 +20,7 @@ from django.template.loader import render_to_string
 from actstream.models import actor_stream
 
 from plateformeweb.views import send_notification
+from plateformeweb.context_processors import volunteer_or_admin_of_organizations
 
 from post_office import mail
 from django.core.mail import send_mail
@@ -355,26 +356,34 @@ def book_event(request):
         event = Event.objects.get(pk=event_id)
         organization = event.organization
         attendees = event.attendees.all()
+        organizers = event.organizers.all()
 
-        user_volunteer_orgs = OrganizationPerson.objects.filter(user=user,
-                                                      role__gte=OrganizationPerson.VOLUNTEER)
+        user_is_admin : OrganizationPerson.objects.filter(user=user, organization=organization, role__gte=OrganizationPerson.ADMIN)
+        user_is_volunteer = OrganizationPerson.objects.filter(user=user, organization=organization, role__gte=OrganizationPerson.VOLUNTEER)
+        user_in_orgs = user_is_volunteer
 
+        if user in organizers:
+            if user_in_orgs:
+                event.organizers.remove(user)
+                unfollow(user, event, actor_only=False)
 
-        if user in attendees:
-            if organization not in user_volunteer_orgs:
-                event.available_seats += 1
+        elif user in attendees:
+            event.available_seats += 1
             event.attendees.remove(user)
+        
             action.send(user, verb="s'est désinscrit de", target=event)    
             event.save()
             return JsonResponse({'status': 'unbook',
-                                 'available_seats': event.available_seats})
+                                    'available_seats': event.available_seats})
         else:
             if event.available_seats >= 0:
-                if organization not in user_volunteer_orgs:
-                    event.available_seats -= 1          
+                if user_in_orgs:
+                    event.organizers.add(user)    
+                    follow(user, event, actor_only=False) 
+                else:
+                    event.available_seats -= 1   
+                    event.attendees.add(user)  
                 action.send(user, verb="s'est inscrit à", target=event)    
-                follow(user, event, actor_only=False)
-                event.attendees.add(user)
                 # send booking mail here or notification here
                 send_booking_mail(request, user, event)
                 #send_notification(request, user)

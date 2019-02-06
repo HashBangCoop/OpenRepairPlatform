@@ -52,6 +52,10 @@
                     Je ne participe plus
                 </button>
 
+                <button v-if="event.user_in_organizers" :id="event.pk" purpose="cancel" class="btn btn-large btn-danger" onclick="event_list_onclick(this)">
+                        Je ne participe plus
+                    </button>    
+
                 <button v-else :id="event.pk" purpose="book" class="btn btn-large btn-primary" onclick="event_list_onclick(this)">
                     Je participe
                 </button>

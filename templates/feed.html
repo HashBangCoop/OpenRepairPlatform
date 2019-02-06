@@ -11,16 +11,34 @@
         <p class="text-left">
             <a href="{{ action.actor.get_absolute_url }}">
                 {% avatar action.actor 15 class="img-circle img-responsive" %}
-            {{ action.actor }}
+                {% if action.actor == request.user %}
+                    Vous
+                {% else %}
+                    {{ action.actor }}
+                {% endif %}
             </a>
             {{ action.verb }}
             {% if action.action_object %}
-                {% if action.action_object.get_absolute_url %}<a href="{{ action.action_object.get_absolute_url }}">{{ action.action_object }}</a>
+                {% if action.action_object.get_absolute_url %}
+                <a href="{{ action.action_object.get_absolute_url }}">
+                    {% if action.action_object == request.user %}
+                        Vous
+                    {% else %}
+                        {{ action.action_object }}
+                    {% endif %}
+                </a>
             {% else %}<a href="{{ action.action_object_url }}">{{ action.action_object }}</a>{% endif %}
             {% endif %}
             {% if action.action_object and action.target %}pour{% endif %}
             {% if action.target %}
-                {% if action.target.get_absolute_url %}<a href="{{ action.target.get_absolute_url }}">{{ action.target }}</a>
+                {% if action.target.get_absolute_url %}
+                <a href="{{ action.target.get_absolute_url }}">
+                    {% if action.target == request.user %}
+                        Vous
+                    {% else %}
+                        {{ action.target }}
+                    {% endif %}
+                </a>
                 {% else %}<a href="{{ action.target_url }}">{{ action.target }}</a>{% endif %}
             {% endif %}
         </p>

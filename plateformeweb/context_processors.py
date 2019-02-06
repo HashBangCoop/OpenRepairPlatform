@@ -62,3 +62,20 @@ def admin_of_organizations(request):
         if orgs:
             return {'admin_of_organizations': True }
     return {'admin_of_organizations': False }
+
+def volunteer_of_organizations(request):
+    if(request.user.is_authenticated):
+        orgs = OrganizationPerson.objects.filter(user=request.user, role__gte=OrganizationPerson.VOLUNTEER)
+        if orgs:
+            return {'volunteer_of_organizations': True }
+    return {'volunteer_of_organizations': False }
+
+def volunteer_or_admin_of_organizations(request):
+    if(request.user.is_authenticated):
+        orgs_admin = OrganizationPerson.objects.filter(user=request.user, role__gte=OrganizationPerson.ADMIN)
+        orgs_volunteer = OrganizationPerson.objects.filter(user=request.user, role__gte=OrganizationPerson.VOLUNTEER)
+        if orgs_admin:
+            return {'volunteer_or_admin_of_organizations': True }
+        elif orgs_volunteer:
+            return {'volunteer_or_admin_of_organizations': True }
+    return {'volunteer_or_admin_of_organizations': False }
