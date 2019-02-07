@@ -24,13 +24,13 @@
         <div class="modal fade" id="add-user-modal" tabindex="-1" role="dialog" aria-labelledby="add-user-modal" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                <!---<span>Ajouter parmi </span>
-                <select class="col-md-2 col-sm-4 form-control" v-model="selected_member_type">
+                <span>Ajouter parmi </span>
+                <select class="form-control" v-model="selected_member_type">
                     <option value=0>Tous internes à l'organisation</option>
                     <option value=30>Administrateurs</option>
                     <option value=20>Membres actifis</option>
                     <option value=10>Adhérents</option>
-                </select> -->
+                </select> 
                         <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLabel">Ajouter</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -150,6 +150,7 @@
                   .then(response => response.json())
                   .then(json => {
                       document.getElementById("available-seats").innerHTML = json.seats;
+
                   });
           }
       },
