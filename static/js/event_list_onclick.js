@@ -76,4 +76,5 @@ function event_list_onclick(x){
     }
 
     create_modal_window(message, callback, [event]);
+    window.location.reload(false); 
 }

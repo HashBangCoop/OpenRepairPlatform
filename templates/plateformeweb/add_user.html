@@ -129,6 +129,7 @@
           add_users: function(event){
               let csrftoken = getCookie('csrftoken');
               let headers = new Headers();
+              location.reload(false);
               let payload = {
                   event_pk: event_pk,
                   user_list: this.selected_users,
@@ -149,7 +150,6 @@
                   .then(response => response.json())
                   .then(json => {
                       document.getElementById("available-seats").innerHTML = json.seats;
-                      location.reload(true);
                   });
           }
       },
