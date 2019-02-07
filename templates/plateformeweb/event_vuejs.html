@@ -17,10 +17,19 @@
                 <span v-if="event.available_seats == 0" class="badge badge-warning">plus de place</span>
                 <span v-else class="badge badge-primary">[[ event.available_seats ]] places</span>
 
-            <button v-if="event.user_in_organizers" :id="event.pk" purpose="trash" class="card-link btn btn-danger float-right"
+           <!-- <button v-if="event.user_in_organizers" :id="event.pk" purpose="trash" class="card-link btn btn-danger float-right"
             style="position:absolute; right:-10px; top:-10px;" onclick="event_list_onclick(this)">
                     {% fontawesome_icon 'trash' large=True %}
-            </button>
+
+            </button>-->
+
+        <span v-if="event.user_in_organizers" :id="event.pk" class="btn btn-light"
+            style="position:absolute; top:19%; left:0px">
+            <i class="fa fa-cogs"></i>
+
+        </span>
+
+
         </div>
             <img class="card-img-top {{img_class}}" :src="event.type_picture_url">
 
@@ -52,9 +61,9 @@
                     Je ne participe plus
                 </button>
 
-                <button v-if="event.user_in_organizers" :id="event.pk" purpose="cancel" class="btn btn-large btn-danger" onclick="event_list_onclick(this)">
-                        Je ne participe plus
-                    </button>    
+                <button v-else-if="event.user_in_organizers" :id="event.pk" purpose="cancel" class="btn btn-large btn-danger" onclick="event_list_onclick(this)">
+                    Je ne participe plus
+                </button>    
 
                 <button v-else :id="event.pk" purpose="book" class="btn btn-large btn-primary" onclick="event_list_onclick(this)">
                     Je participe

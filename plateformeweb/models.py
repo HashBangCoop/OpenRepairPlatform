@@ -9,6 +9,7 @@ from autoslug import AutoSlugField
 from django_markdown.models import MarkdownField
 from easy_maps.widgets import AddressWithMapWidget
 import locale
+from django.db.models import Q
 # ------------------------------------------------------------------------------
 
 class Organization(models.Model):
@@ -127,6 +128,14 @@ def get_volunteers(self):
     return ret
 
 
+def get_volunteers_or_admins(self):
+    queryset = OrganizationPerson.objects.filter(Q(role=OrganizationPerson.VOLUNTEER) | Q(role=OrganizationPerson.ADMIN), organization=self)
+    ret = []
+    for query in queryset:
+        ret += [query.user]
+    return ret
+
+
 def get_members(self):
     queryset = OrganizationPerson.objects.filter(role=OrganizationPerson.MEMBER, organization=self)
     ret = []
@@ -147,7 +156,7 @@ Organization.admins = get_admins
 Organization.visitors = get_visitors
 Organization.members = get_members
 Organization.volunteers = get_volunteers
-
+Organization.volunteers_or_admins = get_volunteers_or_admins
 
 # ------------------------------------------------------------------------------
 

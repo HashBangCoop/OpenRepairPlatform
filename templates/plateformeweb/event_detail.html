@@ -102,32 +102,6 @@
 
 <!-- End location -->
 
-
-<!-- Leaflet script -->
-  <script>
-    var longitude = new Array({{event.location.address.longitude}}).join('.');
-    var latitude = new Array({{event.location.address.latitude}}).join('.');
-    var event_map = L.map('event_map').setView([latitude, longitude], 16);
-
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        minZoom: 14,
-        maxZoom: 16,
-        id: 'mapbox.streets',
-        accessToken: 'pk.eyJ1IjoiYXRlbGllcnNvdWRlIiwiYSI6ImNqazEwZW16aDAzbDkza254cHhucHJtMncifQ.01v1DWXApDJmCySy4QvD4A',
-        noWrap: true,
-        reuseTiles: true,
-    }).addTo(event_map);
-
-    var marker = L.marker([latitude,longitude]).addTo(event_map);
-
-    event_map.touchZoom.disable();
-    event_map.doubleClickZoom.disable();
-    event_map.scrollWheelZoom.disable();
-    event_map.boxZoom.disable();
-    event_map.keyboard.disable();
-  </script>
-<!-- End Leaflet script -->
 {% endblock context %}
 
 {% block stream %}
@@ -144,37 +118,19 @@
 <!-- end add users to event -->
 {% if request.user.is_authenticated and request.user in admin_or_volunteer %}
 <!-- validating presents possibilities for volonteers -->
-{% include "plateformeweb/add_user.html" %}
+{% include "plateformeweb/add_user.html" with organization_pk=event.organization.pk event_pk=event.pk %}
 {% endif %}
 
-<!-- Users that have a role in the organization -->
-
-<h5 class="border-bottom border-gray pb-2 mb-0 clear ">Animateur.trice.s</h5>
+<h5 class="border-bottom border-gray pb-2 mb-0 clear ">Participant.e.s</h5>
 
 <div class="card-columns">
 
+<!-- Users that have a role in the event -->
     {% for user in event.organizers.all %}
         {% include "users/user.html" with float="float-left" class="row checked administrator" orga=True img_class="col-12" content_class="col-12 text-center" %}
     {% endfor %}
 
-    {% for user in admin_or_volunteer %}
-        {% if user in event.attendees.all %}
-            {% include "users/user.html" with float="float-left" class="row" user_id=user.id img_class="col-12" content_class="col-12 text-center" absentee=True userid=user.id|serialize_id:event.id %}
-        {% endif %}
-        {% if user in event.presents.all %}
-            {% include "users/user.html" with float="float-left" class="row checked" user_id=user.id img_class="col-12" content_class="col-12 text-center" absentee=True userid=user.id|serialize_id:event.id %}
-        {% endif %}
-    {% endfor %}
-
-</div>
-<!-- End users that have a role in the organization -->
-
-<!-- Attendees and presents -->
-
-<h5 class="border-bottom border-gray pb-2 mb-0 clear ">Participant.e.s</h5>
-
 {% if request.user.is_authenticated and request.user in admin_or_volunteer %}
-    <div class="card-columns">
 <!-- display presents for admin or volonteers -->
         {% for user in event.presents.all %}
             {% if user not in admin_or_volunteer %}
@@ -186,8 +142,9 @@
                 {% include "users/user.html" with float="float-left" class="row" user_id=user.id img_class="col-12" content_class="col-12" absentee=True userid=user.id|serialize_id:event.id %}
             {% endif %}
         {% endfor %}
-    </div>
+</div>
 {% else %}
+
 <!-- or warning message for others users -->
 <div class="alert alert-warning alert-dismissible fade show" role="alert">
     Vous devez être membre actif de l'association pour voir les participants
@@ -209,117 +166,34 @@
 
 <!-- End attendees and presents -->
 
-<script src="{% static "js/helper_functions.js" %}"></script>
 <script src="{% static "js/event_detail.js" %}"></script>
 
-
-<!-- Add users script -->
-{% if request.user.is_authenticated and request.user in admin_or_volunteer %}
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
+<!-- Leaflet script -->
 <script>
+        var longitude = new Array({{event.location.address.longitude}}).join('.');
+        var latitude = new Array({{event.location.address.latitude}}).join('.');
+        var event_map = L.map('event_map').setView([latitude, longitude], 16);
     
-  var organization_pk = {{event.organization.pk}};
-  var event_pk = {{event.pk}};
-
-  var options = {
-      shouldSort: true,
-      findAllMatches: true,
-      threshold: 0.6,
-      location: 0,
-      distance: 100,
-      maxPatternLength: 32,
-      minMatchCharLength: 3,
-      keys: [
-          "name",
-          "email"
-      ]
-  };
-
-  const user_add = new Vue({
-      delimiters: ['[[', ']]'],
-      el: "#add-user",
-      data() {
-        
-          return {
-              fuzzy_input: "",
-              selected_member_type: 0,
-              text_roles: {
-                  0: "Visiteur",
-                  10: "Adhérent",
-                  20: "Membre Actif",
-                  30: "Administrateur",
-              },
-              all_users_in_org: [],
-              selected_users: [],
-              seen: false,
-          }
-      },
-      created() {
-          let csrftoken = getCookie('csrftoken');
-          let headers = new Headers();
-
-          headers.append('X-CSRFToken', csrftoken);
-          fetch("/api/getUsers/" + organization_pk + "/" + event_pk, {
-              headers: headers,
-              method: "GET",
-              credentials: 'include',
-          })
-              .then(response => response.json())
-              .then(json => {
-                  this.all_users_in_org = json.users;
-              });
-      },
-      methods: {
-          text_role: function(role_int){
-              return this.text_roles[role_int];
-          },
-          add_users: function(event){
-              let csrftoken = getCookie('csrftoken');
-              let headers = new Headers();
-              let payload = {
-                  event_pk: event_pk,
-                  user_list: this.selected_users,
-              };
-
-              let formData = payload_to_formBody(payload);
-
-              headers.append('X-CSRFToken', csrftoken);
-              headers.append('Content-Type',
-                             'application/x-ww-form-urlencoded; charset=UTF-8');
-
-              fetch("/api/addUsers/", {
-                  headers: headers,
-                  method: "POST",
-                  credentials: 'include',
-                  body: formData,
-              })
-                  .then(response => response.json())
-                  .then(json => {
-                      document.getElementById("available-seats").innerHTML = json.seats;
-                      location.reload(true);
-                  });
-          }
-      },
-      computed: {
-          users_matching_role: function(){
-              return this.all_users_in_org.filter(
-                  (user) => user.role >=this.selected_member_type);
-          },
-          fuzzy_list: function(){
-              var fuse = new Fuse(this.users_matching_role, options);
-              var result = fuse.search(this.fuzzy_input);
-
-              return result;
-          },
-      }
-  });
-
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            minZoom: 14,
+            maxZoom: 16,
+            id: 'mapbox.streets',
+            accessToken: 'pk.eyJ1IjoiYXRlbGllcnNvdWRlIiwiYSI6ImNqazEwZW16aDAzbDkza254cHhucHJtMncifQ.01v1DWXApDJmCySy4QvD4A',
+            noWrap: true,
+            reuseTiles: true,
+        }).addTo(event_map);
+    
+        var marker = L.marker([latitude,longitude]).addTo(event_map);
+    
+        event_map.touchZoom.disable();
+        event_map.doubleClickZoom.disable();
+        event_map.scrollWheelZoom.disable();
+        event_map.boxZoom.disable();
+        event_map.keyboard.disable();
 </script>
-<!-- End add users script -->
+    <!-- End Leaflet script -->
 
 
-{% endif %}
 {% endblock about %}
 

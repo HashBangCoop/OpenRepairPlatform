@@ -63,3 +63,111 @@
         </div>
 
  </div>
+
+
+<script src="{% static "js/helper_functions.js" %}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
+<script>
+    
+  var organization_pk = {{organization_pk}};
+  var event_pk = {{event_pk}};
+
+  var options = {
+      shouldSort: true,
+      findAllMatches: true,
+      threshold: 0.6,
+      location: 0,
+      distance: 100,
+      maxPatternLength: 32,
+      minMatchCharLength: 3,
+      keys: [
+          "name",
+          "email"
+      ]
+  };
+
+  const user_add = new Vue({
+      delimiters: ['[[', ']]'],
+      el: "#add-user",
+      data() {
+        
+          return {
+              fuzzy_input: "",
+              selected_member_type: 0,
+              text_roles: {
+                  0: "Visiteur",
+                  10: "Adhérent",
+                  20: "Membre Actif",
+                  30: "Administrateur",
+              },
+              all_users_in_org: [],
+              selected_users: [],
+              seen: false,
+          }
+      },
+      created() {
+          let csrftoken = getCookie('csrftoken');
+          let headers = new Headers();
+
+          headers.append('X-CSRFToken', csrftoken);
+          fetch("/api/getUsers/" + organization_pk + "/" + event_pk, {
+              headers: headers,
+              method: "GET",
+              credentials: 'include',
+          })
+              .then(response => response.json())
+              .then(json => {
+                  this.all_users_in_org = json.users;
+              });
+      },
+      methods: {
+          text_role: function(role_int){
+              return this.text_roles[role_int];
+          },
+          add_users: function(event){
+              let csrftoken = getCookie('csrftoken');
+              let headers = new Headers();
+              let payload = {
+                  event_pk: event_pk,
+                  user_list: this.selected_users,
+              };
+
+              let formData = payload_to_formBody(payload);
+
+              headers.append('X-CSRFToken', csrftoken);
+              headers.append('Content-Type',
+                             'application/x-ww-form-urlencoded; charset=UTF-8');
+
+              fetch("/api/addUsers/", {
+                  headers: headers,
+                  method: "POST",
+                  credentials: 'include',
+                  body: formData,
+              })
+                  .then(response => response.json())
+                  .then(json => {
+                      document.getElementById("available-seats").innerHTML = json.seats;
+                      location.reload(true);
+                  });
+          }
+      },
+      computed: {
+          users_matching_role: function(){
+              return this.all_users_in_org.filter(
+                  (user) => user.role >=this.selected_member_type);
+          },
+          fuzzy_list: function(){
+              var fuse = new Fuse(this.users_matching_role, options);
+              var result = fuse.search(this.fuzzy_input);
+
+              return result;
+          },
+      }
+  });
+
+</script>
+<!-- End add users script -->
+
+

@@ -358,14 +358,10 @@ def book_event(request):
         attendees = event.attendees.all()
         organizers = event.organizers.all()
 
-        user_is_admin : OrganizationPerson.objects.filter(user=user, organization=organization, role__gte=OrganizationPerson.ADMIN)
-        user_is_volunteer = OrganizationPerson.objects.filter(user=user, organization=organization, role__gte=OrganizationPerson.VOLUNTEER)
-        user_in_orgs = user_is_volunteer
-
         if user in organizers:
-            if user_in_orgs:
+            if user in organization.volunteers_or_admins():
                 event.organizers.remove(user)
-                unfollow(user, event, actor_only=False)
+                unfollow(user, event)
 
         elif user in attendees:
             event.available_seats += 1
@@ -376,21 +372,20 @@ def book_event(request):
             return JsonResponse({'status': 'unbook',
                                     'available_seats': event.available_seats})
         else:
-            if event.available_seats >= 0:
-                if user_in_orgs:
-                    event.organizers.add(user)    
-                    follow(user, event, actor_only=False) 
-                else:
+            if user in organization.volunteers_or_admins():
+                event.organizers.add(user)    
+                follow(user, event, actor_only=False) 
+            else:
+                if event.available_seats >= 0:
                     event.available_seats -= 1   
                     event.attendees.add(user)  
-                action.send(user, verb="s'est inscrit à", target=event)    
-                # send booking mail here or notification here
-                send_booking_mail(request, user, event)
-                #send_notification(request, user)
+                else:
+                    return JsonResponse({'status': -1})
+            action.send(user, verb="s'est inscrit à", target=event)    
+            # send booking mail here or notification here
+            send_booking_mail(request, user, event)
+            #send_notification(request, user)
                 
-            else:
-                return JsonResponse({'status': -1})
-
         event.save()
         return JsonResponse({'status': 'unbook',
                              'available_seats': event.available_seats})
@@ -431,6 +426,7 @@ def add_users(request):
         event_pk = post_data['event_pk'][0]
         user_list = post_data['user_list'][0].split(',')
         event = Event.objects.get(pk=event_pk)
+        organization = event.organization
         every_attendee = event.attendees.all() | event.presents.all() | event.organizers.all()
         seats = event.available_seats
         presents_pk = []
@@ -440,22 +436,22 @@ def add_users(request):
             user = CustomUser.objects.get(pk=user_pk)
             now = timezone.now()
 
-            if event.starts_at <= now:
-                event.presents.add(user)
-                pesents_pk += [user.pk]
-            else:
-                if user not in every_attendee:
-                    print("a")
+            if user in organization.volunteers_or_admins():
+                event.organizers.add(user)    
+                follow(user, event, actor_only=False) 
+            
+            else: 
+                if event.starts_at <= now:
                     seats -= 1
-
+                    event.presents.add(user)
+                    pesents_pk += [user.pk]
+                else:
+                    seats -= 1
                     event.attendees.add(user)
                     attending_pk += [user.pk]
-                    action.send(request.user, verb="a inscris", action_object=user,  target=event)   
-                else:
-                    event.presents.add(user) 
-                    presents_pk += [user.pk]
+                
+            action.send(request.user, verb="a inscris", action_object=user,  target=event)   
                     
-
 
         event.available_seats = seats
         event.save()
