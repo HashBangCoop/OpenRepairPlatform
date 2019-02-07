@@ -23,6 +23,7 @@ function book_or_cancel(headers, formData){
         .then(handleErrors)
         .then(function(res){ return res.json(); })
         .then(function(data){
+            window.location.reload(false); 
         });
 }
 
@@ -76,5 +77,4 @@ function event_list_onclick(x){
     }
 
     create_modal_window(message, callback, [event]);
-    window.location.reload(false); 
 }
