@@ -5,6 +5,7 @@ from users.models import CustomUser
 from django.db.models import Q
 from functools import reduce
 from operator import __or__ as OR
+from django.contrib import messages
 
 from time import strftime
 import locale
@@ -362,12 +363,17 @@ def book_event(request):
             if user in organization.volunteers_or_admins():
                 event.organizers.remove(user)
                 unfollow(user, event)
+                action.send(user, verb="s'est désinscrit de", target=event)   
+                messages.success(request, "Vous vous êtes bien désinscrit") 
+                event.save()
+                return JsonResponse({'status': 'unbook',
+                                    'available_seats': event.available_seats})
 
         elif user in attendees:
             event.available_seats += 1
             event.attendees.remove(user)
-        
             action.send(user, verb="s'est désinscrit de", target=event)    
+            messages.success(request, "Vous vous êtes bien désinscrit") 
             event.save()
             return JsonResponse({'status': 'unbook',
                                     'available_seats': event.available_seats})
@@ -381,6 +387,7 @@ def book_event(request):
                     event.attendees.add(user)  
                 else:
                     return JsonResponse({'status': -1})
+            messages.success(request, "Vous avez bien réservé une place") 
             action.send(user, verb="s'est inscrit à", target=event)    
             # send booking mail here or notification here
             send_booking_mail(request, user, event)

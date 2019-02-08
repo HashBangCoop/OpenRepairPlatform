@@ -331,7 +331,7 @@ class ActivityEditView( ActivityFormView, AjaxUpdateView):
         obj = form.save(commit=False)
         obj.owner = self.request.user
         action.send(self.request.user, verb=' a modifié ', action_object=obj)
-        send_notification(self.request, target_object=obj, target_type="action_object")    
+        send_notification(self.request, target_object=obj, target_type="action_object")   
         return super().form_valid(form)
 
 

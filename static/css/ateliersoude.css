@@ -126,6 +126,40 @@ h1, h2, h3, h4, h5 {
   margin-top: 100px;
 }
 
+/* Alerts */ 
+
+.alert {
+  position: fixed;
+  padding: 40px;
+  padding-right: 3rem !important;
+  margin-bottom: 0px;
+  border: 1px solid transparent;
+  border-radius: 0px;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  z-index: 10000;
+  border-color: none !important;
+  display: block;
+}
+
+.alert-dismissible .close {
+  top: -05px !important;
+}
+.alert-success {
+  color: #fff;
+  background-color: #1de0b6;
+  box-shadow: 0.5rem 5rem 10rem #1de0b6 !important;
+}
+
+.alert-danger {
+  color: #fff;
+  background-color: rgb(255, 89, 89);
+  box-shadow: 0.5rem 5rem 10rem rgb(255, 89, 89) !important;
+
+}
+
+
 /*******************************
 *********** Menu ***************
 *********************************/
