@@ -36,6 +36,10 @@ a {
   /* text-decoration: none !important; */
   color : #49d3be;
 }
+
+p {
+  font-size: 12px;
+}
 header{
   z-index:1250 !important;
 }

@@ -56,7 +56,19 @@
 
 </head>
 <body>
-   {% include "./menu.html" %}
+
+<!-- messages alerts -->
+{% if messages %}
+   {% for message in messages %}
+   <div class="alert alert-{{ message.tags }} alert-dismissible text-center" role="alert">
+     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+     <strong>{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Error{% else %}{{ message.tags|title }}{% endif %}!</strong> {{ message }}
+   </div>
+   {% endfor %}
+ {% endif %}
+
+<!-- menu -->
+{% include "./menu.html" %}
 
 
 <wrapper class="content-page" style="position:relative">
@@ -66,7 +78,7 @@
     {% breadcrumb "Home" "/" %}
   {% endblock %}
 
-  
+
   {% block content %}
   {% endblock %}
 </wrapper>

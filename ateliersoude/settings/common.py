@@ -11,6 +11,7 @@ import re
 import colored_traceback
 import users.apps
 import plateformeweb.apps
+from django.contrib.messages import constants as messages
 
 colored_traceback.add_hook(always=True)
 
@@ -128,6 +129,10 @@ TEMPLATES = [
         },
     },
 ]
+
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger'
+}
 
 WSGI_APPLICATION = 'ateliersoude.wsgi.application'
 
