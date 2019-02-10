@@ -124,33 +124,32 @@
 <h5 class="border-bottom border-gray pb-2 mb-0 clear ">Participant.e.s</h5>
 
 <div class="card-columns">
-
 <!-- Users that have a role in the event -->
     {% for user in event.organizers.all %}
         {% include "users/user.html" with float="float-left" class="row checked administrator" orga=True img_class="col-12" content_class="col-12 text-center" %}
     {% endfor %}
+</div>
 
 {% if request.user.is_authenticated and request.user in admin_or_volunteer %}
+<div class="card-columns">
 <!-- display presents for admin or volonteers -->
         {% for user in event.presents.all %}
-            {% if user not in admin_or_volunteer %}
                 {% include "users/user.html" with float="float-left" class="row checked" user_id=user.id img_class="col-12" content_class="col-12" absentee=False userid=user.id|serialize_id:event.id %}
-            {% endif %}
         {% endfor %}
         {% for user in event.attendees.all %}
-            {% if user not in admin_or_volunteer %}
                 {% include "users/user.html" with float="float-left" class="row" user_id=user.id img_class="col-12" content_class="col-12" absentee=True userid=user.id|serialize_id:event.id %}
-            {% endif %}
         {% endfor %}
 </div>
 {% else %}
 
 <!-- or warning message for others users -->
-<div class="alert alert-warning alert-dismissible fade show" role="alert">
-    Vous devez être membre actif de l'association pour voir les participants
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
+<div class="inaccessible">
+    <p>Vous devez être membre actif de l'association organisatrice de l'èvenement pour voir les participants.
+    <br><a href="{% url 'login' %}">Connectez-vous</a>
+    </p>
+    <div class="blured">
+        <img src="{% static "img/fake-users.png" %}">
+    </div>
 </div>
 
     {% if request.user in event.attendees.all %}

@@ -112,6 +112,22 @@ h1{
 .hide {
   display:none !important;
 }
+.blured {
+  filter: blur(8px);
+}
+.inaccessible{
+  width: 100%;
+  position: relative;
+}
+.inaccessible p {
+ /* color: rgb(255, 89, 89); */
+  font-size:14px;
+  position: absolute;
+  top: 55%;
+  z-index: 10000;
+  width:100%;
+  text-align: center;
+}
 
 .administrator:before {
   color:#ffd300;
