@@ -52,6 +52,9 @@ h1, h2, h3, h4, h5 {
   font-family: 'Bree Serif', serif !important;
 }
 
+h1{
+  text-align: center;
+}
 .border-success{
   border-color: #49d3be !important;
 }
@@ -411,7 +414,8 @@ textarea, input{
   /*width: 100px;*/
   margin-top: 10px !important;
 }
-input[type="submit"] {
+
+/*input[type="submit"] {
   cursor: pointer;
   margin: auto;
   width: 100%;
@@ -434,22 +438,23 @@ input[type="submit"]:active {
   background: #009688;
   border: solid transparent;
   border-width: 0 0 0px 0;
-}
-input[type="text"] {
+}*/
+input[type="text"], .form-control {
   margin-bottom: 20px auto !important;
   /*font-size: 1.25em;*/
   padding: 0 0 5px 0;
-  color: #004D40;
+  color: #1de0b6;
   background-color: transparent;
   border: none;
-  border-bottom: solid 2px #35bda6;
+  border-bottom:solid 2px #1de0b6;
+  border-radius:0px !important;
 }
 /* Create event card */
 #div_id_title input[type="text"], #div_id_name input[type="text"] {
   margin-bottom: 20px auto !important;
  /* font-size: 1.25em; */
   padding: 0 0 5px 0;
-  color: #004D40;
+  color: #1de0b6;
   background-color: #fff;
   border: none;
 }

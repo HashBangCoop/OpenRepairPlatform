@@ -63,7 +63,9 @@ def register(request):
                                     )
             action.send(new_user, verb="a créé un compte")        
             login(request, new_user)
-            return HttpResponseRedirect(reverse("user_profile"))
+            context = {'target_user': new_user}
+            
+            return render(request, 'users/customuser_detail.html', context)
 
 
     return render(request, 'users/user_create.html', {'form': form})

@@ -7,22 +7,24 @@
 {% load django_bootstrap_breadcrumbs %}
 {% load crispy_forms_tags %}
 
+{% block title %} {{ block.super }} Créer un compte {% endblock title %}
 
-
-{% block title %} {{ block.super }} Create profile {% endblock title %}
 
 {% block form %}
-<div class="container">
-    <div class="row">
-        <div class="form col-md-6">
-            <form action="" method="post" enctype="multipart/form-data"
-                class="pure-form">{% csrf_token %}
-                {{ form|crispy }}
-                <input type="submit" value="Save" class="btn btn-primary"/>
-            </form>
-        </div>
+    <div class="row justify-content-md-center h-100">
+        
+                <div class="card">
+                    <div class="card-body">
+                        <form action="" method="post" enctype="multipart/form-data"
+                        class="form col-md-8">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="form-group no-margin">
+                            <input type="submit" value="Créer un compte" class="btn btn-primary btn-block">
+                        </div>
+                        </form>
+                    </div>
+                </div>
     </div>
-</div>
-
-
 {% endblock %}
+

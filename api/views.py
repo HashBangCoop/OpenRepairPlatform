@@ -121,7 +121,7 @@ def set_present(request):
         event.attendees.remove(person)
         event.presents.add(person)
         action.send(request.user, verb="a validé la présence de", action_object=person,  target=event)   
-
+         
         return JsonResponse({'status': "OK", 'user_id': user_id})
 
 def set_absent(request):
@@ -456,9 +456,10 @@ def add_users(request):
                     seats -= 1
                     event.attendees.add(user)
                     attending_pk += [user.pk]
-                
+           
             action.send(request.user, verb="a inscris", action_object=user,  target=event)   
-                    
+            messages.success(request, "Vous avez bien inscris le gars") 
+         
 
         event.available_seats = seats
         event.save()

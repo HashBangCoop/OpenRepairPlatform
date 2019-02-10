@@ -78,6 +78,8 @@
                 </div>
 
                   {% else %}
+                    <a href="{% url 'user_create' %}">Créer un compte</a>
+                
                     <div class="" ><a class="nav-link mr-3" href="{% url "login" %}"><i class="fa fa-user-circle-o fa-2x"></i></a></div>
                   {% endif %}
 
