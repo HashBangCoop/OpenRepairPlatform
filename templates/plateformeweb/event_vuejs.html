@@ -6,7 +6,7 @@
 
 {% block list %}
 <a :href="event.event_detail_url" style="text-decoration: none">
-    <div v-if="event.available_seats == 0" class="unaccessible">
+    <div v-if="event.available_seats <= 0" class="unaccessible">
     </div>
 
         <div class="card-header">
@@ -65,8 +65,13 @@
                     Je ne participe plus
                 </button>    
 
-                <button v-else :id="event.pk" purpose="book" class="btn btn-large btn-primary" onclick="event_list_onclick(this)">
-                    Je participe
+                <button v-else :id="event.pk" purpose="book" class="btn btn-large btn-primary" 
+                {% if request.user.is_authenticated %}
+                onclick="event_list_onclick(this)"
+                {% else %}
+                onclick="ask_login_onclick(this)"
+                {% endif %}
+                > Je participe
                 </button>
 
       
