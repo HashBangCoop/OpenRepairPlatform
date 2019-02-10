@@ -25,6 +25,11 @@
 		<div class="container h-100">
 			<div class="row justify-content-md-center h-100">
 				<div class="card-wrapper">
+
+					<div class="card margin-top20 text-center btn btn-primary">
+							Pas encore de compte ? <br>
+							<a class="card-link" href="{% url 'user_create' %}">Créez-en un</a>
+					</div>
 		
 					<div class="card fat">
 
@@ -56,13 +61,9 @@
 										Login
 									</button>
 								</div>
-								<div class="margin-top20 text-center">
-									Pas encore de compte ? <a href="{% url 'user_create' %}">Créez-en un</a>
-								</div>
 							</form>
 						</div>
 					</div>
-				
 				</div>
 			</div>
 		</div>
