@@ -15,7 +15,7 @@
                 </h5>
 
                 <span v-if="event.available_seats == 0" class="badge badge-warning">plus de place</span>
-                <span v-else class="badge badge-primary">[[ event.available_seats ]] places</span>
+                <span v-else class="badge badge-primary">[[ event.available_seats ]] places restantes</span>
 
            <!-- <button v-if="event.user_in_organizers" :id="event.pk" purpose="trash" class="card-link btn btn-danger float-right"
             style="position:absolute; right:-10px; top:-10px;" onclick="event_list_onclick(this)">
