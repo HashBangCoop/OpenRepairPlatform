@@ -35,6 +35,7 @@ function setPresent(id){
     fetch('/api/setPresent/', {
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         method: "POST",
+        csrfmiddlewaretoken: csrf_token,
         body: formBody
     })
         .then(handleErrors)
@@ -50,6 +51,7 @@ function setAbsent(id){
     fetch('/api/setAbsent/', {
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         method: "POST",
+        csrfmiddlewaretoken: csrf_token,
         body: formBody
     })
         .then(handleErrors)

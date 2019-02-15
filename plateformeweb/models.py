@@ -290,6 +290,7 @@ class Event(models.Model):
     organizers = models.ManyToManyField(
         CustomUser, related_name='organizer_user', verbose_name=_('Organizers'),
         blank=True)
+    needed_organizers = models.IntegerField(verbose_name=_("Needed organizers"),null=False, blank=True, default=0)
     location = models.ForeignKey(Place, on_delete=models.DO_NOTHING, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

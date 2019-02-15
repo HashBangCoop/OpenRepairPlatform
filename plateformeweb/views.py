@@ -405,7 +405,7 @@ class EventListView(ListView):
 
 class EventEditView(PermissionRequiredMixin, AjaxUpdateView):
     permission_required = 'plateformeweb.edit_event'
-    fields = ["title", "type", "starts_at", "ends_at", "available_seats",
+    fields = ["title", "type", "starts_at", "ends_at", "available_seats", "needed_organizers",
               "organizers", "location", "publish_at", "published",
               "organization", "condition"]
     queryset = Event.objects
@@ -475,7 +475,7 @@ class EventCreateView(CreateView):
    # permission_required = 'plateformeweb.create_event'
     template_name = 'plateformeweb/event_form.html'
     model = Event
-    fields = ["type",  "available_seats",
+    fields = ["type",  "available_seats", "needed_organizers",
               "organization", "location", "condition",
               "starts_at", "ends_at", "publish_at"]
 

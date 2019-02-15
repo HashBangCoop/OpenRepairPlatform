@@ -20,7 +20,12 @@
                 <span v-if="event.attendees_count" class="badge"> [[ event.attendees_count ]] participants</span>
 
                 <span v-if="event.organizers_count == 0" class="badge badge-danger">pas d'animateur</span>
-                <span v-else class="badge">[[ event.organizers_count ]] animateurs</span>
+                <span v-else-if="event.organizers_count <= event.needed_organizers" class="badge badge-danger">
+                    [[ event.organizers_count ]]/[[ event.needed_organizers ]] animateurs
+                </span>
+                <span v-else-if="event.organizers_count >= event.needed_organizers" class="badge badge-primary">
+                        assez d'animateurs
+                </span>
 
 
            <!-- <button v-if="event.user_in_organizers" :id="event.pk" purpose="trash" class="card-link btn btn-danger float-right"
