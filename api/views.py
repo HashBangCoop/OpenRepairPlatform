@@ -337,6 +337,8 @@ def list_events_in_context(request, context_pk=None, context_type=None, context_
                 'starts_at': event.starts_at.strftime("%H:%M"),
                 'ends_at': event.ends_at.strftime("%H:%M"),
                 'start_timestamp': event_start_timestamp,
+                'organizers_count': event.organizers.count(),
+                'attendees_count':event.attendees.count(),
                 'user_in_attendees': request.user in event.attendees.all(),
                 'user_in_presents': request.user in event.presents.all(),
                 'user_in_organizers': request.user in event.organizers.all(),

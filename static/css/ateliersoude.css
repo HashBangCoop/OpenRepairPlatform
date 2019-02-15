@@ -63,6 +63,9 @@ h1{
   position: relative; 
   top:-100px;
 }
+.sticky-100{
+  top:100px !important;
+}
 .clear{
   clear: both;
 }
@@ -79,7 +82,7 @@ h1{
   background-color: #FF5959;
 }
 
-/*
+
 .btn-primary {
   color: #fff !important;
   background-color: #1de0b6 !important;
@@ -90,7 +93,7 @@ h1{
   color: #fff !important;
   background-color: #49d3be !important;
   border-color: #FFF !important
-}*/
+}
 
 .checked:before {
   position: absolute;
@@ -141,7 +144,7 @@ h1{
 .footer {
   width: 100%;
   height: 200px;
-  background-color: rgb(21, 20, 42);
+  background-color: #1de0b6 !important;
   margin-top: 100px;
 }
 
@@ -200,7 +203,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6b5fff1', e
 }
 
 .navbar {
- background-color: #15142a !important; 
+ background-color: #1de0b6 !important; 
   padding: 05px !important;
   border: none !important;
 }
@@ -537,7 +540,7 @@ input[type="checkbox"], input[type="radio"],input[type="number"]  {
   background-color: #cecece;
   height: 140px;
   padding: 10px;
-  /*top:70px;*/
+  top:50px;
 }
 .organization {
   background-color: #1de0b6 !important;

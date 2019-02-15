@@ -14,8 +14,14 @@
                         [[event.title]]
                 </h5>
 
-                <span v-if="event.available_seats == 0" class="badge badge-warning">plus de place</span>
+                <span v-if="event.available_seats <= 0" class="badge badge-warning">plus de place</span>
                 <span v-else class="badge badge-primary">[[ event.available_seats ]] places restantes</span>
+
+                <span v-if="event.attendees_count" class="badge"> [[ event.attendees_count ]] participants</span>
+
+                <span v-if="event.organizers_count == 0" class="badge badge-danger">pas d'animateur</span>
+                <span v-else class="badge">[[ event.organizers_count ]] animateurs</span>
+
 
            <!-- <button v-if="event.user_in_organizers" :id="event.pk" purpose="trash" class="card-link btn btn-danger float-right"
             style="position:absolute; right:-10px; top:-10px;" onclick="event_list_onclick(this)">
