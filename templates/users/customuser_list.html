@@ -16,10 +16,10 @@
 {% block list %}
 
 <section class="container-fluid">
-<div class="row ml-4 py-2 d-flex justify-content-center">
+<div class="card-columns">
 
 {% for user in object_list %}
-		{% include "users/user.html" with class="row" img_class="col-12" content_class="col-12 text-center" %}
+		{% include "users/user.html" with class="row" img_class="" content_class="" %}
 {% empty %}
   <div>No users yet.</div>  
 {% endfor %}

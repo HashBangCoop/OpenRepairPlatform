@@ -30,7 +30,7 @@ body, html, .container, div, .card, ul, p {
 
 body {
    background-color: #f5faf8 !important; 
-   font-family: 'Inconsolata', monospace !important;
+  /* font-family: 'Inconsolata', monospace !important; */
 }
 a {
   /* text-decoration: none !important; */
@@ -203,7 +203,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6b5fff1', e
 }
 
 .navbar {
- background-color: #1de0b6 !important; 
+ background-color: #083342 !important; 
   padding: 05px !important;
   border: none !important;
 }
@@ -262,10 +262,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6b5fff1', e
 .card {
   margin-top : 15px !important;
   text-align: center;
-  border-radius: 0 !important;
+/*  border-radius: 0 !important; */
   border-width: 1px !important;
   border-style: solid !important;
-  box-shadow: 05px 05px 0px #CECECE99;
+ /* box-shadow: 05px 05px 0px #CECECE99; */
 }
 
 
