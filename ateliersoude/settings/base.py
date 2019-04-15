@@ -27,7 +27,7 @@ INSTALLED_APPS = [
 
     "fm",
     "simple_history",
-    "restframework",
+    "rest_framework",
 ]
 
 
@@ -61,7 +61,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.request",
-                ".user_data",
+                f"{ASP_CONTEXT}.user_data",
                 f"{ASP_CONTEXT}.last_events",
                 f"{ASP_CONTEXT}.user_in_organization",
                 f"{ASP_CONTEXT}.admin_of_organizations",
@@ -80,7 +80,7 @@ DATABASES = {
 }
 
 # custom User model
-AUTH_USER_MODEL = "ateliersoude.users.CustomUser"
+AUTH_USER_MODEL = "users.CustomUser"
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

@@ -11,8 +11,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from address.models import AddressField
-from avatar.models import AvatarField
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +83,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
 
     # https://github.com/furious-luke/django-address
-    street_address = AddressField(_("street address"), blank=True, null=True)
+    street_address = models.CharField(
+        verbose_name=_("street address"),
+        max_length=255,
+        blank=True,
+        default=''
+    )
 
     phone_number = models.CharField(
         _("phone number"), max_length=15, blank=True, null=True
@@ -93,16 +96,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     birth_date = models.DateField(_("date of birth"), blank=True, null=True)
 
-    # null is True because gender is none of our business
     # TODO maybe better put an explicit value and set a default, like 'n'
-    gender = models.CharField(max_length=1, choices=GENDERS, null=True)
+    gender = models.CharField(
+        max_length=1, choices=GENDERS, blank=True, default=GENDER_OTHER
+    )
 
-    # http://django-avatar.readthedocs.io/en/latest/
-    avatar_img = AvatarField(_("avatar"), blank=True, null=True)
-
+    avatar_img = models.ImageField(
+        verbose_name=_("Avatar"),
+        upload_to="media/avatar/",
+        null=True,
+        blank=True
+    )
     bio = models.TextField(_("bio"), blank=True, null=True)
-
-    # --- end custom fields ---
 
     objects = CustomUserManager()
 

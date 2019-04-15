@@ -24,7 +24,7 @@ from rules.contrib.views import PermissionRequiredMixin
 from django_markdown.widgets import MarkdownWidget
 from post_office import mail
 
-from users.models import CustomUser
+from ateliersoude.users.models import CustomUser
 from .models import (
     Activity,
     Condition,

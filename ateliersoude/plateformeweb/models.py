@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from address.models import AddressField
 from autoslug import AutoSlugField
 from django_markdown.models import MarkdownField
-from users.models import CustomUser
+from ateliersoude.users.models import CustomUser
 
 # ------------------------------------------------------------------------------
 
