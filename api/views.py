@@ -1,4 +1,3 @@
-import locale
 from functools import reduce
 from operator import __or__ as OR
 from urllib.parse import parse_qs
@@ -280,8 +279,6 @@ def list_events_in_context(
             all_future_events = Event.objects.filter(
                 starts_at__gte=today, published=True
             ).order_by("starts_at")
-
-        locale.setlocale(locale.LC_ALL, "fr_FR")
 
         for event in all_future_events:
             event_pk = event.pk
