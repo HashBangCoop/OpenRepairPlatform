@@ -343,7 +343,6 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def date_interval_format(self):
-        locale.setlocale(locale.LC_ALL, "fr_FR")
         starts_at_date = self.starts_at.date().strftime("%A %d %B %Y")
         starts_at_time = self.starts_at.time().strftime("%X")
         ends_at_time = self.ends_at.time().strftime("%X")
