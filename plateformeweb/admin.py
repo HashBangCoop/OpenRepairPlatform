@@ -1,32 +1,55 @@
 from django.contrib import admin
-from .models import Condition, Event, Activity, PlaceType, Place, Organization, OrganizationPerson
+
+from .models import (
+    Activity,
+    Condition,
+    Event,
+    Organization,
+    OrganizationPerson,
+    Place,
+    PlaceType,
+)
+
 
 class EventAdmin(admin.ModelAdmin):
     list_display = (
-        'type', 'organization', 'owner', 'published', 'starts_at', 'available_seats',
-        'location', 'slug')
-    ordering = ('-starts_at',)
+        "type",
+        "organization",
+        "owner",
+        "published",
+        "starts_at",
+        "available_seats",
+        "location",
+        "slug",
+    )
+    ordering = ("-starts_at",)
+
 
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ("name",)
+
 
 class ConditionAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ("name",)
+
 
 class PlaceTypeAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ("name",)
+
 
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'raw_address', 'slug')
+    list_display = ("name", "type", "raw_address", "slug")
 
     def raw_address(self, obj):
         return obj.address.raw
 
+
 class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'active')
+    list_display = ("name", "slug", "active")
+
 
 class OrganizationPersonAdmin(admin.ModelAdmin):
-    list_display = ('user','organization','role')
+    list_display = ("user", "organization", "role")
 
 
 admin.site.register(Event, EventAdmin)

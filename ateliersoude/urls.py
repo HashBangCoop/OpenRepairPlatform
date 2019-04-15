@@ -22,44 +22,41 @@ from django.views.static import serve
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.home),
-    url(r'^markdown/', include( 'django_markdown.urls')),
-    url(r'^plateformeweb/', include('plateformeweb.urls')),
-    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/settings/', include('dbsettings.urls')),
-    url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
-    url(r'^admin/', admin.site.urls),
-    url(r'^users/', include('users.urls')),
-    url(r'^auth/', include('django.contrib.auth.urls')),
-    url(r'^avatar/', include('avatar.urls')),
-    url(r'^api/', include('api.urls')),
-    url(r'^activity/', include('actstream.urls')),
+    url(r"^$", views.home),
+    url(r"^markdown/", include("django_markdown.urls")),
+    url(r"^plateformeweb/", include("plateformeweb.urls")),
+    url(r"^admin/doc/", include("django.contrib.admindocs.urls")),
+    url(r"^admin/settings/", include("dbsettings.urls")),
+    url(r"^grappelli/", include("grappelli.urls")),  # grappelli URLS
+    url(r"^admin/", admin.site.urls),
+    url(r"^users/", include("users.urls")),
+    url(r"^auth/", include("django.contrib.auth.urls")),
+    url(r"^avatar/", include("avatar.urls")),
+    url(r"^api/", include("api.urls")),
+    url(r"^activity/", include("actstream.urls")),
 ]
 
 # DEBUG toolbar if DEBUG is true in the environment
 if settings.DEBUG:
     import debug_toolbar
 
-    urlpatterns = [
-                      url(r'^__debug__/', include(debug_toolbar.urls)),
-                  ] + urlpatterns
+    urlpatterns = [url(r"^__debug__/",
+                       include(debug_toolbar.urls))] + urlpatterns
 
 # https://stackoverflow.com/questions/4938491/django-admin-change-header-django-administration-text
 
-admin.site.site_header = 'Atelier Soudé'
-admin.site.index_title = 'Administration'
-admin.site.site_title = 'Atelier Soudé Admin'
+admin.site.site_header = "Atelier Soudé"
+admin.site.index_title = "Administration"
+admin.site.site_title = "Atelier Soudé Admin"
 
 # TODO fix this before going to production
 # see https://trello.com/c/fnTkmBRk
 # works for the dev server (returns an empty list on gunicorn + whitenoise)
 if settings.DEVELOPMENT:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
 
 # and this works for gunicorn
 if settings.DEVELOPMENT:
-    urlpatterns += [
-        url(r'^media/(?P<path>.*)$', serve, {
-            'document_root': settings.MEDIA_ROOT,
-        }),
-    ]
+    urlpatterns += [url(r"^media/(?P<path>.*)$", serve,
+                        {"document_root": settings.MEDIA_ROOT})]
