@@ -11,7 +11,7 @@ if DOCKER_TEST == 'True':
             'NAME': 'postgres',
             'USER': 'postgres',
             'PASSWORD': 'mysecretpassword',
-            'HOST': 'mdillon__postgis',
+            'HOST': 'postgres',
             'PORT': '5432',
         }
     }

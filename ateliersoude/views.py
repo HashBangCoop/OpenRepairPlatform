@@ -1,8 +1,5 @@
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
-from django.shortcuts import reverse
+from django.views.generic import TemplateView
 
 
-@login_required
-def home(request):
-    return HttpResponseRedirect(reverse("homepage"))
+class HomeView(TemplateView):
+    template_name = "plateformeweb/home.html"

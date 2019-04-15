@@ -37,13 +37,6 @@ from .models import (
 logger = getLogger(__name__)
 
 
-def homepage(request):
-    if request.user.is_authenticated():
-        return redirect("/activity/")
-    else:
-        return render(request, "plateformeweb/home.html")
-
-
 def send_notification(request, target_object, target_type):
     send_to = followers(target_object)
 
