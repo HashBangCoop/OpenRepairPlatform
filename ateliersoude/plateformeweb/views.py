@@ -4,7 +4,6 @@ from logging import getLogger
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms import CharField
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -15,11 +14,9 @@ from django.views.generic import (
     ListView,
     UpdateView,
 )
-from itsdangerous import URLSafeSerializer
-from rules.contrib.views import PermissionRequiredMixin
+from django.core.signing import Signer
 
-from django_markdown.widgets import MarkdownWidget
-from post_office import mail
+from django.core.mail import send_mail
 
 from ateliersoude.users.models import CustomUser
 from .models import (
@@ -33,6 +30,8 @@ from .models import (
 
 logger = getLogger(__name__)
 
+signer = Signer()
+
 
 def send_notification(notification, activity):
     send_to = activity.participants.all()
@@ -45,11 +44,11 @@ def send_notification(notification, activity):
     subject = "nouvelle notification"
 
     for user in send_to:
-        mail.send(
-            [user.email],
+        send_mail(
+            subject,
+            msg_plain,
             "no-reply@atelier-soude.fr",
-            subject=subject,
-            message=msg_plain,
+            [user.email],
             html_message=msg_html,
         )
 
@@ -85,7 +84,7 @@ class OrganizationFormView:
         if form_class is None:
             form_class = self.get_form_class()
         form = super().get_form(form_class)
-        form.fields["description"] = CharField(widget=MarkdownWidget())
+        form.fields["description"] = forms.CharField()
         return form
 
     def get_success_url(self):
@@ -94,10 +93,7 @@ class OrganizationFormView:
         )
 
 
-class OrganizationCreateView(
-        PermissionRequiredMixin,
-        OrganizationFormView,
-        CreateView):
+class OrganizationCreateView(OrganizationFormView, CreateView):
     permission_required = "plateformeweb.create_organization"
 
 
@@ -155,7 +151,7 @@ class PlaceFormView:
         if form_class is None:
             form_class = self.get_form_class()
         form = super().get_form(form_class)
-        form.fields["description"] = CharField(widget=MarkdownWidget())
+        form.fields["description"] = forms.CharField()
         return form
 
     def get_success_url(self):
@@ -228,7 +224,7 @@ class ConditionFormView:
         form = super().get_form(form_class)
 
         limited_choices = [["", "---------"]]
-        form.fields["description"] = CharField(widget=MarkdownWidget())
+        form.fields["description"] = forms.CharField()
         user_orgs = OrganizationPerson.objects.filter(
             user=self.request.user, role__gte=OrganizationPerson.ADMIN
         )
@@ -286,10 +282,10 @@ class ActivityFormView:
         if form_class is None:
             form_class = self.get_form_class()
         form = super().get_form(form_class)
-        form.fields["description"] = CharField(widget=MarkdownWidget())
+        form.fields["description"] = forms.CharField()
 
         limited_choices = [["", "---------"]]
-        form.fields["description"] = CharField(widget=MarkdownWidget())
+        form.fields["description"] = forms.CharField()
         user_orgs = OrganizationPerson.objects.filter(
             user=self.request.user, role__gte=OrganizationPerson.ADMIN
         )
@@ -336,8 +332,7 @@ class ActivityEditView(ActivityFormView, AjaxUpdateView):
 
 
 def cancel_reservation(request, token):
-    s = URLSafeSerializer("some_secret_key", salt="cancel_reservation")
-    ret = s.loads(token)
+    ret = signer.loads(token)
     event_id = ret["event_id"]
     user_id = ret["user_id"]
     event = Event.objects.get(pk=event_id)
@@ -399,7 +394,7 @@ class EventListView(ListView):
 # --- edit ---
 
 
-class EventEditView(PermissionRequiredMixin, AjaxUpdateView):
+class EventEditView(AjaxUpdateView):
     permission_required = "plateformeweb.edit_event"
     fields = [
         "title",
@@ -425,12 +420,9 @@ class BookingFormView:
         user_id = user.id
         event_id = event.id
 
-        serial = URLSafeSerializer(
-            "some_secret_key",
-            salt="cancel_reservation")
         data = {"event_id": event_id, "user_id": user_id}
 
-        cancel_token = serial.dumps(data)
+        cancel_token = signer.dumps(data)
         cancel_url = reverse("cancel_reservation", args=[cancel_token])
         cancel_url = self.request.build_absolute_uri(cancel_url)
 
@@ -449,11 +441,11 @@ class BookingFormView:
         location = event.location.name
         subject = "Votre réservation pour le " + date + " à " + location
 
-        mail.send(
-            [user.email],
+        send_mail(
+            subject,
+            msg_plain,
             "no-reply@atelier-soude.fr",
-            subject=subject,
-            message=msg_plain,
+            [user.email],
             html_message=msg_html,
         )
 
@@ -466,11 +458,8 @@ class BookingEditView(BookingFormView, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event_id = context["event"].id
-
-        serial = URLSafeSerializer("some_secret_key", salt="book")
-
         data = {"event_id": event_id}
-        context["booking_id"] = serial.dumps(data)
+        context["booking_id"] = signer.dumps(data)
         return context
 
 
