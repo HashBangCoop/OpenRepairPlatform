@@ -1,32 +1,31 @@
-from django.contrib.auth import authenticate, login
-
-from ateliersoude.event.models import Event
-from .forms import CustomUserCreationForm, UserForm
-
 from fm.views import AjaxUpdateView
 
 from django import forms
+from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    ListView,
-)
+from django.views.generic import CreateView, DetailView, ListView
 
-
+from ateliersoude.event.models import Event
 from ateliersoude.user.models import CustomUser, Organization
+
+from .forms import CustomUserCreationForm, UserForm
 
 
 def user_profile(request):
     if request.method == "GET":
-        return render(request,
-                      "user/user_profile.html",
-                      {"user_form": UserForm(instance=request.user,
-                                             label_suffix="",
-                                             auto_id="field_id_%")},
-                      )
+        return render(
+            request,
+            "user/user_profile.html",
+            {
+                "user_form": UserForm(
+                    instance=request.user,
+                    label_suffix="",
+                    auto_id="field_id_%",
+                )
+            },
+        )
 
     else:
         user_form = UserForm(
@@ -35,19 +34,24 @@ def user_profile(request):
         if user_form.is_valid():
             user_form.save()
             # action.send(request.user, verb="a modifié ses informations")
-        return render(request,
-                      "user/user_profile.html",
-                      {"user_form": user_form})
+        return render(
+            request, "user/user_profile.html", {"user_form": user_form}
+        )
 
 
 def list_users(request):
     if request.method == "GET":
-        return render(request,
-                      "user/user_profile.html",
-                      {"user_form": UserForm(instance=request.user,
-                                             label_suffix="",
-                                             auto_id="field_id_%")},
-                      )
+        return render(
+            request,
+            "user/user_profile.html",
+            {
+                "user_form": UserForm(
+                    instance=request.user,
+                    label_suffix="",
+                    auto_id="field_id_%",
+                )
+            },
+        )
     else:
         return
 
@@ -151,5 +155,3 @@ def OrganizationManager(request, pk):
     if request.user in organization_admins:
         context = {"organization": organization}
     return render(request, "plateformeweb/organization_manager.html", context)
-
-

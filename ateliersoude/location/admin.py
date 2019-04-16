@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from ateliersoude.location.models import PlaceType, Place
+from ateliersoude.location.models import Place, PlaceType
 
 
 class PlaceTypeAdmin(admin.ModelAdmin):

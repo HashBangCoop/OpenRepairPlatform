@@ -5,7 +5,7 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from ateliersoude.location.models import Place
-from ateliersoude.user.models import Organization, CustomUser
+from ateliersoude.user.models import CustomUser, Organization
 
 
 class Condition(models.Model):
@@ -25,9 +25,13 @@ class Condition(models.Model):
     )
     description = models.TextField(
         verbose_name=_("Condition description"),
-        null=False, blank=False, default="")
+        null=False,
+        blank=False,
+        default="",
+    )
     organization = models.ForeignKey(
-        Organization, on_delete=models.CASCADE, null=True)
+        Organization, on_delete=models.CASCADE, null=True
+    )
     price = models.IntegerField(
         verbose_name=_("Price"), null=False, blank=True, default=5
     )
@@ -47,13 +51,17 @@ class Activity(models.Model):
     )
     slug = models.SlugField(default="", unique=False)
     organization = models.ForeignKey(
-        Organization, on_delete=models.SET_NULL, null=True)
+        Organization, on_delete=models.SET_NULL, null=True
+    )
     description = models.TextField(
         verbose_name=_("Activity description"),
-        null=False, blank=False, default="")
+        null=False,
+        blank=False,
+        default="",
+    )
     picture = models.ImageField(
-        verbose_name=_("Image"),
-        upload_to="activities/")
+        verbose_name=_("Image"), upload_to="activities/"
+    )
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -75,9 +83,11 @@ class Event(models.Model):
         max_length=150,
         null=True,
         blank=True,
-        default="")
+        default="",
+    )
     organization = models.ForeignKey(
-        Organization, on_delete=models.CASCADE, null=False)
+        Organization, on_delete=models.CASCADE, null=False
+    )
     condition = models.ManyToManyField(
         Condition,
         related_name="condition_activity",
@@ -121,7 +131,8 @@ class Event(models.Model):
         CustomUser,
         related_name="present_user",
         verbose_name=_("Presents"),
-        blank=True)
+        blank=True,
+    )
     organizers = models.ManyToManyField(
         CustomUser,
         related_name="organizer_user",

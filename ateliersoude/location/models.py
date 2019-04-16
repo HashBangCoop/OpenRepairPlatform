@@ -3,14 +3,14 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from ateliersoude.user.models import Organization, CustomUser
+from ateliersoude.user.models import CustomUser, Organization
 
 
 class PlaceType(models.Model):
     name = models.CharField(
         max_length=100, verbose_name=_("Type"), null=False, blank=False
     )
-    slug = models.SlugField(unique=True, default='')
+    slug = models.SlugField(unique=True, default="")
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -29,12 +29,16 @@ class Place(models.Model):
         max_length=100, null=False, blank=False, verbose_name=_("Name")
     )
     organization = models.ForeignKey(
-        Organization, on_delete=models.CASCADE, null=False)
+        Organization, on_delete=models.CASCADE, null=False
+    )
     owner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
 
     description = models.TextField(
         verbose_name=_("Place description"),
-        null=False, blank=False, default="")
+        null=False,
+        blank=False,
+        default="",
+    )
 
     type = models.ForeignKey(
         PlaceType,
@@ -49,7 +53,7 @@ class Place(models.Model):
         verbose_name=_("street address"),
         max_length=255,
         blank=True,
-        default=''
+        default="",
     )
     picture = models.ImageField(verbose_name=_("Image"), upload_to="places/")
 

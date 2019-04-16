@@ -18,12 +18,8 @@ logger = logging.getLogger(__name__)
 
 class CustomUserManager(BaseUserManager):
     def _create_user(
-            self,
-            email,
-            password,
-            is_staff,
-            is_superuser,
-            **extra_fields):
+        self, email, password, is_staff, is_superuser, **extra_fields
+    ):
         """
         Creates and saves a User with the given email and password.
         """
@@ -71,8 +67,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(_("last name"), max_length=30, blank=True)
     is_staff = models.BooleanField(
         _("staff status"),
-        default=False, help_text=_(
-            "Designates whether the user can log into this admin " "site."), )
+        default=False,
+        help_text=_(
+            "Designates whether the user can log into this admin " "site."
+        ),
+    )
     is_active = models.BooleanField(
         _("active"),
         default=True,
@@ -87,7 +86,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name=_("street address"),
         max_length=255,
         blank=True,
-        default=''
+        default="",
     )
 
     phone_number = models.CharField(
@@ -105,7 +104,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name=_("Avatar"),
         upload_to="media/avatar/",
         null=True,
-        blank=True
+        blank=True,
     )
     bio = models.TextField(_("bio"), blank=True, null=True)
 
@@ -126,7 +125,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return full_name.strip()
 
     def get_short_name(self):
-        "Returns the short name for the user."
+        """Returns the short name for the user."""
         return self.first_name
 
     def get_absolute_url(self):
@@ -148,12 +147,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 class Organization(models.Model):
     name = models.CharField(
-        max_length=100, null=False, blank=False,
-        verbose_name=_("Organization name"))
+        max_length=100,
+        null=False,
+        blank=False,
+        verbose_name=_("Organization name"),
+    )
     owner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     description = models.TextField(
         verbose_name=_("Activity description"),
-        null=False, blank=False, default="")
+        null=False,
+        blank=False,
+        default="",
+    )
     picture = models.ImageField(
         verbose_name=_("Image"), upload_to="organizations/", null=True
     )
@@ -298,4 +303,3 @@ Organization.admins = get_admins
 Organization.visitors = get_visitors
 Organization.members = get_members
 Organization.volunteers = get_volunteers
-

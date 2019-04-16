@@ -3,15 +3,19 @@ import datetime
 from django import forms
 from django.core import signing
 from django.core.mail import send_mail
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, UpdateView, DetailView, ListView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
-from ateliersoude.event.models import Condition, Activity, Event
+from ateliersoude.event.models import Activity, Condition, Event
 from ateliersoude.location.models import Place
-from ateliersoude.user.models import OrganizationPerson, CustomUser, Organization
+from ateliersoude.user.models import (
+    CustomUser,
+    Organization,
+    OrganizationPerson,
+)
 
 
 def send_notification(notification, activity):
@@ -32,6 +36,7 @@ def send_notification(notification, activity):
             [user.email],
             html_message=msg_html,
         )
+
 
 class ConditionView(DetailView):
     model = Condition
@@ -64,8 +69,8 @@ class ConditionFormView:
 
     def get_success_url(self):
         return reverse_lazy(
-            "activity_detail", args=(
-                self.object.pk, self.object.slug))
+            "activity_detail", args=(self.object.pk, self.object.slug)
+        )
 
 
 class ConditionCreateView(ConditionFormView, CreateView):
@@ -125,8 +130,8 @@ class ActivityFormView:
 
     def get_success_url(self):
         return reverse_lazy(
-            "activity_detail", args=(
-                self.object.pk, self.object.slug))
+            "activity_detail", args=(self.object.pk, self.object.slug)
+        )
 
 
 class ActivityCreateView(ActivityFormView, CreateView):
@@ -137,7 +142,7 @@ class ActivityCreateView(ActivityFormView, CreateView):
         obj = form.save()
         obj.owner = self.request.user
         # Make messages django for information : "'user' a créé" Action
-        notification = f'{obj.owner} a créé {obj}'
+        notification = f"{obj.owner} a créé {obj}"
         send_notification(notification, activity=obj)
         return super().form_valid(form)
 
@@ -150,7 +155,7 @@ class ActivityEditView(ActivityFormView, UpdateView):
         obj = form.save(commit=False)
         obj.owner = self.request.user
         # Make messages django for information : "'user' a modifié" Action
-        notification = f'{obj.owner} a modifié {obj}'
+        notification = f"{obj.owner} a modifié {obj}"
         send_notification(notification, activity=obj)
         return super().form_valid(form)
 
@@ -259,7 +264,8 @@ class BookingFormView:
         params = {
             "cancel_url": cancel_url,
             "event_url": event_url,
-            "event": event}
+            "event": event,
+        }
 
         msg_plain = render_to_string("mail/relance.html", params)
         msg_html = render_to_string("mail/relance.html", params)
@@ -326,7 +332,8 @@ class EventCreateView(CreateView):
 
         event_type = Activity.objects.get(pk=request.POST["type"])
         organization = Organization.objects.get(
-            pk=request.POST["organization"])
+            pk=request.POST["organization"]
+        )
         available_seats = int(request.POST["available_seats"])
         location = Place.objects.get(pk=request.POST["location"])
 
@@ -424,6 +431,7 @@ class MassBookingCreateView(CreateView):
 
     def get_success_url(self):
         return render(
-            self.request, "plateformeweb/event_list.html",
-            message="c'est tout bon"
+            self.request,
+            "plateformeweb/event_list.html",
+            message="c'est tout bon",
         )

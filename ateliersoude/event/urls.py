@@ -14,9 +14,7 @@ urlpatterns = [
         views.ConditionEditView.as_view(),
         name="condition_edit",
     ),
-    path("activity/",
-         views.ActivityListView.as_view(),
-         name="activity_list"),
+    path("activity/", views.ActivityListView.as_view(), name="activity_list"),
     path(
         "activity/create/",
         views.ActivityCreateView.as_view(),
@@ -33,9 +31,9 @@ urlpatterns = [
         name="activity_detail",
     ),
     path("event/", views.EventListView.as_view(), name="event_list"),
-    path("event/create/",
-         views.EventCreateView.as_view(),
-         name="event_create"),
+    path(
+        "event/create/", views.EventCreateView.as_view(), name="event_create"
+    ),
     path(
         "event/cancel_reservation/<token>/",
         views.cancel_reservation,

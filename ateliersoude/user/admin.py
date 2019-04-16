@@ -3,12 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
-
-from .models import (
-    CustomUser,
-    Organization,
-    OrganizationPerson,
-)
+from .models import CustomUser, Organization, OrganizationPerson
 
 
 class CustomUserAdmin(UserAdmin):
@@ -47,10 +42,14 @@ class CustomUserAdmin(UserAdmin):
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
     add_fieldsets = (
-        (None, {
-            "classes": (
-                "wide",), "fields": (
-                "email", "password1", "password2")}), )
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("email", "password1", "password2"),
+            },
+        ),
+    )
     form = CustomUserChangeForm
     add_form = CustomUserCreationForm
     list_display = ("email", "first_name", "last_name", "is_staff")

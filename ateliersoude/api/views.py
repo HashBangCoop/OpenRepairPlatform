@@ -3,6 +3,7 @@ from operator import __or__ as OR
 from urllib.parse import parse_qs
 
 from django.core import signing
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -12,8 +13,11 @@ from django.utils import timezone
 
 from ateliersoude.event.models import Event
 from ateliersoude.location.models import Place
-from django.core.mail import send_mail
-from ateliersoude.user.models import CustomUser
+from ateliersoude.user.models import (
+    CustomUser,
+    Organization,
+    OrganizationPerson,
+)
 
 
 # mailers #
@@ -123,7 +127,6 @@ def get_organizations(request):
         # TODO change this
         return HttpResponse("Circulez, il n'y a rien à voir")
     else:
-        person = CustomUser.objects.get(email=request.user)
         organizations = OrganizationPerson.objects.filter(user=request.user)
         volunteer_of = {}
         for person in organizations:
@@ -145,12 +148,13 @@ def get_all_places(request):
             place_pk = place.pk
             organization = place.organization
             organization_detail_url = reverse(
-                "organization_detail", args=[
-                    organization.pk, organization.slug])
+                "organization_detail",
+                args=[organization.pk, organization.slug],
+            )
 
             place_detail_url = reverse(
-                "place_detail", args=[
-                    place_pk, place_slug])
+                "place_detail", args=[place_pk, place_slug]
+            )
 
             longitude = place.address.longitude
             latitude = place.address.latitude
@@ -214,12 +218,12 @@ def get_dates(request):
 
 
 def list_events_in_context(
-        request,
-        context_pk=None,
-        context_type=None,
-        context_user=None,
-        context_place=None,
-        context_org=None,
+    request,
+    context_pk=None,
+    context_type=None,
+    context_user=None,
+    context_place=None,
+    context_org=None,
 ):
     if request.method != "GET":
         # TODO change this
@@ -240,8 +244,10 @@ def list_events_in_context(
         elif context_org:
             this_organization = Organization.objects.get(pk=context_pk)
             all_future_events = Event.objects.filter(
-                organization=this_organization, starts_at__gte=today,
-                published=True).order_by("starts_at")
+                organization=this_organization,
+                starts_at__gte=today,
+                published=True,
+            ).order_by("starts_at")
 
         elif context_user:
             lst = [
@@ -250,9 +256,9 @@ def list_events_in_context(
                 Q(organizers__pk=context_pk),
             ]
             all_future_events = (
-                Event.objects.filter(reduce(OR, lst)).filter(
-                    starts_at__gte=today, published=True
-                ).order_by("starts_at")
+                Event.objects.filter(reduce(OR, lst))
+                .filter(starts_at__gte=today, published=True)
+                .order_by("starts_at")
             )
 
         else:
@@ -264,8 +270,8 @@ def list_events_in_context(
             event_pk = event.pk
             event_slug = event.slug
             event_detail_url = reverse(
-                "event_detail", args=[
-                    event_pk, event_slug])
+                "event_detail", args=[event_pk, event_slug]
+            )
             event_start_timestamp = event.starts_at.timestamp() * 1000
             organization = event.organization
             place = event.location
@@ -275,8 +281,9 @@ def list_events_in_context(
                 organization_slug = organization.slug
                 organization_pk = organization.pk
                 organization_detail_url = reverse(
-                    "organization_detail", args=[
-                        organization_pk, organization_slug])
+                    "organization_detail",
+                    args=[organization_pk, organization_slug],
+                )
                 organizations[organization_pk] = {
                     "pk": organization_pk,
                     "name": organization.name,
@@ -288,8 +295,8 @@ def list_events_in_context(
                 place_slug = place.slug
                 place_pk = place.pk
                 place_detail_url = reverse(
-                    "place_detail", args=[
-                        place_pk, place_slug])
+                    "place_detail", args=[place_pk, place_slug]
+                )
                 places[place_pk] = {
                     "pk": place_pk,
                     "name": place.name,
@@ -313,28 +320,29 @@ def list_events_in_context(
                 }
 
             events += [
-                {"pk": event.pk,
-                 "title": event.title,
-                 "slug": event_slug,
-                 "available_seats": event.available_seats,
-                 "type_picture_url": event.type.picture.url,
-                 "event_detail_url": event_detail_url,
-                 "book_url": reverse("booking_form",
-                                     args=[event_pk]),
-                 "edit_url": reverse("event_edit",
-                                     args=[event_pk]),
-                 "organization_pk": organization.pk,
-                 "place_pk": event.location.pk,
-                 "type_pk": event.type.pk,
-                 "published": event.published,
-                 "starts_at": event.starts_at.strftime("%H:%M"),
-                 "ends_at": event.ends_at.strftime("%H:%M"),
-                 "start_timestamp": event_start_timestamp,
-                 "user_in_attendees": request.user in event.attendees.all(),
-                 "user_in_presents": request.user in event.presents.all(),
-                 "user_in_organizers": request.user in event.organizers.all(),
-                 "day_month_str": event.starts_at.strftime("%d %B"),
-                 }]
+                {
+                    "pk": event.pk,
+                    "title": event.title,
+                    "slug": event_slug,
+                    "available_seats": event.available_seats,
+                    "type_picture_url": event.type.picture.url,
+                    "event_detail_url": event_detail_url,
+                    "book_url": reverse("booking_form", args=[event_pk]),
+                    "edit_url": reverse("event_edit", args=[event_pk]),
+                    "organization_pk": organization.pk,
+                    "place_pk": event.location.pk,
+                    "type_pk": event.type.pk,
+                    "published": event.published,
+                    "starts_at": event.starts_at.strftime("%H:%M"),
+                    "ends_at": event.ends_at.strftime("%H:%M"),
+                    "start_timestamp": event_start_timestamp,
+                    "user_in_attendees": request.user in event.attendees.all(),
+                    "user_in_presents": request.user in event.presents.all(),
+                    "user_in_organizers": request.user
+                    in event.organizers.all(),
+                    "day_month_str": event.starts_at.strftime("%d %B"),
+                }
+            ]
 
         return JsonResponse(
             {
@@ -397,16 +405,20 @@ def list_users(request, organization_pk, event_pk):
         user = CustomUser.objects.get(email=request.user.email)
         organization = Organization.objects.get(pk=organization_pk)
         user_is_admin = OrganizationPerson.objects.get(
-            user=user, organization=organization,
-            role__gte=OrganizationPerson.ADMIN)
+            user=user,
+            organization=organization,
+            role__gte=OrganizationPerson.ADMIN,
+        )
         if not user_is_admin:
             return JsonResponse({"status": -1})
 
         users = OrganizationPerson.objects.filter(organization=organization)
         event = Event.objects.get(pk=event_pk)
         every_attendee = (
-                event.attendees.all() | event.presents.all()
-                | event.organizers.all())
+            event.attendees.all()
+            | event.presents.all()
+            | event.organizers.all()
+        )
         users_dict = []
         for user in users:
             if user.user not in every_attendee:
@@ -431,8 +443,10 @@ def add_users(request):
         user_list = post_data["user_list"][0].split(",")
         event = Event.objects.get(pk=event_pk)
         every_attendee = (
-                event.attendees.all() | event.presents.all()
-                | event.organizers.all())
+            event.attendees.all()
+            | event.presents.all()
+            | event.organizers.all()
+        )
         seats = event.available_seats
         presents_pk = []
         attending_pk = []

@@ -12,20 +12,20 @@ urlpatterns = [
     path(
         "getPlacesForOrganization/",
         views.get_places_for_organization,
-        name="get_places_for_organization"
+        name="get_places_for_organization",
     ),
     path("getPlaces/", views.get_all_places, name="get_all_places"),
     path("getDates/", views.get_dates, name="get_dates"),
     path(
         "getUsers/<int:organization_pk>/(<int:event_pk>/",
         views.list_users,
-        name="list_users"
+        name="list_users",
     ),
     path("addUsers/", views.add_users, name="add_users"),
     path(
         "list_events/",
         views.list_events_in_context,
-        name="list_events_in_context"
+        name="list_events_in_context",
     ),
     path(
         "list_events_user/<int:context_pk>/",

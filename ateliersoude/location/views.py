@@ -3,10 +3,7 @@ from fm.views import AjaxCreateView, AjaxUpdateView
 from django import forms
 from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy
-from django.views.generic import (
-    DetailView,
-    ListView,
-)
+from django.views.generic import DetailView, ListView
 
 from ateliersoude.location.models import Place
 
@@ -36,7 +33,8 @@ class PlaceFormView:
         "type",
         "address",
         "picture",
-        "organization"]
+        "organization",
+    ]
 
     def get_form(self, form_class=None):
         if form_class is None:
@@ -47,8 +45,8 @@ class PlaceFormView:
 
     def get_success_url(self):
         return reverse_lazy(
-            "place_detail", args=(
-                self.object.pk, self.object.slug))
+            "place_detail", args=(self.object.pk, self.object.slug)
+        )
 
 
 class PlaceCreateView(PlaceFormView, AjaxCreateView):

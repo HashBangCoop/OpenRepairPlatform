@@ -7,29 +7,68 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Place',
+            name="Place",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('description', models.TextField(default='', verbose_name='Place description')),
-                ('slug', models.SlugField(default='', unique=True)),
-                ('address', models.CharField(blank=True, default='', max_length=255, verbose_name='street address')),
-                ('picture', models.ImageField(upload_to='places/', verbose_name='Image')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=100, verbose_name="Name"),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        default="", verbose_name="Place description"
+                    ),
+                ),
+                ("slug", models.SlugField(default="", unique=True)),
+                (
+                    "address",
+                    models.CharField(
+                        blank=True,
+                        default="",
+                        max_length=255,
+                        verbose_name="street address",
+                    ),
+                ),
+                (
+                    "picture",
+                    models.ImageField(
+                        upload_to="places/", verbose_name="Image"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
         ),
         migrations.CreateModel(
-            name='PlaceType',
+            name="PlaceType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, verbose_name='Type')),
-                ('slug', models.SlugField(default='', unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=100, verbose_name="Type"),
+                ),
+                ("slug", models.SlugField(default="", unique=True)),
             ],
         ),
     ]
