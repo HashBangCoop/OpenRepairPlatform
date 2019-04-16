@@ -82,7 +82,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
 
-    # https://github.com/furious-luke/django-address
     street_address = models.CharField(
         verbose_name=_("street address"),
         max_length=255,

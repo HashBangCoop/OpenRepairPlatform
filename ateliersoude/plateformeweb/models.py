@@ -1,14 +1,10 @@
-import locale
-
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from address.models import AddressField
-from autoslug import AutoSlugField
-from django_markdown.models import MarkdownField
 from ateliersoude.users.models import CustomUser
 
 # ------------------------------------------------------------------------------
@@ -19,16 +15,19 @@ class Organization(models.Model):
         max_length=100, null=False, blank=False,
         verbose_name=_("Organization name"))
     owner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
-    description = MarkdownField(
+    description = models.TextField(
         verbose_name=_("Activity description"),
         null=False, blank=False, default="")
     picture = models.ImageField(
         verbose_name=_("Image"), upload_to="organizations/", null=True
     )
     active = models.BooleanField(verbose_name=_("Active"))
-    slug = AutoSlugField(populate_from="name", unique=True, default="")
+    slug = models.SlugField(unique=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
 
     def __str__(self):
         return self.name
@@ -171,13 +170,17 @@ class PlaceType(models.Model):
     name = models.CharField(
         max_length=100, verbose_name=_("Type"), null=False, blank=False
     )
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = models.SlugField(unique=True, default='')
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
 
     def __str__(self):
         return self.slug
 
-    def get_other_place():
-        return PlaceType.get_or_create(name="Other")[0]
+    @classmethod
+    def get_other_place(cls):
+        return Place.objects.get_or_create(name="Other")[0]
 
 
 class Place(models.Model):
@@ -188,7 +191,7 @@ class Place(models.Model):
         Organization, on_delete=models.CASCADE, null=False)
     owner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
 
-    description = MarkdownField(
+    description = models.TextField(
         verbose_name=_("Place description"),
         null=False, blank=False, default="")
 
@@ -199,15 +202,21 @@ class Place(models.Model):
         on_delete=models.SET(PlaceType.get_other_place),
     )
 
-    slug = AutoSlugField(populate_from="name", default="", unique=True)
+    slug = models.SlugField(default="", unique=True)
     # geolocation is provided by the AddressField
-    address = AddressField(
-        null=False, blank=False, default="", verbose_name=_("Postal address")
+    address = models.CharField(
+        verbose_name=_("street address"),
+        max_length=255,
+        blank=True,
+        default=''
     )
     picture = models.ImageField(verbose_name=_("Image"), upload_to="places/")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
 
     def get_absolute_url(self):
         return reverse("place_detail", args=(self.pk, self.slug))
@@ -258,15 +267,18 @@ class Activity(models.Model):
         blank=False,
         default="",
     )
-    slug = AutoSlugField(populate_from=("name"), default="", unique=False)
+    slug = models.SlugField(default="", unique=False)
     organization = models.ForeignKey(
         Organization, on_delete=models.SET_NULL, null=True)
-    description = MarkdownField(
+    description = models.TextField(
         verbose_name=_("Activity description"),
         null=False, blank=False, default="")
     picture = models.ImageField(
         verbose_name=_("Image"),
         upload_to="activities/")
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
 
     def __str__(self):
         return self.name
@@ -304,7 +316,7 @@ class Event(models.Model):
         default=timezone.now,
     )
     type = models.ForeignKey(Activity, on_delete=models.DO_NOTHING)
-    slug = AutoSlugField(populate_from=("title"), default="", unique=True)
+    slug = models.SlugField(default="", unique=True)
     starts_at = models.DateTimeField(
         verbose_name=_("Start date and time"),
         null=False,
@@ -341,6 +353,9 @@ class Event(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
 
     def date_interval_format(self):
         starts_at_date = self.starts_at.date().strftime("%A %d %B %Y")
