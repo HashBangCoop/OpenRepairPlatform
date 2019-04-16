@@ -15,19 +15,19 @@
                     <a href="{% url "homepage" %}">Accueil</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url "plateformeweb:event_list" %}">Dates</a>
+                    <a href="{% url "event:event_list" %}">Dates</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url "plateformeweb:activity_list" %}">Activités</a>
+                    <a href="{% url "event:activity_list" %}">Activités</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url "plateformeweb:place_list" %}">Lieux</a>
+                    <a href="{% url "location:place_list" %}">Lieux</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url "users:user_list" %}">Communauté</a>
+                    <a href="{% url "user:user_list" %}">Communauté</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url "plateformeweb:organization_list" %}">Organisations</a>
+                    <a href="{% url "user:organization_list" %}">Organisations</a>
                 </li>
               </ul>
             </div>
@@ -62,7 +62,7 @@
                                 {% endif %}
                             {% endfor %}
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url "plateformeweb:mass_event_book" %}">Signaler mes disponibilités</a>
+                        <a class="dropdown-item" href="{% url "event:mass_event_book" %}">Signaler mes disponibilités</a>
                         <a class="nav-link" href="{% url 'logout' %}" title="Logout">Déconnexion</a>
                       </div>
                   </div>

@@ -1,30 +1,14 @@
 from fm.views import AjaxCreateView, AjaxUpdateView
-from logging import getLogger
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.template.loader import render_to_string
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic import (
-    CreateView,
     DetailView,
     ListView,
-    UpdateView,
 )
 
-from django.core.mail import send_mail
-
-from ateliersoude.users.models import CustomUser
-from .models import (
-    Activity,
-    Condition,
-    Event,
-    Organization,
-    OrganizationPerson,
-    Place,
-)
+from ateliersoude.location.models import Place
 
 
 class PlaceView(DetailView):
@@ -39,8 +23,7 @@ class PlaceListView(ListView):
     model = Place
 
     def get_context_data(self, **kwargs):
-        context = {}
-        context["list_type"] = "place"
+        context = {"list_type": "place"}
         return context
 
 

@@ -10,9 +10,10 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
-from ateliersoude.plateformeweb.models import Event, Place
+from ateliersoude.event.models import Event
+from ateliersoude.location.models import Place
 from django.core.mail import send_mail
-from ateliersoude.users.models import CustomUser
+from ateliersoude.user.models import CustomUser
 
 
 # mailers #
@@ -416,7 +417,7 @@ def list_users(request, organization_pk, event_pk):
                     "role": user.role,
                 }
                 users_dict += [new_user]
-        return JsonResponse({"status": "OK", "users": users_dict})
+        return JsonResponse({"status": "OK", "user": users_dict})
 
 
 def add_users(request):

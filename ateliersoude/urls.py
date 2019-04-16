@@ -17,7 +17,7 @@ urlpatterns = [
         "location/",
         include("ateliersoude.location.urls", namespace='location')
     ),
-    path("users/", include("ateliersoude.users.urls", namespace='users')),
+    path("user/", include("ateliersoude.user.urls", namespace='user')),
     path("api/", include("ateliersoude.api.urls")),
 ]
 

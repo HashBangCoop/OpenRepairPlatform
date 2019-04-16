@@ -1,5 +1,8 @@
 from django.contrib import admin
 
+from ateliersoude.location.models import PlaceType, Place
+
+
 class PlaceTypeAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
@@ -9,8 +12,6 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def raw_address(self, obj):
         return obj.address.raw
-
-
 
 
 admin.site.register(PlaceType, PlaceTypeAdmin)

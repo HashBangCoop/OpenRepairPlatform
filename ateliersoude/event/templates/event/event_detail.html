@@ -157,9 +157,9 @@
 
 {% block about %}
 
-<!-- Add users to event : attendees if date_event < current_date , presents if date_event = current_date -->
+<!-- Add user to event : attendees if date_event < current_date , presents if date_event = current_date -->
 
-<!-- end add users to event -->
+<!-- end add user to event -->
 {% if request.user.is_authenticated and request.user in admin_or_volunteer %}
 
 
@@ -174,20 +174,20 @@
 <div class="card-columns">
 
     {% for user in event.organizers.all %}
-        {% include "users/user.html" with float="float-left" class="row checked administrator" orga=True img_class="col-12" content_class="col-12 text-center" %}
+        {% include "user/user.html" with float="float-left" class="row checked administrator" orga=True img_class="col-12" content_class="col-12 text-center" %}
     {% endfor %}
 
     {% for user in admin_or_volunteer %}
         {% if user in event.attendees.all %}
-            {% include "users/user.html" with float="float-left" class="row" user_id=user.id img_class="col-12" content_class="col-12 text-center" absentee=True userid=user.id|serialize_id:event.id %}
+            {% include "user/user.html" with float="float-left" class="row" user_id=user.id img_class="col-12" content_class="col-12 text-center" absentee=True userid=user.id|serialize_id:event.id %}
         {% endif %}
         {% if user in event.presents.all %}
-            {% include "users/user.html" with float="float-left" class="row checked" user_id=user.id img_class="col-12" content_class="col-12 text-center" absentee=True userid=user.id|serialize_id:event.id %}
+            {% include "user/user.html" with float="float-left" class="row checked" user_id=user.id img_class="col-12" content_class="col-12 text-center" absentee=True userid=user.id|serialize_id:event.id %}
         {% endif %}
     {% endfor %}
 
 </div>
-<!-- End users that have a role in the organization -->
+<!-- End user that have a role in the organization -->
 
 <!-- Attendees and presents -->
 
@@ -198,17 +198,17 @@
 <!-- display presents for admin or volonteers -->
         {% for user in event.presents.all %}
             {% if user not in admin_or_volunteer %}
-                {% include "users/user.html" with float="float-left" class="row checked" user_id=user.id img_class="col-12" content_class="col-12" absentee=False userid=user.id|serialize_id:event.id %}
+                {% include "user/user.html" with float="float-left" class="row checked" user_id=user.id img_class="col-12" content_class="col-12" absentee=False userid=user.id|serialize_id:event.id %}
             {% endif %}
         {% endfor %}
         {% for user in event.attendees.all %}
             {% if user not in admin_or_volunteer %}
-                {% include "users/user.html" with float="float-left" class="row" user_id=user.id img_class="col-12" content_class="col-12" absentee=True userid=user.id|serialize_id:event.id %}
+                {% include "user/user.html" with float="float-left" class="row" user_id=user.id img_class="col-12" content_class="col-12" absentee=True userid=user.id|serialize_id:event.id %}
             {% endif %}
         {% endfor %}
     </div>
 {% else %}
-<!-- or warning message for others users -->
+<!-- or warning message for others user -->
 <div class="alert alert-warning alert-dismissible fade show" role="alert">
     Vous devez être membre actif de l'association pour voir les participants
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -233,7 +233,7 @@
 <script src="{% static "js/event_detail.js" %}"></script>
 
 
-<!-- Add users script -->
+<!-- Add user script -->
 {% if request.user.is_authenticated and request.user in admin_or_volunteer %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js"></script>
@@ -335,7 +335,7 @@
   });
 
 </script>
-<!-- End add users script -->
+<!-- End add user script -->
 
 
 {% endif %}

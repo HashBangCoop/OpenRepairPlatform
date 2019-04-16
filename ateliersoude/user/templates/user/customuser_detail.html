@@ -8,7 +8,7 @@
 {% load django_bootstrap_breadcrumbs %}
 
 {% block breadcrumbs %}
-{% with type="users" list_view="../" detail_name=target_user.get_full_name %}
+{% with type="user" list_view="../" detail_name=target_user.get_full_name %}
    {{ block.super }}
 {% endwith %}
 {% endblock %}
@@ -54,7 +54,7 @@
 
 {% block context %}
 <div class="sticky-position sticky-top">
-    {% include "users/user.html" with user=target_user class="" img_class="col-lg" about_class="row" %}
+    {% include "user/user.html" with user=target_user class="" img_class="col-lg" about_class="row" %}
 </div>
 
 {% endblock context %}

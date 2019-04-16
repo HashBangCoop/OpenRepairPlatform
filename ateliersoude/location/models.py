@@ -1,4 +1,9 @@
 from django.db import models
+from django.urls import reverse
+from django.utils.text import slugify
+from django.utils.translation import ugettext_lazy as _
+
+from ateliersoude.user.models import Organization, CustomUser
 
 
 class PlaceType(models.Model):

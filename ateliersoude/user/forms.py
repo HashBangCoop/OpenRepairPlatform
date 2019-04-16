@@ -35,7 +35,7 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class CustomUserChangeForm(UserChangeForm):
-    """A form for updating users. Includes all the fields on
+    """A form for updating user. Includes all the fields on
     the user, but replaces the password field with admin's
     password hash display field.
     """

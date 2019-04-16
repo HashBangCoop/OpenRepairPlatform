@@ -1,12 +1,6 @@
 from django.contrib.auth.models import AnonymousUser
 from django.utils.timezone import now
 
-from ateliersoude.plateformeweb.models import (
-    Event,
-    OrganizationPerson,
-    PublishedEvent,
-)
-
 # See https://stackoverflow.com/a/28533875
 
 # NOTE requiert plateformeweb.context_processors.user_data dans les context
@@ -17,6 +11,8 @@ from ateliersoude.plateformeweb.models import (
 # publiés uniquement)
 # - my_events_organizing (tous les events futurs où le user organise, publiés
 #   ou non)
+from ateliersoude.event.models import PublishedEvent, Event
+from ateliersoude.user.models import OrganizationPerson
 
 
 def user_data(request):

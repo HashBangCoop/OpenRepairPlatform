@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class CustomusersConfig(AppConfig):
-    name = "ateliersoude.users"
+    name = "ateliersoude.user"

@@ -1,4 +1,17 @@
+import datetime
+
+from django import forms
+from django.core import signing
+from django.core.mail import send_mail
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.urls import reverse_lazy, reverse
+from django.views.generic import CreateView, UpdateView, DetailView, ListView
+
+from ateliersoude.event.models import Condition, Activity, Event
+from ateliersoude.location.models import Place
+from ateliersoude.user.models import OrganizationPerson, CustomUser, Organization
 
 
 def send_notification(notification, activity):
@@ -55,7 +68,7 @@ class ConditionFormView:
                 self.object.pk, self.object.slug))
 
 
-class ConditionCreateView(ConditionFormView, AjaxCreateView):
+class ConditionCreateView(ConditionFormView, CreateView):
     # permission_required = 'plateformeweb.create_activity'
 
     # set owner to current user on creation
@@ -63,7 +76,7 @@ class ConditionCreateView(ConditionFormView, AjaxCreateView):
         return super().form_valid(form)
 
 
-class ConditionEditView(ConditionFormView, AjaxUpdateView):
+class ConditionEditView(ConditionFormView, UpdateView):
     # permission_required = 'plateformeweb.edit_acivity'
     queryset = Activity.objects
 
@@ -116,7 +129,7 @@ class ActivityFormView:
                 self.object.pk, self.object.slug))
 
 
-class ActivityCreateView(ActivityFormView, AjaxCreateView):
+class ActivityCreateView(ActivityFormView, CreateView):
     # permission_required = 'plateformeweb.create_activity'
 
     # set owner to current user on creation
@@ -129,7 +142,7 @@ class ActivityCreateView(ActivityFormView, AjaxCreateView):
         return super().form_valid(form)
 
 
-class ActivityEditView(ActivityFormView, AjaxUpdateView):
+class ActivityEditView(ActivityFormView, UpdateView):
     # permission_required = 'plateformeweb.edit_acivity'
     queryset = Activity.objects
 
@@ -208,7 +221,7 @@ class EventListView(ListView):
 # --- edit ---
 
 
-class EventEditView(AjaxUpdateView):
+class EventEditView(UpdateView):
     permission_required = "plateformeweb.edit_event"
     fields = [
         "title",

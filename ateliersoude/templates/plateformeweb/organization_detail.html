@@ -60,10 +60,10 @@
 
 <div class="card-columns">
     {% for user in organization.admins %}
-        {% include "users/user.html" with class="row" img_class="col-12" content_class="col-12 text-center"%}
+        {% include "user/user.html" with class="row" img_class="col-12" content_class="col-12 text-center"%}
     {% endfor %}
     {% for user in organization.volunteers %}
-        {% include "users/user.html" with class="row" img_class="col-12" content_class="col-12 text-center"%}
+        {% include "user/user.html" with class="row" img_class="col-12" content_class="col-12 text-center"%}
     {% endfor %}
 </div>
 
