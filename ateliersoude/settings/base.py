@@ -11,6 +11,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SITE_ID = 1
+
 INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.admin",
@@ -21,13 +23,16 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.messages",
 
-    "ateliersoude.users",
     "ateliersoude.api",
-    "ateliersoude.plateformeweb",
+    "ateliersoude.event",
+    "ateliersoude.users",
+    "ateliersoude.location",
 
     "fm",
     "simple_history",
     "rest_framework",
+    'bootstrap',
+    'fontawesome',
 ]
 
 
@@ -45,7 +50,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "ateliersoude.urls"
 
-ASP_CONTEXT = "ateliersoude.plateformeweb.context_processors"
+AS_CONTEXT = "ateliersoude.context_processors"
 
 TEMPLATES = [
     {
@@ -61,10 +66,10 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.request",
-                f"{ASP_CONTEXT}.user_data",
-                f"{ASP_CONTEXT}.last_events",
-                f"{ASP_CONTEXT}.user_in_organization",
-                f"{ASP_CONTEXT}.admin_of_organizations",
+                f"{AS_CONTEXT}.user_data",
+                f"{AS_CONTEXT}.last_events",
+                f"{AS_CONTEXT}.user_in_organization",
+                f"{AS_CONTEXT}.admin_of_organizations",
             ]
         },
     }

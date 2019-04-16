@@ -6,10 +6,18 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
-    path("", views.HomeView.as_view()),
+    path("", views.HomeView.as_view(), name='homepage'),
     path('admin/', admin.site.urls),
-    path("plateformeweb/", include("ateliersoude.plateformeweb.urls")),
-    path("users/", include("ateliersoude.users.urls")),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path(
+        "event/",
+        include("ateliersoude.event.urls", namespace='event')
+    ),
+    path(
+        "location/",
+        include("ateliersoude.location.urls", namespace='location')
+    ),
+    path("users/", include("ateliersoude.users.urls", namespace='users')),
     path("api/", include("ateliersoude.api.urls")),
 ]
 

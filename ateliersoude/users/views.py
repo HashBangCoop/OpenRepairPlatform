@@ -9,7 +9,33 @@ from ateliersoude.plateformeweb.models import Event
 from .forms import CustomUserCreationForm, UserForm
 from .models import CustomUser
 
-# Create your views here.
+from fm.views import AjaxCreateView, AjaxUpdateView
+from logging import getLogger
+
+from django import forms
+from django.core.exceptions import ValidationError
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.urls import reverse, reverse_lazy
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
+
+from django.core.mail import send_mail
+
+from ateliersoude.users.models import CustomUser
+from .models import (
+    Activity,
+    Condition,
+    Event,
+    Organization,
+    OrganizationPerson,
+    Place,
+)
 
 
 def user_profile(request):
@@ -87,3 +113,62 @@ class UserListView(ListView):
         context = super().get_context_data(**kwargs)
         context["list_type"] = "user"
         return context
+
+
+class OrganizationView(DetailView):
+    model = Organization
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class OrganizationListView(ListView):
+    model = Organization
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["list_type"] = "organization"
+        return context
+
+
+# --- edit ---
+
+
+class OrganizationFormView:
+    model = Organization
+    fields = ["name", "description", "picture", "active"]
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        form = super().get_form(form_class)
+        form.fields["description"] = forms.CharField()
+        return form
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "organization_detail", args=(self.object.pk, self.object.slug)
+        )
+
+
+class OrganizationCreateView(OrganizationFormView, CreateView):
+    permission_required = "plateformeweb.create_organization"
+
+
+class OrganizationEditView(OrganizationFormView, AjaxUpdateView):
+    # permission_required = 'plateformeweb.edit_organization'
+    queryset = Organization.objects
+
+
+# -- Admin page to manage the organization contents --
+
+
+def OrganizationManager(request, pk):
+    organization = Organization.objects.get(pk=pk)
+    organization_admins = organization.admins()
+    if request.user in organization_admins:
+        context = {"organization": organization}
+    return render(request, "plateformeweb/organization_manager.html", context)
+
+

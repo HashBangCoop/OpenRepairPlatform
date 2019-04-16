@@ -3,7 +3,12 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
-from .models import CustomUser
+
+from .models import (
+    CustomUser,
+    Organization,
+    OrganizationPerson,
+)
 
 
 class CustomUserAdmin(UserAdmin):
@@ -53,4 +58,14 @@ class CustomUserAdmin(UserAdmin):
     ordering = ("email",)
 
 
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "active")
+
+
+class OrganizationPersonAdmin(admin.ModelAdmin):
+    list_display = ("user", "organization", "role")
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Organization, OrganizationAdmin)
+admin.site.register(OrganizationPerson, OrganizationPersonAdmin)

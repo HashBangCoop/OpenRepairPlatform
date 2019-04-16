@@ -13,6 +13,7 @@ coverage==4.5.3           # via pytest-cov
 cssselect2==0.2.1         # via cairosvg, weasyprint
 defusedxml==0.5.0         # via cairosvg
 diff-cover==2.0.0
+django-bootstrap-static==4.0.0
 django-crispy-forms==1.7.2  # via django-fm
 django-debug-toolbar==1.11
 django-fm==0.2.5

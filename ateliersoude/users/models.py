@@ -129,7 +129,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.first_name
 
     def get_absolute_url(self):
-        return reverse("user_detail", kwargs={"pk": self.pk})
+        return reverse("users:user_detail", kwargs={"pk": self.pk})
 
     def email_user(self, subject, message, from_email=None):
         """
@@ -144,11 +144,157 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         else:
             return self.email
 
-    def __iter__(self):
-        for field in self._meta.get_fields():
-            value = getattr(self, field.name, None)
-            try:
-                field_name = field.verbose_name
-            except BaseException:
-                field_name = field.name
-            yield (field_name, value)
+
+class Organization(models.Model):
+    name = models.CharField(
+        max_length=100, null=False, blank=False,
+        verbose_name=_("Organization name"))
+    owner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
+    description = models.TextField(
+        verbose_name=_("Activity description"),
+        null=False, blank=False, default="")
+    picture = models.ImageField(
+        verbose_name=_("Image"), upload_to="organizations/", null=True
+    )
+    active = models.BooleanField(verbose_name=_("Active"))
+    slug = models.SlugField(unique=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("organization_detail", args=(self.pk, self.slug))
+
+
+class OrganizationPerson(models.Model):
+    VISITOR = 0
+    MEMBER = 10
+    VOLUNTEER = 20
+    ADMIN = 30
+    MEMBER_TYPES = (
+        (VISITOR, _("Visitor")),
+        (MEMBER, _("Member")),
+        (VOLUNTEER, _("Volunteer")),
+        (ADMIN, _("Admin")),
+    )
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True
+    )
+    role = models.SmallIntegerField(choices=MEMBER_TYPES, default=VISITOR)
+
+    class Meta:
+        unique_together = ("organization", "user", "role")
+
+
+# --- visitor ---
+class OrganizationVisitorManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(role=OrganizationPerson.VISITOR)
+
+
+class OrganizationVisitor(OrganizationPerson):
+    objects = OrganizationVisitorManager()
+
+    class Meta:
+        proxy = True
+
+
+# --- member ---
+class OrganizationMemberManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(role=OrganizationPerson.MEMBER)
+
+
+class OrganizationMember(OrganizationPerson):
+    objects = OrganizationMemberManager()
+
+    class Meta:
+        proxy = True
+
+
+# --- volunteer ---
+class Abilities(models.Model):
+    name = models.CharField(
+        max_length=100, null=False, blank=False, verbose_name=_("Abilities")
+    )
+
+
+class OrganizationVolunteerManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(role=OrganizationPerson.VOLUNTEER)
+
+
+class OrganizationVolunteer(OrganizationPerson):
+    abilities = models.ManyToManyField(Abilities)
+    tagline = models.TextField(verbose_name=_("Tagline"))
+    objects = OrganizationVolunteerManager()
+
+
+# --- admin ---
+class OrganizationAdminstratorManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(role=OrganizationPerson.ADMIN)
+
+
+class OrganizationAdministrator(OrganizationPerson):
+    objects = OrganizationAdminstratorManager()
+
+    class Meta:
+        proxy = True
+
+
+# extend the Organization with convenience methods
+
+
+def get_admins(self):
+    queryset = OrganizationPerson.objects.filter(
+        role=OrganizationPerson.ADMIN, organization=self
+    )
+    ret = []
+    for query in queryset:
+        ret += [query.user]
+    return ret
+
+
+def get_volunteers(self):
+    queryset = OrganizationPerson.objects.filter(
+        role=OrganizationPerson.VOLUNTEER, organization=self
+    )
+    ret = []
+    for query in queryset:
+        ret += [query.user]
+    return ret
+
+
+def get_members(self):
+    queryset = OrganizationPerson.objects.filter(
+        role=OrganizationPerson.MEMBER, organization=self
+    )
+    ret = []
+    for query in queryset:
+        ret += [query.user]
+    return ret
+
+
+def get_visitors(self):
+    queryset = OrganizationPerson.objects.filter(
+        role=OrganizationPerson.VISITOR, organization=self
+    )
+    ret = []
+    for query in queryset:
+        ret += [query.user]
+    return ret
+
+
+Organization.admins = get_admins
+Organization.visitors = get_visitors
+Organization.members = get_members
+Organization.volunteers = get_volunteers
+

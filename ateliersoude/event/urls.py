@@ -2,48 +2,8 @@ from django.urls import path
 
 from . import views
 
-app_name = "plateformeweb"
+app_name = "event"
 urlpatterns = [
-    # path(r'^$', views.UserListView.as_view(), name='user_list'),
-    path(
-        "organization/",
-        views.OrganizationListView.as_view(),
-        name="organization_list",
-    ),
-    path(
-        "organization/create/",
-        views.OrganizationCreateView.as_view(),
-        name="organization_create",
-    ),
-    path(
-        "organization/<int:pk>/edit/",
-        views.OrganizationEditView.as_view(),
-        name="organization_edit",
-    ),
-    path(
-        "organization/<int:pk>/<slug>/",
-        views.OrganizationView.as_view(),
-        name="organization_detail",
-    ),
-    path(
-        "organization_manager/<int:pk>/",
-        views.OrganizationManager,
-        name="organization_manager",
-    ),
-    path("place/", views.PlaceListView.as_view(), name="place_list"),
-    path("place/create/",
-         views.PlaceCreateView.as_view(),
-         name="place_create"),
-    path(
-        "place/<int:pk>/edit/",
-        views.PlaceEditView.as_view(),
-        name="place_edit",
-    ),
-    path(
-        "place/<int:pk>/<slug>/",
-        views.PlaceView.as_view(),
-        name="place_detail",
-    ),
     path(
         "condition/create/",
         views.ConditionCreateView.as_view(),
