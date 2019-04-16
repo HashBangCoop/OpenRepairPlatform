@@ -1,43 +1,49 @@
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    url(r"^deleteEvent/$", views.delete_event, name="delete_event"),
-    url(r"^setPresent/$", views.set_present, name="set_present"),
-    url(r"^setAbsent/$", views.set_absent, name="set_absent"),
-    url(r"^getOrganizations/$",
-        views.get_organizations,
-        name="get_organizations"
-        ),
-    url(r"^getPlacesForOrganization/$",
+    path("deleteEvent/", views.delete_event, name="delete_event"),
+    path("setPresent/", views.set_present, name="set_present"),
+    path("setAbsent/", views.set_absent, name="set_absent"),
+    path(
+        "getOrganizations/", views.get_organizations, name="get_organizations"
+    ),
+    path(
+        "getPlacesForOrganization/",
         views.get_places_for_organization,
-        name="get_places_for_organization",
-        ),
-    url(r"^getPlaces/$", views.get_all_places, name="get_all_places"),
-    url(r"^getDates/$", views.get_dates, name="get_dates"),
-    url(r"^getUsers/(?P<organization_pk>[0-9]+)/(?P<event_pk>[0-9]+)/$",
+        name="get_places_for_organization"
+    ),
+    path("getPlaces/", views.get_all_places, name="get_all_places"),
+    path("getDates/", views.get_dates, name="get_dates"),
+    path(
+        "getUsers/<int:organization_pk>/(<int:event_pk>/",
         views.list_users,
-        name="list_users",
-        ),
-    url(r"^addUsers/$", views.add_users, name="add_users"),
-    url(r"^list_events/$",
+        name="list_users"
+    ),
+    path("addUsers/", views.add_users, name="add_users"),
+    path(
+        "list_events/",
         views.list_events_in_context,
-        name="list_events_in_context"),
-    url(r"^list_events_user/(?P<context_pk>[0-9]+)/$",
+        name="list_events_in_context"
+    ),
+    path(
+        "list_events_user/<int:context_pk>/",
         views.list_events_in_context,
         {"context_user": "yes"},
         name="list_events_user",
-        ),
-    url(r"^list_events_place/(?P<context_pk>[0-9]+)/$",
+    ),
+    path(
+        "list_events_place/<int:context_pk>/",
         views.list_events_in_context,
         {"context_place": "yes"},
         name="list_events_place",
-        ),
-    url(r"^list_events_organization/(?P<context_pk>[0-9]+)/$",
+    ),
+    path(
+        "list_events_organization/<int:context_pk>/",
         views.list_events_in_context,
         {"context_org": "yes"},
         name="list_events_organization",
-        ),
-    url(r"^book/$", views.book_event, name="book"),
+    ),
+    path("book/", views.book_event, name="book"),
 ]

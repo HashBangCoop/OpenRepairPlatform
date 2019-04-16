@@ -77,7 +77,7 @@ urlpatterns = [
          views.EventCreateView.as_view(),
          name="event_create"),
     path(
-        r"^event/cancel_reservation/(?P<token>.+)/",
+        "event/cancel_reservation/<token>/",
         views.cancel_reservation,
         name="cancel_reservation",
     ),

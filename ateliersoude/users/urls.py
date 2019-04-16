@@ -1,10 +1,10 @@
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    url(r"^$", views.UserListView.as_view(), name="user_list"),
-    url(r"^userprofile/", views.user_profile, name="user_profile"),
-    url(r"^(?P<pk>\d+)/$", views.UserDetailView.as_view(), name="user_detail"),
-    url(r"^create/$", views.register, name="user_create"),
+    path("", views.UserListView.as_view(), name="user_list"),
+    path("userprofile/", views.user_profile, name="user_profile"),
+    path("<int:pk>/", views.UserDetailView.as_view(), name="user_detail"),
+    path("create/", views.register, name="user_create"),
 ]
