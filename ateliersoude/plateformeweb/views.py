@@ -2,14 +2,11 @@ import datetime
 from fm.views import AjaxCreateView, AjaxUpdateView
 from logging import getLogger
 
-from actstream import action
-from actstream.actions import follow
-from actstream.models import followers
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import CharField
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -37,15 +34,8 @@ from .models import (
 logger = getLogger(__name__)
 
 
-def send_notification(request, target_object, target_type):
-    send_to = followers(target_object)
-
-    if target_type == "actor":
-        notification = target_object.actor_actions.all()[:1]
-    elif target_type == "action_object":
-        notification = target_object.action_object_actions.all()[:1]
-    elif target_type == "target":
-        notification = target_object.target_actions.all()[:1]
+def send_notification(notification, activity):
+    send_to = activity.participants.all()
 
     params = {"notification": notification}
 
@@ -192,8 +182,7 @@ class PlaceCreateView(PlaceFormView, AjaxCreateView):
         self.validate_image(image)
         obj = form.save()
         obj.owner = self.request.user
-        action.send(self.request.user, verb=" a créé ", action_object=obj)
-        follow(self.request.user, obj, actor_only=False)
+        # Make messages django for information : "'user' a créé" Place
         return super().form_valid(form)
 
 
@@ -213,9 +202,8 @@ class PlaceEditView(PlaceFormView, AjaxUpdateView):
     def form_valid(self, form):
         image = form.cleaned_data.get("picture", False)
         self.validate_image(image)
-        obj = form.save(commit=False)
-        action.send(self.request.user, verb=" a modifié ", action_object=obj)
-        follow(self.request.user, obj, actor_only=False)
+        form.save(commit=False)
+        # Make messages django for information : "'user' a modifié" Place
         return super().form_valid(form)
 
 
@@ -325,12 +313,9 @@ class ActivityCreateView(ActivityFormView, AjaxCreateView):
     def form_valid(self, form):
         obj = form.save()
         obj.owner = self.request.user
-        action.send(self.request.user, verb=" a créé ", action_object=obj)
-        follow(self.request.user, obj, actor_only=False)
-        send_notification(
-            self.request,
-            target_object=obj,
-            target_type="action_object")
+        # Make messages django for information : "'user' a créé" Action
+        notification = f'{obj.owner} a créé {obj}'
+        send_notification(notification, activity=obj)
         return super().form_valid(form)
 
 
@@ -341,11 +326,9 @@ class ActivityEditView(ActivityFormView, AjaxUpdateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.owner = self.request.user
-        action.send(self.request.user, verb=" a modifié ", action_object=obj)
-        send_notification(
-            self.request,
-            target_object=obj,
-            target_type="action_object")
+        # Make messages django for information : "'user' a modifié" Action
+        notification = f'{obj.owner} a modifié {obj}'
+        send_notification(notification, activity=obj)
         return super().form_valid(form)
 
 
@@ -561,12 +544,7 @@ class EventCreateView(CreateView):
             e.organizers.add(CustomUser.objects.get(email=request.user.email))
             e.title = e.type.name
             e.save()
-            action.send(
-                self.request.user,
-                verb=" a créé ",
-                action_object=e,
-                target=e.location)
-            follow(self.request.user, e, actor_only=False)
+            # Make messages django for information : "'user' a créé" Event
 
         return HttpResponseRedirect(reverse("event_create"))
 

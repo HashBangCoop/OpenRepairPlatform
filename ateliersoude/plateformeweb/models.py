@@ -28,6 +28,7 @@ class Organization(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -174,6 +175,7 @@ class PlaceType(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.slug
@@ -217,6 +219,7 @@ class Place(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("place_detail", args=(self.pk, self.slug))
@@ -276,9 +279,13 @@ class Activity(models.Model):
     picture = models.ImageField(
         verbose_name=_("Image"),
         upload_to="activities/")
+    participants = models.ManyToManyField(
+        CustomUser, related_name='activities'
+    )
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -356,6 +363,7 @@ class Event(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
+        return super().save(*args, kwargs)
 
     def date_interval_format(self):
         starts_at_date = self.starts_at.date().strftime("%A %d %B %Y")
