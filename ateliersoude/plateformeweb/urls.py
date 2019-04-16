@@ -1,102 +1,103 @@
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
+app_name = "plateformeweb"
 urlpatterns = [
-    # url(r'^$', views.UserListView.as_view(), name='user_list'),
-    url(
-        r"^organization/$",
+    # path(r'^$', views.UserListView.as_view(), name='user_list'),
+    path(
+        "organization/",
         views.OrganizationListView.as_view(),
         name="organization_list",
     ),
-    url(
-        r"^organization/create/$",
+    path(
+        "organization/create/",
         views.OrganizationCreateView.as_view(),
         name="organization_create",
     ),
-    url(
-        r"^organization/(?P<pk>[0-9]+)/edit/$",
+    path(
+        "organization/<int:pk>/edit/",
         views.OrganizationEditView.as_view(),
         name="organization_edit",
     ),
-    url(
-        r"^organization/(?P<pk>[0-9]+)/(?P<slug>[-\w]+)/$",
+    path(
+        "organization/<int:pk>/<slug>/",
         views.OrganizationView.as_view(),
         name="organization_detail",
     ),
-    url(
-        r"^organization_manager/(?P<pk>[0-9]+)/$",
+    path(
+        "organization_manager/<int:pk>/",
         views.OrganizationManager,
         name="organization_manager",
     ),
-    url(r"^place/$", views.PlaceListView.as_view(), name="place_list"),
-    url(r"^place/create/$",
-        views.PlaceCreateView.as_view(),
-        name="place_create"),
-    url(
-        r"^place/(?P<pk>[0-9]+)/edit/$",
+    path("place/", views.PlaceListView.as_view(), name="place_list"),
+    path("place/create/",
+         views.PlaceCreateView.as_view(),
+         name="place_create"),
+    path(
+        "place/<int:pk>/edit/",
         views.PlaceEditView.as_view(),
         name="place_edit",
     ),
-    url(
-        r"^place/(?P<pk>[0-9]+)/(?P<slug>[-\w]+)/$",
+    path(
+        "place/<int:pk>/<slug>/",
         views.PlaceView.as_view(),
         name="place_detail",
     ),
-    url(
-        r"^condition/create/$",
+    path(
+        "condition/create/",
         views.ConditionCreateView.as_view(),
         name="condition_create",
     ),
-    url(
-        r"^condition/(?P<pk>[0-9]+)/edit/$",
+    path(
+        "condition/<int:pk>/edit/",
         views.ConditionEditView.as_view(),
         name="condition_edit",
     ),
-    url(r"^activity/$",
-        views.ActivityListView.as_view(),
-        name="activity_list"),
-    url(
-        r"^activity/create/$",
+    path("activity/",
+         views.ActivityListView.as_view(),
+         name="activity_list"),
+    path(
+        "activity/create/",
         views.ActivityCreateView.as_view(),
         name="activity_create",
     ),
-    url(
-        r"^activity/(?P<pk>[0-9]+)/edit/$",
+    path(
+        "activity/<int:pk>/edit/",
         views.ActivityEditView.as_view(),
         name="activity_edit",
     ),
-    url(
-        r"^activity/(?P<pk>[0-9]+)/(?P<slug>[-\w]+)/$",
+    path(
+        "activity/<int:pk>/<slug>/",
         views.ActivityView.as_view(),
         name="activity_detail",
     ),
-    url(r"^event/$", views.EventListView.as_view(), name="event_list"),
-    url(r"^event/create/$",
-        views.EventCreateView.as_view(),
-        name="event_create"),
-    url(
+    path("event/", views.EventListView.as_view(), name="event_list"),
+    path("event/create/",
+         views.EventCreateView.as_view(),
+         name="event_create"),
+    path(
         r"^event/cancel_reservation/(?P<token>.+)/",
         views.cancel_reservation,
         name="cancel_reservation",
     ),
-    url(
-        r"^event/(?P<pk>[0-9]+)/book/$",
+    path(
+        "event/<int:pk>/book/",
         views.BookingEditView.as_view(),
         name="booking_form",
     ),
-    url(
-        r"^event/(?P<pk>[0-9]+)/edit/$",
+    path(
+        "event/<int:pk>/edit/",
         views.EventEditView.as_view(),
         name="event_edit",
     ),
-    url(
-        r"^event/(?P<pk>[0-9]+)/(?P<slug>[-\w]+)/$",
+    path(
+        "event/<int:pk>/<slug>/",
         views.EventView.as_view(),
         name="event_detail",
     ),
-    url(
-        r"^massevent/book/$",
+    path(
+        "massevent/book/",
         views.MassBookingCreateView.as_view(),
         name="mass_event_book",
     ),

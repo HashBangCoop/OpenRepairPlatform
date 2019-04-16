@@ -2,25 +2,22 @@ from functools import reduce
 from operator import __or__ as OR
 from urllib.parse import parse_qs
 
-from actstream import action
-from actstream.actions import follow
+from django.core import signing
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from itsdangerous import URLSafeSerializer
 
-from plateformeweb.models import Event, Organization, OrganizationPerson, Place
-from post_office import mail
-from users.models import CustomUser
+from ateliersoude.plateformeweb.models import Event, Place
+from django.core.mail import send_mail
+from ateliersoude.users.models import CustomUser
 
 
 # mailers #
 def cancel_reservation(request, token):
-    s = URLSafeSerializer("some_secret_key", salt="cancel_reservation")
-    ret = s.loads(token)
+    ret = signing.loads(token)
     event_id = ret["event_id"]
     user_id = ret["user_id"]
     event = Event.objects.get(pk=event_id)
@@ -40,10 +37,9 @@ def send_booking_mail(request, user, event):
     user_id = user.id
     event_id = event.id
 
-    serial = URLSafeSerializer("some_secret_key", salt="cancel_reservation")
     data = {"event_id": event_id, "user_id": user_id}
 
-    cancel_token = serial.dumps(data)
+    cancel_token = signing.dumps(data)
     cancel_url = reverse("cancel_reservation", args=[cancel_token])
     cancel_url = request.build_absolute_uri(cancel_url)
 
@@ -59,11 +55,11 @@ def send_booking_mail(request, user, event):
     location = event.location.name
     subject = "Votre réservation pour le " + date + " à " + location
 
-    mail.send(
-        [user.email],
+    send_mail(
+        subject,
+        msg_plain,
         "no-reply@atelier-soude.fr",
-        subject=subject,
-        message=msg_plain,
+        [user.email],
         html_message=msg_html,
     )
 
@@ -81,7 +77,6 @@ def delete_event(request):
         event = Event.objects.get(pk=event_id)
         person = CustomUser.objects.get(email=request.user)
         if person in event.organizers.all():
-            action.send(request.user, verb="a supprimé", target=event)
             event.delete()
             return JsonResponse({"status": "OK"})
 
@@ -93,9 +88,7 @@ def set_present(request):
         # TODO change this
         return HttpResponse("Circulez, il n'y a rien à voir")
     else:
-        serial = URLSafeSerializer("some_secret_key", salt="presence")
-
-        data = serial.loads(request.POST["idents"])
+        data = signing.loads(request.POST["idents"])
         event_id = data["event_id"]
         user_id = data["user_id"]
 
@@ -103,12 +96,6 @@ def set_present(request):
         event = Event.objects.get(pk=event_id)
         event.attendees.remove(person)
         event.presents.add(person)
-        action.send(
-            request.user,
-            verb="a validé la présence de",
-            action_object=person,
-            target=event,
-        )
 
         return JsonResponse({"status": "OK", "user_id": user_id})
 
@@ -118,9 +105,7 @@ def set_absent(request):
         # TODO change this
         return HttpResponse("Circulez, il n'y a rien à voir")
     else:
-        serial = URLSafeSerializer("some_secret_key", salt="presence")
-
-        data = serial.loads(request.POST["idents"])
+        data = signing.loads(request.POST["idents"])
         event_id = data["event_id"]
         user_id = data["user_id"]
 
@@ -128,12 +113,6 @@ def set_absent(request):
         event = Event.objects.get(pk=event_id)
         event.presents.remove(person)
         event.attendees.add(person)
-        action.send(
-            request.user,
-            verb="a dé-validé la présence de",
-            action_object=person,
-            target=event,
-        )
 
         return JsonResponse({"status": "OK", "user_id": user_id})
 
@@ -388,7 +367,6 @@ def book_event(request):
             if organization not in user_volunteer_orgs:
                 event.available_seats += 1
             event.attendees.remove(user)
-            action.send(user, verb="s'est désinscrit de", target=event)
             event.save()
             return JsonResponse(
                 {"status": "unbook", "available_seats": event.available_seats}
@@ -397,12 +375,9 @@ def book_event(request):
             if event.available_seats >= 0:
                 if organization not in user_volunteer_orgs:
                     event.available_seats -= 1
-                action.send(user, verb="s'est inscrit à", target=event)
-                follow(user, event, actor_only=False)
                 event.attendees.add(user)
                 # send booking mail here or notification here
                 send_booking_mail(request, user, event)
-                # send_notification(request, user)
 
             else:
                 return JsonResponse({"status": -1})
@@ -467,7 +442,6 @@ def add_users(request):
 
             if event.starts_at <= now:
                 event.presents.add(user)
-                [user.pk]
             else:
                 if user not in every_attendee:
                     print("a")
@@ -475,11 +449,6 @@ def add_users(request):
 
                     event.attendees.add(user)
                     attending_pk += [user.pk]
-                    action.send(
-                        request.user,
-                        verb="a inscris",
-                        action_object=user,
-                        target=event)
                 else:
                     event.presents.add(user)
                     presents_pk += [user.pk]

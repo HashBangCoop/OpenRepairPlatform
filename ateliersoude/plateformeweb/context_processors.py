@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AnonymousUser
 from django.utils.timezone import now
 
-from plateformeweb.models import (
+from ateliersoude.plateformeweb.models import (
     Event,
     OrganizationPerson,
     PublishedEvent,

@@ -1,11 +1,10 @@
-from actstream import action
 from django.contrib.auth import authenticate, login
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.generic import DetailView, ListView
 
-from plateformeweb.models import Event
+from ateliersoude.plateformeweb.models import Event
 
 from .forms import CustomUserCreationForm, UserForm
 from .models import CustomUser
@@ -57,13 +56,11 @@ def register(request):
     if request.method == "POST":
 
         if form.is_valid():
-
-            new_user = form.save()
+            form.save()
             new_user = authenticate(
                 username=form.cleaned_data["email"],
                 password=form.cleaned_data["password1"],
             )
-            action.send(new_user, verb="a créé un compte")
             login(request, new_user)
             return HttpResponseRedirect(reverse("user_profile"))
 

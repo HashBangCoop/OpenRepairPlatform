@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from plateformeweb.models import (
+from ateliersoude.plateformeweb.models import (
     Activity,
     Event,
     Organization,
@@ -9,7 +9,7 @@ from plateformeweb.models import (
     Place,
     PlaceType,
 )
-from users.models import CustomUser
+from ateliersoude.users.models import CustomUser
 
 
 class TestAllViews(TestCase):

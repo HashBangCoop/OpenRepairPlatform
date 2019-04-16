@@ -1,12 +1,12 @@
 from django.test import TestCase
 
-from plateformeweb.models import (
+from ateliersoude.plateformeweb.models import (
     Organization,
     OrganizationPerson,
     Place,
     PlaceType,
 )
-from users.models import CustomUser
+from ateliersoude.users.models import CustomUser
 
 
 class TestPlaceTypeModel(TestCase):

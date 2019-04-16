@@ -1,4 +1,6 @@
 import datetime
+
+from django.core import signing
 from fm.views import AjaxCreateView, AjaxUpdateView
 from logging import getLogger
 
@@ -14,7 +16,6 @@ from django.views.generic import (
     ListView,
     UpdateView,
 )
-from django.core.signing import Signer
 
 from django.core.mail import send_mail
 
@@ -29,8 +30,6 @@ from .models import (
 )
 
 logger = getLogger(__name__)
-
-signer = Signer()
 
 
 def send_notification(notification, activity):
@@ -332,7 +331,7 @@ class ActivityEditView(ActivityFormView, AjaxUpdateView):
 
 
 def cancel_reservation(request, token):
-    ret = signer.loads(token)
+    ret = signing.loads(token)
     event_id = ret["event_id"]
     user_id = ret["user_id"]
     event = Event.objects.get(pk=event_id)
@@ -422,7 +421,7 @@ class BookingFormView:
 
         data = {"event_id": event_id, "user_id": user_id}
 
-        cancel_token = signer.dumps(data)
+        cancel_token = signing.dumps(data)
         cancel_url = reverse("cancel_reservation", args=[cancel_token])
         cancel_url = self.request.build_absolute_uri(cancel_url)
 
@@ -459,7 +458,7 @@ class BookingEditView(BookingFormView, UpdateView):
         context = super().get_context_data(**kwargs)
         event_id = context["event"].id
         data = {"event_id": event_id}
-        context["booking_id"] = signer.dumps(data)
+        context["booking_id"] = signing.dumps(data)
         return context
 
 
