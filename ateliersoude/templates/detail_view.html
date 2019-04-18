@@ -1,21 +1,9 @@
 {% extends 'base.html' %}
 
-{% load staticfiles %}
-{% load fontawesome %}
-{% load avatar_tags %}
-{% load django_bootstrap_breadcrumbs %}
-{% load activity_tags %}
-
-    <!-- breadcrumb -->
-{% block breadcrumbs %}
-    {{ block.super }}
-    {% breadcrumb type list_view %}
-    {% breadcrumb detail_name detail_view %}
-{% endblock %}
+{% load static %}
 
 
 {% block content %}
-{% render_breadcrumbs %}
 
 {% block header_ban %}
 <div class="container-fluid profil-header-bar sticky-position sticky-top {{object}}">
@@ -46,37 +34,6 @@
     {% endblock about %}
     </section>
 
-<section class="col-md-3" style="" > 
-            <!-- activity stream -->
-            {% block stream %}
-            <div class="card">
-                <h5>
-                        Dernières activités
-                </h5>
-    
-                <div class="list-group feed_stream">   
-                    {% activity_stream 'actor' object %}        
-                        {% include "feed.html" %}
-                    {% activity_stream 'action_object' object %}  
-                        {% include "feed.html" %}
-                    {% activity_stream 'target' object %}    
-                        {% include "feed.html" %}
-                </div>
-    
-                <div class="">
-                    <a href="{% follow_all_url object %}">
-                            {% if request.user|is_following:object %}
-                            <span class="text-danger"> stop following </span>
-                            {% else %}
-                               follow 
-                            {% endif %}
-                    </a>
-                </div>
-            </div>
-            {% endblock stream %}
-    <!-- activity stream -->    
-</section>   
-    
     
 </div>
 

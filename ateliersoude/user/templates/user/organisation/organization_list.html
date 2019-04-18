@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block breadcrumbs %}
+  {% with type="organisations" view="organization_list" %}
+      {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+    <section class="sub_header sticky-position sticky-top">
+        {{ block.super }}
+        <div class="bg-white text-secondary">
+            <h1 class="text-center mx-auto">{{ block.super }} Organisations</h1>
+        </div>
+    </section>
+
+      <section class="main-container">
+        {% for organization in object_list %}
+        
+            <div class="row">
+                <a class="card" href="{% url 'user:organization_detail' organization.id organization.slug %}">
+                <img class="img-place float-left" src="{{ organization.picture.url }}">
+                <div class="card-body float-left">
+                  <h5 class="card-title">{{ organization.name }}</h5>
+                </div>
+                </a>
+            </div>
+
+          {% empty %}
+          <div>No organizations yet.</div>
+        {% endfor %}
+      </section>
+
+{% endblock %}

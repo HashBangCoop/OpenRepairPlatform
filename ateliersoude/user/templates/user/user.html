@@ -1,8 +1,4 @@
-
-{% load staticfiles %}
-{% load fontawesome %}
-{% load avatar_tags %}
-{% load django_bootstrap_breadcrumbs %}
+{% load static %}
 
 
 {% block list %}
@@ -12,7 +8,7 @@
     <a href="{{ user.get_absolute_url }}">
         <div class="{{class}}" id="square-{{user_id}}">
                 <div class="avatar-card-user {{img_class}}">
-                    {% avatar user %}
+                     user
                 </div>
 
                 <div class="{{content_class}}">
@@ -45,13 +41,13 @@
                         <ul class="list-group">
                             {% for organization in user.organizationperson_set.all|slice:"1" %}
                                 {% if request.user.is_authenticated and request.user in organization.organization.admins %}
-                                <li class="list-group-item">{% fontawesome_icon 'phone' %}   {{ user.phone_number }} </li>
-                                <li class="list-group-item">{% fontawesome_icon 'envelope-o' %} {{ user.email }}</li>
-                                <li class="list-group-item">{% fontawesome_icon 'map-marked' %}   {{ user.street_address }} </li>
-                                <li class="list-group-item">{% fontawesome_icon 'birthday-cake' %}   {{ user.birth_date }} </li>
+                                <li class="list-group-item">phone {{ user.phone_number }} </li>
+                                <li class="list-group-item">envelope-o {{ user.email }}</li>
+                                <li class="list-group-item">map-marked {{ user.street_address }} </li>
+                                <li class="list-group-item">birthday-cake {{ user.birth_date }} </li>
                                 {% endif %}
                             {% endfor %}
-                                <li class="list-group-item">{% fontawesome_icon 'clock-o' %} Membre depuis le {{ user.date_joined }}</li>
+                                <li class="list-group-item">clock-o Membre depuis le {{ user.date_joined }}</li>
                         </ul>
                         
                         {% endif %}

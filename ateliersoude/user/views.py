@@ -54,10 +54,6 @@ def list_users(request):
         return
 
 
-# doc :
-# https://stackoverflow.com/questions/26347725/django-custom-user-creation-form
-
-
 def register(request):
 
     form = CustomUserCreationForm(request.POST or None)
@@ -100,6 +96,7 @@ class UserListView(ListView):
 
 class OrganizationView(DetailView):
     model = Organization
+    template_name = "user/organisation/organization_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -108,14 +105,12 @@ class OrganizationView(DetailView):
 
 class OrganizationListView(ListView):
     model = Organization
+    template_name = "user/organisation/organization_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["list_type"] = "organization"
         return context
-
-
-# --- edit ---
 
 
 class OrganizationFormView:
@@ -152,4 +147,6 @@ def OrganizationManager(request, pk):
     organization_admins = organization.admins()
     if request.user in organization_admins:
         context = {"organization": organization}
-    return render(request, "plateformeweb/organization_manager.html", context)
+    return render(
+        request, "user/organisation/organization_manager.html", context
+    )

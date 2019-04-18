@@ -1,11 +1,8 @@
 {% extends 'detail_view.html' %}
-{% load staticfiles %}
-{% load fontawesome %}
-{% load avatar_tags %}
+{% load static %}
 
 {% load activity_tags %}
 
-{% load django_bootstrap_breadcrumbs %}
 
 {% block breadcrumbs %}
 {% with type="user" list_view="../" detail_name=target_user.get_full_name %}
@@ -72,7 +69,7 @@
 
 <section class="row" id="list-booking">
 
-    {% include "plateformeweb/event_list_vuejs.html" with context_type="user" context_pk=target_user.pk %}
+    {% include "event/event_list_vuejs.html" with context_type="user" context_pk=target_user.pk %}
 
 </section>
 {% endblock about %}
