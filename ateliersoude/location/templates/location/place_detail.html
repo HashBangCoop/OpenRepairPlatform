@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css"
+        integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+        crossorigin=""/>
+{% endblock %}
+
+{% block content %}
+  <section class="container">
+    <h1 class="mt-4">{{ place.name }}</h1>
+
+    <div class="card">
+      {% if place.picture %}
+        <img class="img-responsive w-100" src="{{ place.picture.url }}" alt="image_lieu">
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">
+          {{ place.place_type }} -
+          <small>
+            <i class="fa fa-map-marker"></i>
+            {{ place.address }}
+          </small>
+        </h5>
+        {{ place.description }}
+      </div>
+
+      <div class="card-footer">
+        <a class="card-link btn btn-primary" href="{% url 'location:place_edit' place.id %}">
+          <i class="fa fa-pencil-alt"></i>
+          Editer ce lieu
+        </a>
+        <a class="card-link btn btn-danger" href="{% url 'location:place_delete' place.id %}">
+          <i class="fa fa-trash-alt"></i>
+          Supprimer ce lieu
+        </a>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">Évènements organisés à {{place.name}}</h5>
+        <ul>
+          <li><a href="#">evenement 1</a></li>
+          <li><a href="#">evenement 2</a></li>
+          <li><a href="#">evenement 3</a></li>
+          <li><a href="#">evenement 4</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <section class="container-fluid" id="place_map" style="height: 90vh"></section>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js"
+          integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
+          crossorigin=""></script>
+  <script>
+      let placeMap = L.map('place_map').setView([45.76, 4.84], 14);
+      placeMap.scrollWheelZoom.disable();
+
+      L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+          attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+          minZoom: 7,
+          maxZoom: 16,
+          id: 'mapbox.streets',
+          accessToken: 'pk.eyJ1IjoiYXRlbGllcnNvdWRlIiwiYSI6ImNqazEwZW16aDAzbDkza254cHhucHJtMncifQ.01v1DWXApDJmCySy4QvD4A',
+          noWrap: true,
+          reuseTiles: true,
+      }).addTo(placeMap);
+
+      L.marker([{{ place.latitude }}, {{ place.longitude }}]).addTo(placeMap)
+          .bindPopup('{{ place.name }}')
+          .openPopup();
+  </script>
+{% endblock %}

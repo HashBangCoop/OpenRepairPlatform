@@ -1,9 +1,9 @@
-from fm.views import AjaxCreateView, AjaxUpdateView
+from django.contrib import messages
+from django.urls import reverse_lazy
 
 from django import forms
-from django.core.exceptions import ValidationError
-from django.urls import reverse_lazy
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, TemplateView, DeleteView, \
+    CreateView, UpdateView
 
 from ateliersoude.location.models import Place
 
@@ -11,82 +11,60 @@ from ateliersoude.location.models import Place
 class PlaceView(DetailView):
     model = Place
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
 
-
-class PlaceListView(ListView):
+class PlaceDeleteView(DeleteView):
     model = Place
+    success_url = reverse_lazy("location:place_list")
 
-    def get_context_data(self, **kwargs):
-        context = {"list_type": "place"}
-        return context
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "Le lieu a bien été supprimé")
+        return super().delete(request, *args, **kwargs)
+
+
+class PlaceMapView(TemplateView):
+    template_name = "location/place_list.html"
 
 
 class PlaceFormView:
-
     model = Place
     fields = [
         "name",
         "description",
-        "type",
+        "place_type",
         "address",
         "picture",
         "organization",
+        "longitude",
+        "latitude",
     ]
 
     def get_form(self, form_class=None):
         if form_class is None:
             form_class = self.get_form_class()
         form = super().get_form(form_class)
-        form.fields["description"] = forms.CharField()
+        form.fields["description"] = forms.CharField(widget=forms.Textarea)
+        form.fields["longitude"] = forms.CharField(widget=forms.HiddenInput)
+        form.fields["latitude"] = forms.CharField(widget=forms.HiddenInput)
+
+        # Add bootstrap classes
+        for field in form.fields.values():
+            existing_class = field.widget.attrs.get("class", "")
+            field.widget.attrs["class"] = f"{existing_class} form-control"
+
         return form
 
-    def get_success_url(self):
-        return reverse_lazy(
-            "place_detail", args=(self.object.pk, self.object.slug)
-        )
 
-
-class PlaceCreateView(PlaceFormView, AjaxCreateView):
-    # permission_required = 'plateformeweb.create_place'
-
-    def validate_image(self, image):
-        # Asserts image is smaller than 5MB
-        if image:
-            if image.size > 5 * 1024 * 1024:
-                raise ValidationError("L'image est trop lourde (> 5Mo)")
-            return image
-        else:
-            raise ValidationError("Erreur dans le téléversement du fichier")
-
-    # set owner to current user on creation
+class PlaceCreateView(PlaceFormView, CreateView):
     def form_valid(self, form):
-        image = form.cleaned_data.get("picture", False)
-        self.validate_image(image)
-        obj = form.save()
+        obj = form.save(commit=False)
         obj.owner = self.request.user
-        # Make messages django for information : "'user' a créé" Place
+        messages.success(self.request, "Le lieu a bien été créé")
         return super().form_valid(form)
 
 
-class PlaceEditView(PlaceFormView, AjaxUpdateView):
-    # permission_required = 'plateformeweb.edit_place'
-    queryset = Place.objects
-
-    def validate_image(self, image):
-        # Asserts image is smaller than 5MB
-        if image:
-            if image.size > 5 * 1024 * 1024:
-                raise ValidationError("L'image est trop lourde (> 5Mo)")
-            return image
-        else:
-            raise ValidationError("Erreur dans le téléversement du fichier")
-
+class PlaceEditView(PlaceFormView, UpdateView):
     def form_valid(self, form):
-        image = form.cleaned_data.get("picture", False)
-        self.validate_image(image)
-        form.save(commit=False)
-        # Make messages django for information : "'user' a modifié" Place
+        obj = form.save()
+        obj.owner = self.request.user
+        messages.success(self.request, "Le lieu a bien été modifié")
         return super().form_valid(form)

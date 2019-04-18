@@ -4,7 +4,7 @@ from . import views
 
 app_name = "location"
 urlpatterns = [
-    path("place/", views.PlaceListView.as_view(), name="place_list"),
+    path("place/", views.PlaceMapView.as_view(), name="place_list"),
     path(
         "place/create/", views.PlaceCreateView.as_view(), name="place_create"
     ),
@@ -12,6 +12,11 @@ urlpatterns = [
         "place/<int:pk>/edit/",
         views.PlaceEditView.as_view(),
         name="place_edit",
+    ),
+    path(
+        "place/<int:pk>/delete/",
+        views.PlaceDeleteView.as_view(),
+        name="place_delete",
     ),
     path(
         "place/<int:pk>/<slug>/",

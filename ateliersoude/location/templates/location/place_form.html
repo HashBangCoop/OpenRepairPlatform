@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load assets %}
+{% load add_attr %}
+
+{% block extra_css %}
+  {% assets "css_autocomplete" %}
+    <link type="text/css" href="{{ ASSET_URL }}" rel="stylesheet"/>
+  {% endassets %}
+{% endblock %}
+
+{% block content %}
+  <section class="container mt-4">
+    <h1>
+      {% if place %}
+        Mise à jour de '{{ place }}'
+      {% else %}
+        Création d'un nouveau lieu
+      {% endif %}
+    </h1>
+    <div class="card p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if form.errors %}
+          {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">
+              <strong>{{ error }}</strong>
+            </div>
+          {% endfor %}
+        {% endif %}
+        {% for field in form.visible_fields %}
+          <div class="form-group p-2">
+            {{ field.label_tag }}
+            {% if field.errors %}
+              {{ field|add_class:"is-invalid" }}
+            {% elif form.errors %}
+              {{ field|add_class:"is-valid" }}
+            {% else %}
+              {{ field }}
+            {% endif %}
+            {% if field.help_text %}
+              <small class="form-text text-muted">
+                {{ field.help_text }}
+              </small>
+            {% endif %}
+            {% if field.errors %}
+              {% for error in field.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        {% endfor %}
+        {% for hidden_field in form.hidden_fields %}
+          {{ hidden_field.errors }}
+          {{ hidden_field }}
+        {% endfor %}
+        <div class="form-group p-2">
+          <button type="submit" class="btn btn-success w-100 p-3">Valider</button>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_js %}
+  {% assets "js_create_edit_place" %}
+    <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+{% endblock %}

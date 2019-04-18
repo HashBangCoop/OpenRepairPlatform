@@ -28,11 +28,11 @@ INSTALLED_APPS = [
     "ateliersoude.user",
     "ateliersoude.location",
 
-    "fm",
     "simple_history",
     "rest_framework",
     'bootstrap',
     'fontawesome',
+    'django_assets',
 ]
 
 
@@ -135,3 +135,9 @@ SERVER_EMAIL = EMAIL_ADRESSE
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
+
+# Config django-assets
+ASSETS_MODULES = [
+    'ateliersoude.assets'
+]
+ASSETS_ROOT = STATICFILES_DIRS[0]

@@ -163,7 +163,7 @@ class Organization(models.Model):
         verbose_name=_("Image"), upload_to="organizations/", null=True
     )
     active = models.BooleanField(verbose_name=_("Active"))
-    slug = models.SlugField(unique=True, default="")
+    slug = models.SlugField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -175,7 +175,7 @@ class Organization(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("organization_detail", args=(self.pk, self.slug))
+        return reverse("user:organization_detail", args=(self.pk, self.slug))
 
 
 class OrganizationPerson(models.Model):

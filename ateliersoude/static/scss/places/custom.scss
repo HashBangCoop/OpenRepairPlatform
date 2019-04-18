@@ -1,0 +1,10 @@
+#place_map {
+  height: calc(100vh - 6.5em);
+}
+
+.create-place-btn {
+  z-index: 401;
+  position: absolute;
+  right: 2.5em;
+  top: 7em;
+}

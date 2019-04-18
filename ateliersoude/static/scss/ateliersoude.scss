@@ -1,0 +1,421 @@
+/*******************************
+******* éléments généraux *******
+*********************************/
+.container-fluid{
+  padding: 0;
+  margin: 0;
+}
+body {
+  background-color: #eef2f6 !important;
+}
+a {
+  color : #49d3be;
+}
+header{
+  z-index:1250 !important;
+}
+
+h1, h2, h3 {
+  color : #083342;
+}
+
+.border-success{
+  border-color: #49d3be !important;
+}
+
+.clear{
+  clear: both;
+}
+
+.checked:before {
+  position: absolute;
+  right: -17px;
+  top: -28px;
+  width: 35px;
+  height: 35px;
+  color: #49d3be;
+  font-size: 40px;
+  content: "\f058";
+  border-radius: 35px;
+
+}
+
+.hide {
+  display:none !important;
+}
+
+.administrator:before {
+  color:#ffd300;
+  content: "\f005";
+}
+
+/*******************************
+*********** Menu ***************
+*********************************/
+
+.dropdown-menu {
+  right: 0px;
+  left: 150px !important;
+  top: 60px;
+  width: 100%;
+}
+
+.gradient-bg{
+  background: -moz-linear-gradient(top,  rgba(181,255,241,0.65) 0%, rgba(188,188,188,0) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top,  rgba(181,255,241,0.65) 0%,rgba(188,188,188,0) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom,  rgba(181,255,241,0.65) 0%,rgba(188,188,188,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6b5fff1', endColorstr='#00bcbcbc',GradientType=0 ); /* IE6-9 */
+}
+
+.navbar {
+  background-color: #083342 !important;
+  padding: 05px !important;
+  border: none !important;
+}
+.navbar ul li a {
+  margin-left: 15px !important;
+  color: #fff;
+}
+.navbar .fa, .avatar a, .dropdown-toggle  {
+  text-decoration: none;
+  color: #fff;
+}
+.navbar ul li a:hover, .navbar .fa:hover, .avatar a:hover, .dropdown-toggle:hover{
+  color:gray !important;
+  text-decoration: none;
+}
+.navbar ul li {
+  margin-left: 15px !important;
+}
+.avatar img{
+  border-radius: 90%;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 5px !important;
+}
+
+/********************************
+************ feed ***************
+*********************************/
+
+.feed_stream{
+  height: 300px;
+  overflow: scroll;
+}
+
+.feed {
+  margin : 15px;
+  margin-top: 05px;
+  margin-bottom: 05px;
+  text-align: center;
+  background-color: #FFF;
+  padding: 10px;
+  font-size: 12px !important;
+}
+
+
+/********************************
+************ card ***************
+*********************************/
+
+.scrollable {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  max-height: 500px;
+}
+.card {
+  margin : 15px !important;
+  border : none !important;
+  border-radius: 0 !important;
+}
+
+
+/*******************************
+********* user card ************
+*********************************/
+
+.event{
+  line-height: 20px;
+  padding: 10px;
+}
+
+.unaccessible{
+  background-color: #29292999;
+  overflow: hidden;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
+}
+
+.card-user {
+  font-size: 12px;
+  z-index: 1000;
+}
+
+.card ul li {
+  list-style-type: none;
+  text-align: left;
+}
+.card-user img{
+  border-radius: 90%;
+}
+.card .fa, .card > a {
+  text-decoration: none;
+  color:  #212120;
+}
+
+.card-body {
+  text-align: left;
+}
+.user-status{
+  font-size: 12px;
+  font-style: italic;
+}
+
+.avatar-card-user {
+  text-align: center;
+
+}
+.avatar-card-user img {
+  width:auto;
+}
+
+/*******************************
+********* event card ************
+*********************************/
+
+
+.event-list:first-child {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.event-list:first-child img{
+  width: auto;
+  max-height: 150px;
+}
+
+
+.card-event {
+  box-shadow: 0px 4px 0px #fee56e;
+}
+.img-activity {
+  max-width: 420px;
+  margin: 10px auto;
+  width: 100%;
+}
+
+.event-date {
+  display: block;
+  width:100%;
+  background-color: #cecece;
+  height:44px;
+  font-size:22px;
+  line-height: 44px;
+  color : #586266;
+
+}
+.event-card-title a{
+  color : #083342;
+}
+
+.card-event h3 {
+  font-size: 1.4em;
+}
+.card-event .hour-event{
+  color: grey;
+  font-size: 0.8em;
+}
+.square-date{
+  background-color: #35bda6;
+  color: #fff;
+  height: 100%;
+  font-weight: bold;
+  font-size: 2.3em;
+}
+
+
+/* modals */
+
+.fm-modal .modal-content {
+  margin: auto !important;
+  max-width: 700px !important;
+  min-height: 250px !important;
+  padding: 10px !important;
+  margin-top: 10% !important;
+  width: 90% !important;
+}
+
+
+
+
+/********************************
+************* Forms *************
+*********************************/
+/* Create event card */
+
+.btn-circle.btn-xl {
+  width: 70px;
+  height: 70px;
+  padding: 10px 16px;
+  border-radius: 35px;
+  font-size: 24px;
+  line-height: 1.33;
+}
+
+.btn-circle {
+  width: 30px;
+  height: 30px;
+  padding: 6px 0px;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.42857;
+}
+
+/********************************
+********** Carousel *************
+*********************************/
+.carousel{
+  margin: 10px 0 10px -10px !important;
+}
+@media (max-width: 767px) {
+  .carousel{
+    margin: 10px 0 10px -50px !important;
+  }
+}
+/********************************
+********** detail views **********
+*********************************/
+
+.header-bar-title {
+  position: relative;
+  top: 25px;
+}
+
+.profil-header-bar {
+  width: 100% !important;
+  background-color: #49d3be;
+  height: 100px;
+  padding: 10px;
+  top:70px;
+}
+.profil-header-bar.event{
+  background-color: #fee56e;
+}
+.header-avatar-bar img{
+  height: 300px;
+  margin: 20px 0 0 40px !important;
+  border-radius: 10% !important;
+  background-color: #fff !important;
+  /* padding: 5px !important; */
+  /* box-shadow: 0px 5px 5px #083342; */
+}
+.header-avatar-bar span{
+  margin-left: 10px !important;
+  color: #fff;
+}
+/********************************
+* breadcrumb (chemin navigation)*
+*********************************/
+.breadcrumb{
+  font-size: 12px;
+  line-height: 20px;
+  padding-left: 10px !important;
+  margin-bottom: 0px !important;
+}
+.breadcrumb{
+  border-style: none !important;
+  border-width: 0px !important;
+  background-color: #fff !important;
+}
+
+.breadcrumb a{
+  color: #083342;
+}
+
+.breadcrumb .breadcrumb-item:not(:first-child)::before{
+  content:"\f04b" !important;
+  font-size: 8px;
+}
+
+
+/* map */
+.easy-map-googlemap{
+  width: 100% !important;
+  height: 300px !important;
+}
+
+/* leaflet reset style */
+
+.leaflet-container a {
+  color: #49d3be !important;
+}
+/*******************************
+************* Modals ************
+*********************************/
+
+.js-modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50% !important;
+}
+
+.close {
+  color: #aaa;
+  text-align: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* search user
+
+.search-user {
+  position: relative;
+  clear: both;
+}*/
+#search-user-result {
+  width:100%;
+  height: 250px;
+}
+
+/* media queries */
+
+@media (max-width: 768px) {
+
+  .modal-content {
+    width: 90% !important;
+  }
+
+
+  .profil-header-bar.event{
+    height: 250px;
+  }
+  .sticky-keep{
+    top:150px !important;
+  }
+}
