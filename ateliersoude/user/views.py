@@ -1,11 +1,9 @@
-from fm.views import AjaxUpdateView
-
 from django import forms
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from ateliersoude.event.models import Event
 from ateliersoude.user.models import CustomUser, Organization
@@ -141,7 +139,7 @@ class OrganizationCreateView(OrganizationFormView, CreateView):
     permission_required = "plateformeweb.create_organization"
 
 
-class OrganizationEditView(OrganizationFormView, AjaxUpdateView):
+class OrganizationEditView(OrganizationFormView, UpdateView):
     # permission_required = 'plateformeweb.edit_organization'
     queryset = Organization.objects
 
