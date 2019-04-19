@@ -1,6 +1,7 @@
 from os import environ
 from os.path import dirname, abspath, join
 
+from bootstrap4 import forms
 
 PROJECT_DIR = dirname(dirname(abspath(__file__)))
 BASE_DIR = dirname(PROJECT_DIR)
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
     'bootstrap',
     'fontawesome',
     'django_assets',
+    'bootstrap4',
 ]
 
 
@@ -141,3 +143,6 @@ ASSETS_MODULES = [
     'ateliersoude.assets'
 ]
 ASSETS_ROOT = STATICFILES_DIRS[0]
+
+# Add class to field wrapper in django-bootstrap4
+forms.FORM_GROUP_CLASS += " p-2"

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load assets %}
-{% load add_attr %}
+{% load bootstrap4 %}
 
 {% block extra_css %}
   {% assets "css_autocomplete" %}
@@ -18,42 +18,10 @@
         Création d'un nouveau lieu
       {% endif %}
     </h1>
-    <div class="card p-4">
-      <form method="post" enctype="multipart/form-data">
+    <div class="card p-3">
+      <form method="post" enctype="multipart/form-data" class="form">
         {% csrf_token %}
-        {% if form.errors %}
-          {% for error in form.non_field_errors %}
-            <div class="alert alert-danger">
-              <strong>{{ error }}</strong>
-            </div>
-          {% endfor %}
-        {% endif %}
-        {% for field in form.visible_fields %}
-          <div class="form-group p-2">
-            {{ field.label_tag }}
-            {% if field.errors %}
-              {{ field|add_class:"is-invalid" }}
-            {% elif form.errors %}
-              {{ field|add_class:"is-valid" }}
-            {% else %}
-              {{ field }}
-            {% endif %}
-            {% if field.help_text %}
-              <small class="form-text text-muted">
-                {{ field.help_text }}
-              </small>
-            {% endif %}
-            {% if field.errors %}
-              {% for error in field.errors %}
-                <div class="invalid-feedback">{{ error }}</div>
-              {% endfor %}
-            {% endif %}
-          </div>
-        {% endfor %}
-        {% for hidden_field in form.hidden_fields %}
-          {{ hidden_field.errors }}
-          {{ hidden_field }}
-        {% endfor %}
+        {% bootstrap_form form %}
         <div class="form-group p-2">
           <button type="submit" class="btn btn-success w-100 p-3">Valider</button>
         </div>

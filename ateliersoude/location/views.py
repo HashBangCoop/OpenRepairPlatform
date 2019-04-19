@@ -1,10 +1,11 @@
 from django.contrib import messages
+from django.http import HttpResponseBadRequest
 from django.urls import reverse_lazy
 
-from django import forms
 from django.views.generic import DetailView, TemplateView, DeleteView, \
     CreateView, UpdateView
 
+from ateliersoude.location.forms import PlaceForm
 from ateliersoude.location.models import Place
 
 
@@ -25,46 +26,36 @@ class PlaceMapView(TemplateView):
     template_name = "location/place_list.html"
 
 
-class PlaceFormView:
+class PlaceCreateView(CreateView):
+    form_class = PlaceForm
     model = Place
-    fields = [
-        "name",
-        "description",
-        "place_type",
-        "address",
-        "picture",
-        "organization",
-        "longitude",
-        "latitude",
-    ]
 
-    def get_form(self, form_class=None):
-        if form_class is None:
-            form_class = self.get_form_class()
-        form = super().get_form(form_class)
-        form.fields["description"] = forms.CharField(widget=forms.Textarea)
-        form.fields["longitude"] = forms.CharField(widget=forms.HiddenInput)
-        form.fields["latitude"] = forms.CharField(widget=forms.HiddenInput)
-
-        # Add bootstrap classes
-        for field in form.fields.values():
-            existing_class = field.widget.attrs.get("class", "")
-            field.widget.attrs["class"] = f"{existing_class} form-control"
-
-        return form
-
-
-class PlaceCreateView(PlaceFormView, CreateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
-        obj.owner = self.request.user
+        try:
+            obj.owner = self.request.user
+        except ValueError:
+            return HttpResponseBadRequest(
+                "Impossible de créer un Lieu avec cet utilisateur".encode()
+            )
+        validated = super().form_valid(form)
         messages.success(self.request, "Le lieu a bien été créé")
-        return super().form_valid(form)
+        return validated
 
 
-class PlaceEditView(PlaceFormView, UpdateView):
+class PlaceEditView(UpdateView):
+    form_class = PlaceForm
+    model = Place
+
     def form_valid(self, form):
-        obj = form.save()
-        obj.owner = self.request.user
+        obj = form.save(commit=False)
+        try:
+            obj.owner = self.request.user
+        except ValueError:
+            return HttpResponseBadRequest(
+                "Impossible de mettre à jour ce Lieu avec cet "
+                "utilisateur".encode()
+            )
+        validated = super().form_valid(form)
         messages.success(self.request, "Le lieu a bien été modifié")
-        return super().form_valid(form)
+        return validated
