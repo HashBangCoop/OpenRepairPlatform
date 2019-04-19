@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block breadcrumbs %}
+{% with type="utilisateurs" view="user_list" %}
+{{ block.super }}
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+
+  <section class="sub_header sticky-position sticky-top">
+    <div class="bg-white text-secondary">
+      <h1 class="text-center mx-auto">
+        {{ block.super }} Users 
+      </h1>
+    </div>
+  </section>
+  
+  <section class="container-fluid">
+    <div class="row ml-4 py-2 d-flex justify-content-center">
+  
+      {% for user in object_list %}
+      {% include "user/user.html" with class="row" img_class="col-12" content_class="col-12 text-center" %}
+      {% empty %}
+      <div>No users yet.</div>  
+      {% endfor %}
+  
+    </div>
+  </section>
+
+{% endblock %}

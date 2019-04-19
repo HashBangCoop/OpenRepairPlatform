@@ -1,0 +1,60 @@
+{% extends 'detail_view.html' %}
+
+{% load static %}
+
+
+{% block content %}
+
+  <div class="container-fluid profil-header-bar sticky-position sticky-top {{object}}">
+    <div class="row">
+      <div class="col-md-9 col-sm-12 header-bar-title">
+        <div class="row p-2 float-left" id="list-organization">
+          <ul class="list-group">
+            {% for organization in target_user.organizationperson_set.all %}
+              <li class="list-group-item">
+                {% if organization.role == 0 %}
+                  Visiteur 
+                {% elif organization.role == 10 %}
+                  Membre 
+                {% elif organization.role == 20 %}
+                  Membre actif
+                {% elif organization.role == 30 %}
+                  Administateur
+                {% endif %}
+                à
+                <a href="{% url 'user:organization_detail' organization.organization.id organization.organization.slug %}">
+                  {{ organization.organization.name }}
+                </a>
+              </li>
+            {% empty %}
+                <p>Ce profil n'est rattaché à aucune organisation</p>
+            {% endfor %}
+          </ul>
+        </div>
+  
+        {% if target_user.pk == request.user.pk %}
+          <a class="card-link mr-3 fm-update btn btn-primary float-right" href="{% url "user:user_profile" %}">
+            <i class="fa fa-pencil-square-o 2-xs pt-1"></i> Editer mon profil
+          </a>
+        {% endif %}
+  
+      </div>
+    </div>
+  </div>
+
+  <div class="row main-container">
+    <section class="col-md-3" style=" position: relative; top:-100px;" > 
+      <div class="sticky-position sticky-top">
+        {% include "user/user.html" with user=target_user class="" img_class="col-lg" about_class="row" %}
+      </div>
+    </section>   
+
+    <section class="col-md-6 mt-3 bg-white">
+      <h5 class="border-bottom border-gray pb-2 mb-0 clear">Rendez-vous</h5>
+      <section class="row" id="list-booking">
+        {% include "event/event_list_vuejs.html" with context_type="user" context_pk=target_user.pk %}
+      </section>
+    </section>
+  </div>
+
+{% endblock %}

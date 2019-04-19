@@ -1,34 +1,39 @@
-{% extends 'form_view.html' %}
+{% extends 'base.html' %}
 
-{% load staticfiles %}
-{% load fontawesome %}
-{% load avatar_tags %}
-{% load django_bootstrap_breadcrumbs %}
-{% load crispy_forms_tags %}
-
+{% load static %}
 
 {% block breadcrumbs %}
 {% with type="organization" list_view="organization_list" view="organization_create" %}
-    {{ block.super }}
+{{ block.super }}
 {% endwith %}
 {% endblock %}
 
-{% block title %} {{ block.super }} organization {% endblock title %}
+{% block content %}
 
-{% block form %}
+<div class="container">  
+  <h1>
+    {% if request.path == "/edit" %}
+    Edit
+    {% elif request.path == "/create" %}
+    Create
+    {% endif %}
 
-<div class="container">
-        <div class="row">
-            <div class="form col-md-6">
-                <form action="" method="post" enctype="multipart/form-data"
-                    class="pure-form">{% csrf_token %}
-                    {{ form|crispy }}
-                    <input type="submit" value="Save" class="btn btn-primary"/>
-                </form>
-            </div>
-        </div>
+    {{ block.super }} organization
+  </h1>
+
+  <div class="col-sm col-lg">
+    <div class="row">
+      <div class="form col-md-6">
+        <form action="" method="post" enctype="multipart/form-data" class="pure-form">
+          {% csrf_token %}
+          {{ form }}
+          <input type="submit" value="Save" class="btn btn-primary"/>
+        </form>
+      </div>
     </div>
+  </div>   
 
+</div>
 
 {% endblock %}
- 
+

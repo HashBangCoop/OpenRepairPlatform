@@ -74,6 +74,7 @@ def register(request):
 
 class UserDetailView(DetailView):
     model = CustomUser
+    template_name = "user/user_detail.html"
     context_object_name = "target_user"
 
     def get_context_data(self, **kwargs):
@@ -87,6 +88,7 @@ class UserDetailView(DetailView):
 
 class UserListView(ListView):
     model = CustomUser
+    template_name = "user/user_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -131,11 +133,12 @@ class OrganizationFormView:
 
 
 class OrganizationCreateView(OrganizationFormView, CreateView):
-    permission_required = "plateformeweb.create_organization"
+    permission_required = "user.create_organization"
 
 
 class OrganizationEditView(OrganizationFormView, UpdateView):
     # permission_required = 'plateformeweb.edit_organization'
+    template_name = "user/organisation/organization_form.html"
     queryset = Organization.objects
 
 
