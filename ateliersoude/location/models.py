@@ -4,24 +4,7 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from ateliersoude.user.models import CustomUser, Organization
-
-
-class PlaceType(models.Model):
-    name = models.CharField(
-        max_length=100, verbose_name=_("Type"), null=False, blank=False
-    )
-    slug = models.SlugField(unique=True, default="")
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        return super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.slug
-
-    @classmethod
-    def get_other_place(cls):
-        return Place.objects.get_or_create(name="Other")[0]
+from ateliersoude.utils import validate_image
 
 
 class Place(models.Model):
@@ -32,31 +15,26 @@ class Place(models.Model):
         Organization, on_delete=models.CASCADE, null=False
     )
     owner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
-
     description = models.TextField(
-        verbose_name=_("Place description"),
         null=False,
         blank=False,
         default="",
+        verbose_name=_("Place description"),
     )
-
-    type = models.ForeignKey(
-        PlaceType,
-        verbose_name=_("Type"),
-        null=False,
-        on_delete=models.SET(PlaceType.get_other_place),
-    )
-
-    slug = models.SlugField(default="", unique=True)
-    # geolocation is provided by the AddressField
+    place_type = models.CharField(max_length=100, default="Other")
+    slug = models.SlugField(default="", blank=True)
     address = models.CharField(
-        verbose_name=_("street address"),
-        max_length=255,
-        blank=True,
-        default="",
+        max_length=255, verbose_name=_("street address")
     )
-    picture = models.ImageField(verbose_name=_("Image"), upload_to="places/")
-
+    longitude = models.FloatField()
+    latitude = models.FloatField()
+    picture = models.ImageField(
+        upload_to="places/",
+        blank=True,
+        null=True,
+        validators=[validate_image],
+        verbose_name=_("Image"),
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -65,7 +43,7 @@ class Place(models.Model):
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("place_detail", args=(self.pk, self.slug))
+        return reverse("location:place_detail", args=(self.pk, self.slug))
 
     def __str__(self):
         return self.name

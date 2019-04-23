@@ -1,6 +1,7 @@
 from os import environ
 from os.path import dirname, abspath, join
 
+from bootstrap4 import forms
 
 PROJECT_DIR = dirname(dirname(abspath(__file__)))
 BASE_DIR = dirname(PROJECT_DIR)
@@ -22,17 +23,16 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django.contrib.messages",
-
     "ateliersoude.api",
     "ateliersoude.event",
     "ateliersoude.user",
     "ateliersoude.location",
-
-    "fm",
     "simple_history",
     "rest_framework",
-    'bootstrap',
-    'fontawesome',
+    "bootstrap",
+    "fontawesome",
+    "django_assets",
+    "bootstrap4",
 ]
 
 
@@ -132,6 +132,11 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 DEFAULT_FROM_EMAIL = EMAIL_ADRESSE
 SERVER_EMAIL = EMAIL_ADRESSE
 
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-)
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
+
+# Config django-assets
+ASSETS_MODULES = ["ateliersoude.assets"]
+ASSETS_ROOT = STATICFILES_DIRS[0]
+
+# Add class to field wrapper in django-bootstrap4
+forms.FORM_GROUP_CLASS += " p-2"

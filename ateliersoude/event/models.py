@@ -105,7 +105,7 @@ class Event(models.Model):
         default=timezone.now,
     )
     type = models.ForeignKey(Activity, on_delete=models.DO_NOTHING)
-    slug = models.SlugField(default="", unique=True)
+    slug = models.SlugField(default="")
     starts_at = models.DateTimeField(
         verbose_name=_("Start date and time"),
         null=False,

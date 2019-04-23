@@ -17,16 +17,19 @@ urlpatterns = [
         "location/",
         include("ateliersoude.location.urls", namespace='location')
     ),
+    path(
+        "api/location/",
+        include("ateliersoude.location.api_urls", namespace='api_location')
+    ),
     path("user/", include("ateliersoude.user.urls", namespace='user')),
     path("api/", include("ateliersoude.api.urls")),
 ]
 
-# DEBUG toolbar if DEBUG is true in the environment
 if settings.DEBUG:
-    import debug_toolbar
+    import debug_toolbar  # noqa
     urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns
+                      path('__debug__/', include(debug_toolbar.urls)),
+                  ] + urlpatterns
 
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)

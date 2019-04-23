@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="container">
+    <h1 class="mt-5">Suppression de '{{ place }}'</h1>
+    <p>
+      <i class="fa fa-exclamation-triangle"></i>
+      Vous êtes sur le point de supprimer le lieu <code>'{{ place }}'</code> situé à <code>'{{ place.address }}'</code>. Êtes-vous certain de votre choix ?
+    </p>
+    <form method="post">{% csrf_token %}
+      {{ form.as_p }}
+      <input class="btn btn-danger" type="submit" value="Oui je suis sûr">
+    </form>
+  </section>
+{% endblock %}

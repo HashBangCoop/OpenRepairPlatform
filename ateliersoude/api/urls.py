@@ -14,7 +14,6 @@ urlpatterns = [
         views.get_places_for_organization,
         name="get_places_for_organization",
     ),
-    path("getPlaces/", views.get_all_places, name="get_all_places"),
     path("getDates/", views.get_dates, name="get_dates"),
     path(
         "getUsers/<int:organization_pk>/(<int:event_pk>/",
