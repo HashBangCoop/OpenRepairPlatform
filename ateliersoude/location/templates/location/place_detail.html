@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load assets %}
+{% load l10n %}
 
 {% block extra_css %}
   {% assets "css_detail_place" %}
@@ -57,8 +58,8 @@
 
 {% block extra_js %}
   <script>
-    let latitude = {{ place.latitude }};
-    let longitude = {{ place.longitude }};
+    let latitude = {{ place.latitude|unlocalize }};
+    let longitude = {{ place.longitude|unlocalize }};
     let placeName = "{{ place.name }}";
   </script>
   {% assets "js_detail_place" %}
