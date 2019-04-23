@@ -59,7 +59,7 @@ js_create_edit_place = Bundle(
 js_detail_place = Bundle(
     'js/lib/leaflet.js', 'js/places/leaflet_custom.js', 'js/places/detail.js',
     filters='jsmin',
-    output='js/places/create-edit.min.js'
+    output='js/places/detail_place.min.js'
 )
 
 register('css_ateliersoude', css_atelier_soude)
