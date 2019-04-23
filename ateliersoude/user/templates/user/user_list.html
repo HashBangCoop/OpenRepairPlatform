@@ -10,24 +10,73 @@
 
 {% block content %}
 
-  <section class="sub_header sticky-position sticky-top">
-    <div class="bg-white text-secondary">
-      <h1 class="text-center mx-auto">
-        {{ block.super }} Users 
-      </h1>
-    </div>
-  </section>
-  
-  <section class="container-fluid">
-    <div class="row ml-4 py-2 d-flex justify-content-center">
-  
-      {% for user in object_list %}
-      {% include "user/user.html" with class="row" img_class="col-12" content_class="col-12 text-center" %}
-      {% empty %}
-      <div>No users yet.</div>  
-      {% endfor %}
-  
-    </div>
-  </section>
+<section class="sub_header sticky-position sticky-top">
+  <div class="bg-white text-secondary">
+    <h1 class="text-center mx-auto">
+      {{ block.super }} Users 
+    </h1>
+  </div>
+</section>
+
+<section class="container-fluid">
+  <div class="row ml-4 py-2 d-flex justify-content-center">
+
+    {% for user in object_list %}
+
+      <div class="card-user card p-2">
+        <a href="{{ user.get_absolute_url }}">
+          <div class="row" id="square-{{ user.pk }}">
+            <div class="avatar-card-user col-12">
+              user
+            </div>
+            <div class="col-12 text-center">
+              <h5 class="mx-auto col-12">
+                {{ user.first_name|capfirst }} {{ user.last_name|capfirst}}
+              </h5>
+              {% for organization in user.organizationperson_set.all %}
+                <span class="user-status">
+                  {% if organization.role == 0 %}
+                    visiteur 
+                  {% elif organization.role == 10 %}
+                    membre 
+                  {% elif organization.role == 20 %}
+                    membre actif
+                  {% elif organization.role == 30 %}
+                    administateur
+                  {% endif %}
+                  à {{ organization.organization.name }}
+                </span>
+              {% endfor %}
+              {% if request.resolver_match.url_name == "user_detail" %}
+                <ul class="list-group">
+                  {% for organization in user.organizationperson_set.all|slice:"1" %}
+                    {% if request.user.is_authenticated and request.user in organization.organization.admins %}
+                      <li class="list-group-item">phone {{ user.phone_number }} </li>
+                      <li class="list-group-item">envelope-o {{ user.email }}</li>
+                      <li class="list-group-item">map-marked {{ user.street_address }} </li>
+                      <li class="list-group-item">birthday-cake {{ user.birth_date }} </li>
+                    {% endif %}
+                  {% endfor %}
+                  <li class="list-group-item">clock-o membre depuis le {{ user.date_joined }}</li>
+                </ul>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+
+        {% if orga %}
+        {% elif absentee and request.user in event.organizers.all %}
+          <button class="btn-setpresent btn" id="{{ user.pk }}">confirmer présence</button>
+        {% elif not absentee and request.user in event.organizers.all %}
+          <button class="btn-setabsent btn" id="{{userid}}">annuler présence</button>
+        {% endif %}
+      </div>
+
+    {% empty %}
+    <div>No users yet.</div>  
+    {% endfor %}
+
+  </div>
+</section>
 
 {% endblock %}
