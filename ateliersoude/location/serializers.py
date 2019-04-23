@@ -15,5 +15,14 @@ class PlaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Place
-        fields = ['picture', 'get_absolute_url', 'orga_url', 'orga_name',
-                  'name', 'address', 'latitude', 'longitude', 'place_type']
+        fields = [
+            "picture",
+            "get_absolute_url",
+            "orga_url",
+            "orga_name",
+            "name",
+            "address",
+            "latitude",
+            "longitude",
+            "place_type",
+        ]

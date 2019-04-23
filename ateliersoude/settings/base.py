@@ -23,18 +23,16 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django.contrib.messages",
-
     "ateliersoude.api",
     "ateliersoude.event",
     "ateliersoude.user",
     "ateliersoude.location",
-
     "simple_history",
     "rest_framework",
-    'bootstrap',
-    'fontawesome',
-    'django_assets',
-    'bootstrap4',
+    "bootstrap",
+    "fontawesome",
+    "django_assets",
+    "bootstrap4",
 ]
 
 
@@ -134,14 +132,10 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 DEFAULT_FROM_EMAIL = EMAIL_ADRESSE
 SERVER_EMAIL = EMAIL_ADRESSE
 
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-)
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 # Config django-assets
-ASSETS_MODULES = [
-    'ateliersoude.assets'
-]
+ASSETS_MODULES = ["ateliersoude.assets"]
 ASSETS_ROOT = STATICFILES_DIRS[0]
 
 # Add class to field wrapper in django-bootstrap4

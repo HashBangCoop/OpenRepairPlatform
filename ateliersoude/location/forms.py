@@ -11,13 +11,4 @@ class PlaceForm(ModelForm):
 
     class Meta:
         model = Place
-        fields = [
-            "name",
-            "description",
-            "place_type",
-            "address",
-            "picture",
-            "organization",
-            "longitude",
-            "latitude",
-        ]
+        exclude = ["created_at", "updated_at", "slug", "owner"]

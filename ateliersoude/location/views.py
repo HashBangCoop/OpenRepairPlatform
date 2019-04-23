@@ -2,8 +2,13 @@ from django.contrib import messages
 from django.http import HttpResponseBadRequest
 from django.urls import reverse_lazy
 
-from django.views.generic import DetailView, TemplateView, DeleteView, \
-    CreateView, UpdateView
+from django.views.generic import (
+    DetailView,
+    TemplateView,
+    DeleteView,
+    CreateView,
+    UpdateView,
+)
 
 from ateliersoude.location.forms import PlaceForm
 from ateliersoude.location.models import Place
@@ -33,6 +38,8 @@ class PlaceCreateView(CreateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         try:
+            # Temporary try/catch, when we will have a real permission
+            # system we won't need this anymore
             obj.owner = self.request.user
         except ValueError:
             return HttpResponseBadRequest(
@@ -50,6 +57,8 @@ class PlaceEditView(UpdateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         try:
+            # Temporary try/catch, when we will have a real permission
+            # system we won't need this anymore
             obj.owner = self.request.user
         except ValueError:
             return HttpResponseBadRequest(

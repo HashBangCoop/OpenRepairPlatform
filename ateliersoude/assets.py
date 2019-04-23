@@ -7,9 +7,15 @@ scss_atelier_soude = Bundle(
     output='css/ateliersoude.css',
 )
 scss_places = Bundle(
-    'scss/places/leaflet_custom.scss', 'scss/places/custom.scss',
+    'scss/lib/leaflet.scss', 'scss/places/leaflet_custom.scss',
+    'scss/places/custom.scss',
     filters='scss',
     output='css/leaflet_custom.css',
+)
+scss_detail_place = Bundle(
+    'scss/lib/leaflet.scss', 'scss/places/leaflet_custom.scss',
+    filters='scss',
+    output='css/detail_place.css',
 )
 scss_auto_complete = Bundle(
     'scss/lib/auto-complete.scss',
@@ -28,6 +34,11 @@ css_places = Bundle(
     filters='cssrewrite,cssmin',
     output='css/places.min.css'
 )
+css_detail_place = Bundle(
+    scss_detail_place,
+    filters='cssrewrite,cssmin',
+    output='css/detail_place.min.css'
+)
 css_auto_complete = Bundle(
     scss_auto_complete,
     filters='cssrewrite,cssmin',
@@ -36,7 +47,7 @@ css_auto_complete = Bundle(
 
 # JS minify
 js_places = Bundle(
-    'js/places/leaflet_custom.js', 'js/places/custom.js',
+    'js/lib/leaflet.js', 'js/places/leaflet_custom.js', 'js/places/custom.js',
     filters='jsmin',
     output='js/places/places.min.js'
 )
@@ -45,9 +56,16 @@ js_create_edit_place = Bundle(
     filters='jsmin',
     output='js/places/create-edit.min.js'
 )
+js_detail_place = Bundle(
+    'js/lib/leaflet.js', 'js/places/leaflet_custom.js', 'js/places/detail.js',
+    filters='jsmin',
+    output='js/places/create-edit.min.js'
+)
 
 register('css_ateliersoude', css_atelier_soude)
 register('css_places', css_places)
 register('css_autocomplete', css_auto_complete)
+register('css_detail_place', css_detail_place)
 register('js_places', js_places)
 register('js_create_edit_place', js_create_edit_place)
+register('js_detail_place', js_detail_place)
