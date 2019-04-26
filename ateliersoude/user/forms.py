@@ -84,9 +84,9 @@ class UserForm(ModelForm):
             #  (see the user profile form, and base.html)
             #
             # 'birth_date': forms.DateInput(attrs={'class':'datepicker'}),
-            "email": widgets.EmailInput(attrs={"type": "email"}),
+            "email": widgets.EmailInput(attrs={"activity": "email"}),
             "phone_number": widgets.TextInput(
-                attrs={"type": "tel", "placeholder": "+336012345678"}
+                attrs={"activity": "tel", "placeholder": "+336012345678"}
             ),
         }
         localized_fields = ["birth_date"]

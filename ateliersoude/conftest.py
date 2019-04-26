@@ -4,6 +4,11 @@ from pytest_factoryboy import register
 from rest_framework.test import APIClient
 
 from ateliersoude.location.factories import PlaceFactory
+from ateliersoude.event.factories import (
+    ActivityFactory,
+    ConditionFactory,
+    EventFactory,
+    PublishedEventFactory)
 
 from ateliersoude.factories import USER_PASSWORD, CustomUserFactory
 from ateliersoude.user.factories import OrganizationFactory
@@ -11,17 +16,21 @@ from ateliersoude.user.factories import OrganizationFactory
 register(CustomUserFactory)
 register(PlaceFactory)
 register(OrganizationFactory)
+register(ActivityFactory)
+register(ConditionFactory)
+register(EventFactory)
+register(PublishedEventFactory)
 
 
 @pytest.fixture
 def user_log(custom_user_factory):
-    user = custom_user_factory(email='user_log@example.com')
+    user = custom_user_factory(email="user_log@example.com")
     return user
 
 
 @pytest.fixture
 def user_log_staff(custom_user_factory):
-    return custom_user_factory(email='user_log@example.com', is_staff=True)
+    return custom_user_factory(email="user_log@example.com", is_staff=True)
 
 
 @pytest.fixture

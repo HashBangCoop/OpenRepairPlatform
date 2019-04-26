@@ -1,58 +1,50 @@
-{% extends 'detail_view.html' %}
+{% extends 'base.html' %}
 
-{% load staticfiles %}
-{% load fontawesome %}
-{% load avatar_tags %}
-{% load django_bootstrap_breadcrumbs %}
-{% load django_markdown django_markdown_static %}
-{% load activity_tags %}
+{% block content %}
+  <section class="container">
+    <h1 class="mt-4">{{ activity.name|title }}</h1>
 
+    <div class="card">
+      {% if activity.picture %}
+        <img class="img-responsive w-100" src="{{ activity.picture.url }}" alt="image activité">
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">
+          {{ activity.name }} -
+          <i class="fa fa-users"></i>
+          <a href="{% url 'user:organization_detail' activity.organization.pk activity.organization.slug %}">
+            {{ activity.organization.name }}
+          </a>
+        </h5>
+        {{ activity.description }}
+      </div>
 
-{% block breadcrumbs %}
-{% with type="activity" list_view="activity_list" detail_name=activity.name %}
-   {{ block.super }}
-{% endwith %}
-{% endblock %}
-
-<!-- just for define header-bar right color -->
-{% block header_ban %}
-    {% with object="activity" %}
-    {{ block.super }}
-{% endwith %}
-{% endblock header_ban %}
-<!-- end define -->
-
-
-{% block TitleAndEdit %}
-    <h5 class="float-left">
-        {{ activity.name }}
-    </h5>
-    {% if request.user.is_authenticated and request.user in activity.organization.volunteers or activity.organization.admins %}
-        <a class="card-link mr-3 fm-update btn btn-primary float-right" href="{% url 'activity_edit' activity.id %}"
-        data-fm-head="Update" data-fm-callback="reload">&nbsp
-        <i class="fa fa-pencil-square-o 2-xs pt-1"></i>
-        Editer
+      <div class="card-footer">
+        <a class="btn btn-primary" href="{% url 'event:activity_edit' activity.pk %}">
+          <i class="fa fa-pencil-alt"></i>
+          Editer
         </a>
-    {% endif %}
-{% endblock TitleAndEdit %}
+        <a class="btn btn-danger" href="{% url 'event:activity_delete' activity.pk %}">
+          <i class="fa fa-trash-alt"></i>
+          Supprimer
+        </a>
+      </div>
 
-{% block context %}
-<div class="sticky-position sticky-top sticky-keep">
-    {% include "plateformeweb/activity.html" with id=activity.pk %}
-</div>
-{% endblock context %} 
+    </div>
 
-{% block stream %}
-    {% with object=activity %}
-    {{ block.super }}
-    {% endwith %}
-{% endblock stream %}
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">Prochaines planifications de cette activité</h5>
+        <ul>
+          {% for event in activity.next_events %}
+            <li><a href="{% url 'event:event_detail' event.pk event.slug %}">{{ event }}</a></li>
+            {% empty %}
+            <i class="fa fa-calendar-times"></i>
+            Aucun évènement planifié pour le moment
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
 
-{% block about %}    
-
-<h5 class="border-bottom border-gray pb-2 mb-0 clear ">Description</h5>
-<p>
-{{ activity.description|markdown }}
-</p>
-{% endblock about %}
-      
+{% endblock %}

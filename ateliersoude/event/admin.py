@@ -5,9 +5,8 @@ from .models import Activity, Condition, Event
 
 class EventAdmin(admin.ModelAdmin):
     list_display = (
-        "type",
+        "activity",
         "organization",
-        "owner",
         "published",
         "starts_at",
         "available_seats",

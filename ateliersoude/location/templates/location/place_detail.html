@@ -10,7 +10,7 @@
 
 {% block content %}
   <section class="container">
-    <h1 class="mt-4">{{ place.name }}</h1>
+    <h1 class="mt-4">{{ place.name|title }}</h1>
 
     <div class="card">
       {% if place.picture %}
@@ -28,11 +28,11 @@
       </div>
 
       <div class="card-footer">
-        <a class="card-link btn btn-primary" href="{% url 'location:place_edit' place.id %}">
+        <a class="btn btn-primary" href="{% url 'location:place_edit' place.id %}">
           <i class="fa fa-pencil-alt"></i>
           Editer ce lieu
         </a>
-        <a class="card-link btn btn-danger" href="{% url 'location:place_delete' place.id %}">
+        <a class="btn btn-danger" href="{% url 'location:place_delete' place.id %}">
           <i class="fa fa-trash-alt"></i>
           Supprimer ce lieu
         </a>
@@ -42,12 +42,14 @@
 
     <div class="card">
       <div class="card-body">
-        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">Évènements organisés à {{place.name}}</h5>
+        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">Prochains évènements en ce lieu</h5>
         <ul>
-          <li><a href="#">evenement 1</a></li>
-          <li><a href="#">evenement 2</a></li>
-          <li><a href="#">evenement 3</a></li>
-          <li><a href="#">evenement 4</a></li>
+          {% for event in place.future_published_events %}
+            <li><a href="{% url 'event:event_detail' event.pk event.slug %}">{{ event }}</a></li>
+            {% empty %}
+            <i class="fa fa-calendar-times"></i>
+            Aucun évènement planifié ici pour le moment
+          {% endfor %}
         </ul>
       </div>
     </div>

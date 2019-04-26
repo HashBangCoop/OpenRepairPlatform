@@ -1,7 +1,7 @@
 function create_message(event, keyword){
     message = "Êtes vous sûr de vouloir "
     message += keyword + " "
-    message += event.title
+    message += event.activity.name
     message += " du "
     message += event.day_month_str
     message += " de "

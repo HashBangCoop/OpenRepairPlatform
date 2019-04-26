@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.http import HttpResponseBadRequest
 from django.urls import reverse_lazy
 
 from django.views.generic import (
@@ -31,40 +30,20 @@ class PlaceMapView(TemplateView):
     template_name = "location/place_list.html"
 
 
-class PlaceCreateView(CreateView):
-    form_class = PlaceForm
-    model = Place
-
+class PlaceFormView:
     def form_valid(self, form):
-        obj = form.save(commit=False)
-        try:
-            # Temporary try/catch, when we will have a real permission
-            # system we won't need this anymore
-            obj.owner = self.request.user
-        except ValueError:
-            return HttpResponseBadRequest(
-                "Impossible de créer un Lieu avec cet utilisateur".encode()
-            )
         validated = super().form_valid(form)
-        messages.success(self.request, "Le lieu a bien été créé")
+        messages.success(self.request, self.success_message)
         return validated
 
 
-class PlaceEditView(UpdateView):
+class PlaceCreateView(PlaceFormView, CreateView):
     form_class = PlaceForm
     model = Place
+    success_message = "Le lieu a bien été créé"
 
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        try:
-            # Temporary try/catch, when we will have a real permission
-            # system we won't need this anymore
-            obj.owner = self.request.user
-        except ValueError:
-            return HttpResponseBadRequest(
-                "Impossible de mettre à jour ce Lieu avec cet "
-                "utilisateur".encode()
-            )
-        validated = super().form_valid(form)
-        messages.success(self.request, "Le lieu a bien été modifié")
-        return validated
+
+class PlaceEditView(PlaceFormView, UpdateView):
+    form_class = PlaceForm
+    model = Place
+    success_message = "Le lieu a bien été modifié"

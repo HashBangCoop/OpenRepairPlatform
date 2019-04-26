@@ -2,10 +2,10 @@
 
 {% block content %}
   <section class="container">
-    <h1 class="mt-5">Suppression de '{{ place }}'</h1>
+    <h1 class="mt-5">Suppression de '{{ condition }}'</h1>
     <p>
       <i class="fa fa-exclamation-triangle"></i>
-      Vous êtes sur le point de supprimer le lieu <code>'{{ place }}'</code> situé à <code>'{{ place.address }}'</code>. Êtes-vous certain de votre choix ?
+      Vous êtes sur le point de supprimer la condition <code>'{{ condition }}'</code> géré par <code>'{{ condition.organization }}'</code>. Êtes-vous certain de votre choix ?
     </p>
     <form method="post">{% csrf_token %}
       {{ form.as_p }}
@@ -13,7 +13,7 @@
         <i class="fa fa-trash"></i>
         Oui je suis sûr
       </button>
-      <a class="btn btn-success" href="{% url 'location:place_detail' place.pk place.slug %}">
+      <a class="btn btn-success" href="{% url 'user:organization_detail' condition.organization.pk condition.organization.slug %}">
         <i class="fa fa-arrow-left"></i>
         Non, revenir
       </a>

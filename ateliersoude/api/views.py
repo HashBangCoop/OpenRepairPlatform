@@ -169,7 +169,7 @@ def get_dates(request):
 
         for event in all_future_events:
             events[event.pk] = {
-                "title": event.title,
+                "title": event.activity.name,
                 "formatted_date": event.date_interval_format(),
                 "timestamp": event.starts_at.timestamp(),
             }
@@ -282,7 +282,7 @@ def list_events_in_context(
             events += [
                 {
                     "pk": event.pk,
-                    "title": event.title,
+                    "title": event.activity.name,
                     "slug": event_slug,
                     "available_seats": event.available_seats,
                     "type_picture_url": event.type.picture.url,

@@ -11,7 +11,7 @@ class CustomUserFactory(DjangoModelFactory):
     class Meta:
         model = CustomUser
 
-    email = factory.Sequence(lambda n: 'user{0}@example.com'.format(n))
+    email = factory.Sequence(lambda n: "user{0}@example.com".format(n))
 
     @factory.post_generation
     def set_password(self, create, extracted, **kwargs):

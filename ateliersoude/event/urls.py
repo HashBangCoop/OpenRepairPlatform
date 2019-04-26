@@ -14,6 +14,14 @@ urlpatterns = [
         views.ConditionEditView.as_view(),
         name="condition_edit",
     ),
+    path(
+        "condition/", views.ConditionListView.as_view(), name="condition_list"
+    ),
+    path(
+        "condition/<int:pk>/delete/",
+        views.ConditionDeleteView.as_view(),
+        name="condition_delete",
+    ),
     path("activity/", views.ActivityListView.as_view(), name="activity_list"),
     path(
         "activity/create/",
@@ -26,34 +34,32 @@ urlpatterns = [
         name="activity_edit",
     ),
     path(
+        "activity/<int:pk>/delete/",
+        views.ActivityDeleteView.as_view(),
+        name="activity_delete",
+    ),
+    path(
         "activity/<int:pk>/<slug>/",
         views.ActivityView.as_view(),
         name="activity_detail",
     ),
-    path("event/", views.EventListView.as_view(), name="event_list"),
+    path("", views.EventListView.as_view(), name="event_list"),
+    path("create/", views.EventCreateView.as_view(), name="event_create"),
     path(
-        "event/create/", views.EventCreateView.as_view(), name="event_create"
-    ),
-    path(
-        "event/cancel_reservation/<token>/",
+        "cancel_reservation/<token>/",
         views.cancel_reservation,
         name="cancel_reservation",
     ),
     path(
-        "event/<int:pk>/book/",
-        views.BookingEditView.as_view(),
-        name="booking_form",
+        "<int:pk>/book/", views.BookingEditView.as_view(), name="booking_form"
     ),
+    path("<int:pk>/edit/", views.EventEditView.as_view(), name="event_edit"),
     path(
-        "event/<int:pk>/edit/",
-        views.EventEditView.as_view(),
-        name="event_edit",
+        "<int:pk>/delete/",
+        views.EventDeleteView.as_view(),
+        name="event_delete",
     ),
-    path(
-        "event/<int:pk>/<slug>/",
-        views.EventView.as_view(),
-        name="event_detail",
-    ),
+    path("<int:pk>/<slug>/", views.EventView.as_view(), name="event_detail"),
     path(
         "massevent/book/",
         views.MassBookingCreateView.as_view(),

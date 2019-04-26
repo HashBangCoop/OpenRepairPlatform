@@ -5,10 +5,10 @@
 {% block content %}
   <section class="container mt-4">
     <h1>
-      {% if activity %}
-        Mise à jour de '{{ activity.name }}'
+      {% if condition %}
+        Mise à jour de '{{ condition.name }}'
       {% else %}
-        Création d'une nouvelle activité
+        Création d'une nouvelle Condition
       {% endif %}
     </h1>
     <a href="{% url 'user:organization_create' %}" class="btn btn-success">

@@ -1,0 +1,45 @@
+
+<a class="btn btn-success mb-4" href="{% url 'event:condition_create' %}">
+  <i class="fa fa-plus"></i>
+  Créer une nouvelle Condition
+</a>
+
+<div class="row">
+  <div class="col-4">
+    <div class="list-group" id="list-tab" role="tablist">
+      {% for c in conditions %}
+        <a class="list-group-item list-group-item-action {% if forloop.first %}active{% endif %}" id="list-{{ c.pk }}-list" data-toggle="list" href="#list-{{ c.pk }}" role="tab" aria-controls="{{ c.pk }}">
+          {{ c.name }}
+        </a>
+        {% empty %}
+        <a class="list-group-item list-group-item-action active" id="list-empty-list" data-toggle="list" href="#list-empty" role="tab" aria-controls="empty">Aucune condition trouvée</a>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-8">
+    <div class="tab-content" id="nav-tabContent">
+      {% for c in conditions %}
+        <div class="pt-2 tab-pane fade show {% if forloop.first %}active{% endif %}" id="list-{{ c.pk }}" role="tabpanel" aria-labelledby="list-{{ c.pk }}-list">
+          <a href="{% url 'event:condition_edit' c.pk %}" class="btn btn-info btn-sm">
+            <i class="fa fa-pencil-alt"></i>
+            Éditer
+          </a>
+          <a href="{% url 'event:condition_delete' c.pk %}" class="btn btn-danger btn-sm">
+            <i class="fa fa-trash"></i>
+            Supprimer
+          </a>
+          <hr>
+          <span class="badge badge-pill badge-secondary">{{ c.price }}€</span>
+
+          <b>Description:</b>
+          <br>
+          {{ c.description }}
+        </div>
+        {% empty %}
+        <div class="tab-pane fade show active" id="list-empty" role="tabpanel" aria-labelledby="list-empty-list">
+          Aucune condition pour le moment, créez-en !
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
