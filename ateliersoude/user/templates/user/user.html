@@ -5,63 +5,51 @@
 
 <!-- a user card -->
 <div class="card-user card p-2">
-    <a href="{{ user.get_absolute_url }}">
-        <div class="{{class}}" id="square-{{user_id}}">
-                <div class="avatar-card-user {{img_class}}">
-                     user
-                </div>
+  <a href="{{ user.get_absolute_url }}">
+    <div class="{{class}}" id="square-{{user_id}}">
+      <div class="avatar-card-user {{img_class}}">
+        user
+      </div>
 
-                <div class="{{content_class}}">
+      <div class="{{content_class}}">
+        <h5 class="mx-auto col-12">
+          {{ user.first_name|capfirst }} {{ user.last_name|capfirst}}
+        </h5>
 
-                    <h5 class="mx-auto col-12">
-                    {{ user.first_name|capfirst }} {{ user.last_name|capfirst}}
-                    </h5>
-
-                    {% for organization in user.organizationperson_set.all %}
-                    <span class="user-status">
+        {% for organization in object.visitor_organisations.all %}
+          <span class="user-status">
+            Visiteur à {{ organization.name }}
+          </span>
+        {% endfor %}
         
-                        {% if organization.role == 0 %}
-                            Visiteur 
-                        {% elif organization.role == 10 %}
-                            Membre 
-                        {% elif organization.role == 20 %}
-                            Membre actif
-                        {% elif organization.role == 30 %}
-                            Administateur
-                        {% endif %}
+        {% for organization in object.member_organisations.all %}
+          <span class="user-status">
+            Membre à {{ organization.name }}
+          </span>
+        {% endfor %}
         
-                        à
-                        {{ organization.organization.name }}
+        {% for organization in object.volonteer_organisations.all %}
+          <span class="user-status">
+            Membre actif à {{ organization.name }}
+          </span>
+        {% endfor %}
+        
+        {% for organization in object.admin_organisations.all %}
+          <span class="user-status">
+            Administateur à {{ organization.name }}
+          </span>
+        {% endfor %}
+      </div>
+    </div>
+  </a>
 
-                    </span>
-                    {% endfor %}
-
-                        {% if request.resolver_match.url_name == "user_detail" %}
-                        
-                        <ul class="list-group">
-                            {% for organization in user.organizationperson_set.all|slice:"1" %}
-                                {% if request.user.is_authenticated and request.user in organization.organization.admins %}
-                                <li class="list-group-item">phone {{ user.phone_number }} </li>
-                                <li class="list-group-item">envelope-o {{ user.email }}</li>
-                                <li class="list-group-item">map-marked {{ user.street_address }} </li>
-                                <li class="list-group-item">birthday-cake {{ user.birth_date }} </li>
-                                {% endif %}
-                            {% endfor %}
-                                <li class="list-group-item">clock-o Membre depuis le {{ user.date_joined }}</li>
-                        </ul>
-                        
-                        {% endif %}
-                </div>
-         </div>
-    </a>
-
-     {% if orga %}
-     {% elif absentee and request.user in event.organizers.all %}
-         <button class="btn-setPresent btn" id="{{userid}}">Confirmer présence</button>
-     {% elif not absentee and request.user in event.organizers.all %}
-         <button class="btn-setAbsent btn" id="{{userid}}">Annuler présence</button>
-     {% endif %}
- </div>
+  {% if orga %}
+  {% elif absentee and request.user in event.organizers.all %}
+  <button class="btn-setPresent btn" id="{{userid}}">Confirmer présence</button>
+  {% elif not absentee and request.user in event.organizers.all %}
+  <button class="btn-setAbsent btn" id="{{userid}}">Annuler présence</button>
+  {% endif %}
+</div>
 
 
 {% endblock list %}

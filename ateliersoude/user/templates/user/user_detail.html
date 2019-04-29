@@ -1,60 +1,132 @@
-{% extends 'detail_view.html' %}
+{% extends 'base.html' %}
 
-{% load static %}
-
+{% load static app_filters %}
 
 {% block content %}
 
-  <div class="container-fluid profil-header-bar sticky-position sticky-top {{object}}">
-    <div class="row">
-      <div class="col-md-9 col-sm-12 header-bar-title">
-        <div class="row p-2 float-left" id="list-organization">
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1>{{ object.first_name }}</h1>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row justify-content-md-center">
+    <div class="col-md-10">
+      <div class="row">
+        <ul class="list-group">
+          {% for organization in object.visitor_organisations.all %}
+            <li class="list-group-item">
+              Visiteur 
+            <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
+              {{ organization.name }}
+            </a>
+            </li>
+            {% endfor %}
+            {% for organization in object.member_organisations.all %}
+            <li class="list-group-item">
+              Membre
+            <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
+              {{ organization.name }}
+            </a>
+            </li>
+            {% endfor %}
+            {% for organization in object.volunteer_organisations.all %}
+            <li class="list-group-item">
+              Membre actif
+            <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
+              {{ organization.name }}
+            </a>
+            </li>
+            {% endfor %}
+            {% for organization in object.admin_organisations.all %}
+            <li class="list-group-item">
+              Administrateur à 
+            <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
+              {{ organization.name }}
+            </a>
+            </li>
+          {% endfor %}
+
+          {% if not object.get_organizations %}
+            <p>Ce profil n'est rattaché à aucune organisation</p>
+          {% endif %}
+        </ul>
+      </div>
+      {% if object.pk == request.user.pk %}
+        <div class="row">
+          <a class="mr-3 btn btn-primary" href="{% url "user:user_profile" object.pk %}">
+            <i class="fa fa-pencil-square-o 2-xs pt-1"></i>
+            Editer mon profil
+          </a>
+          <a class="btn btn-warning" href="{% url "logout" %}">Deconnexion</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+
+<section class="container">
+  <div class="row justify-content-md-center">
+    <section class="col-md-6">
+
+      <div class="card">
+        <div class="card-header">
+          <div class="avatar-card-user col-lg">
+            <i class="fa fa-user fa-4x"></i>
+          </div>
+          <h5 class="mx-auto col-12">
+            {{ object.first_name|capfirst }} {{ object.last_name|capfirst}}
+          </h5>
+        </div>
+        <div class="card-body">
           <ul class="list-group">
-            {% for organization in target_user.organizationperson_set.all %}
+            <li class="list-group-item">
+              <i class="fa fa-phone pr-2"></i>{{ object.phone_number }} 
+            </li>
+            <li class="list-group-item">
+              <i class="fa fa-envelope pr-2"></i>{{ object.email }}
+            </li>
+            <li class="list-group-item">
+              <i class="fa fa-map pr-2"></i>{{ object.street_address }}
+            </li>
+            <li class="list-group-item">
+              <i class="fa fa-birthday-cake pr-2"></i>{{ object.birth_date }}
+            </li>
+            <li class="list-group-item">
+              <i class="fa fa-clock pr-2"></i> Membre depuis le {{ object.date_joined|date:"d F Y" }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    
+    </section>   
+
+    {% if object.registered_events.all %}
+      
+      <section class="col-md-6">
+        <h5 class="border-bottom border-gray pb-2">Rendez-vous</h5>
+        <div class="row">
+          <ul class="list-group">
+            {% for event in object.registered_events.all %}
               <li class="list-group-item">
-                {% if organization.role == 0 %}
-                  Visiteur 
-                {% elif organization.role == 10 %}
-                  Membre 
-                {% elif organization.role == 20 %}
-                  Membre actif
-                {% elif organization.role == 30 %}
-                  Administateur
-                {% endif %}
-                à
-                <a href="{% url 'user:organization_detail' organization.organization.id organization.organization.slug %}">
-                  {{ organization.organization.name }}
+              {{ event.title }}
+              {{ event.starts_at|date:"d F Y" }}
+              {% if object.pk == request.user.pk %}
+                {% token user=object event=event action='unbook' as tok %}
+                <a class="btn btn-error" href="{% url 'event:cancel_reservation' tok %}">
+                  Annuler ma présence
                 </a>
+              {% endif %}  
               </li>
-            {% empty %}
-                <p>Ce profil n'est rattaché à aucune organisation</p>
             {% endfor %}
           </ul>
         </div>
-  
-        {% if target_user.pk == request.user.pk %}
-          <a class="card-link mr-3 fm-update btn btn-primary float-right" href="{% url "user:user_profile" %}">
-            <i class="fa fa-pencil-square-o 2-xs pt-1"></i> Editer mon profil
-          </a>
-        {% endif %}
-  
-      </div>
-    </div>
-  </div>
-
-  <div class="row main-container">
-    <section class="col-md-3" style=" position: relative; top:-100px;" > 
-      <div class="sticky-position sticky-top">
-        {% include "user/user.html" with user=target_user class="" img_class="col-lg" about_class="row" %}
-      </div>
-    </section>   
-
-    <section class="col-md-6 mt-3 bg-white">
-      <h5 class="border-bottom border-gray pb-2 mb-0 clear">Rendez-vous</h5>
-      <section class="row" id="list-booking">
-        {% include "event/event_list_vuejs.html" with context_type="user" context_pk=target_user.pk %}
       </section>
-    </section>
-  </div>
+      
+    {% endif %} 
+
 
 {% endblock %}

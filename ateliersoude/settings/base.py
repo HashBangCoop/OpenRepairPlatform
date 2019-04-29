@@ -15,6 +15,10 @@ ALLOWED_HOSTS = []
 SITE_ID = 1
 
 INSTALLED_APPS = [
+    "ateliersoude.api",
+    "ateliersoude.event",
+    "ateliersoude.user",
+    "ateliersoude.location",
     "django.contrib.sites",
     "django.contrib.admin",
     "django.contrib.admindocs",
@@ -23,10 +27,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django.contrib.messages",
-    "ateliersoude.api",
-    "ateliersoude.event",
-    "ateliersoude.user",
-    "ateliersoude.location",
     "simple_history",
     "rest_framework",
     "bootstrap",
@@ -53,9 +53,7 @@ ROOT_URLCONF = "ateliersoude.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            (join(BASE_DIR, "ateliersoude", "templates"))
-        ],  # handle the /templates base directory
+        "DIRS": [(join(BASE_DIR, "ateliersoude", "templates"))],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -80,6 +78,7 @@ DATABASES = {
 
 # custom User model
 AUTH_USER_MODEL = "user.CustomUser"
+LOGIN_REDIRECT_URL = "/"
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -115,16 +114,9 @@ MEDIA_ROOT = join(BASE_DIR, "media")
 
 
 # Email Settings
-EMAIL_ADRESSE = environ.get("EMAIL_ADRESSE")
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = join(BASE_DIR, "tmp", "messages")
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = environ.get("SMTP_HOST")
-EMAIL_HOST_USER = EMAIL_ADRESSE
-EMAIL_HOST_PASSWORD = environ.get("EMAIL_PASSWORD")
-EMAIL_PORT = 587
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-DEFAULT_FROM_EMAIL = EMAIL_ADRESSE
-SERVER_EMAIL = EMAIL_ADRESSE
 
 AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 

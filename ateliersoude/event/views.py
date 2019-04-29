@@ -307,7 +307,6 @@ def send_booking_mail(request, user, event):
 
 def send_notification(notification, activity):
     send_to = activity.participants.all()
-
     params = {"notification": notification}
 
     msg_plain = render_to_string("mail/notification.html", params)

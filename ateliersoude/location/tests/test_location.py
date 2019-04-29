@@ -13,7 +13,7 @@ def location_data(organization_factory):
     orga = organization_factory()
     return {
         "name": "myname",
-        "place_type": "test",
+        "category": "test",
         "address": "1, rue Sylvestre",
         "organization": orga.pk,
         "longitude": 12,
@@ -47,7 +47,7 @@ def test_location_api_list(client, place_factory):
         "address",
         "latitude",
         "longitude",
-        "place_type",
+        "category",
     }
 
 

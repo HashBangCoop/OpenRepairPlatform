@@ -144,5 +144,6 @@ bootstrap_done
 node_modules/*
 .vscode
 media
+tmp
 *.min.js
 ateliersoude/static/css
