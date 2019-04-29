@@ -1,9 +1,22 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">{{ activity.name|title }}</h1>
+      <p class="lead">
+        <a class="btn btn-primary" href="{% url 'event:activity_edit' activity.pk %}">
+          <i class="fa fa-pencil-alt"></i>
+          Editer
+        </a>
+        <a class="btn btn-danger" href="{% url 'event:activity_delete' activity.pk %}">
+          <i class="fa fa-trash-alt"></i>
+          Supprimer
+        </a>
+      </p>
+    </div>
+  </div>
   <section class="container">
-    <h1 class="mt-4">{{ activity.name|title }}</h1>
-
     <div class="card">
       {% if activity.picture %}
         <img class="img-responsive w-100" src="{{ activity.picture.url }}" alt="image activité">
@@ -18,18 +31,6 @@
         </h5>
         {{ activity.description }}
       </div>
-
-      <div class="card-footer">
-        <a class="btn btn-primary" href="{% url 'event:activity_edit' activity.pk %}">
-          <i class="fa fa-pencil-alt"></i>
-          Editer
-        </a>
-        <a class="btn btn-danger" href="{% url 'event:activity_delete' activity.pk %}">
-          <i class="fa fa-trash-alt"></i>
-          Supprimer
-        </a>
-      </div>
-
     </div>
 
     <div class="card">

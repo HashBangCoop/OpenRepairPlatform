@@ -3,18 +3,24 @@
 
 
 {% block content %}
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">
+        {% if activity %}
+          Mise à jour de '{{ activity.name }}'
+        {% else %}
+          Création d'une nouvelle activité
+        {% endif %}
+      </h1>
+      <p class="lead">
+        <a href="{% url 'user:organization_create' %}" class="btn btn-success">
+          <i class="fa fa-users"></i>
+          Créer une Organisation
+        </a>
+      </p>
+    </div>
+  </div>
   <section class="container mt-4">
-    <h1>
-      {% if activity %}
-        Mise à jour de '{{ activity.name }}'
-      {% else %}
-        Création d'une nouvelle activité
-      {% endif %}
-    </h1>
-    <a href="{% url 'user:organization_create' %}" class="btn btn-success">
-      <i class="fa fa-users"></i>
-      Créer une Organisation
-    </a>
     <div class="card p-3">
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}

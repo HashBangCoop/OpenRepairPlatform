@@ -9,14 +9,16 @@
 {% endblock %}
 
 {% block content %}
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">{{ event.activity.name|title }}</h1>
+      <p class="lead">
+        <a href="{% url 'event:event_edit' event.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
+        <a href="{% url 'event:event_delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
+      </p>
+    </div>
+  </div>
   <section class="container">
-    <h1 class="mt-4">
-      {{ event.activity.name|title }}
-      |
-      <a href="{% url 'event:event_edit' event.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
-      <a href="{% url 'event:event_delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
-    </h1>
-
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">

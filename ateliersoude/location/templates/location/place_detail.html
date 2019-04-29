@@ -9,9 +9,22 @@
 {% endblock %}
 
 {% block content %}
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">{{ place.name|title }}</h1>
+      <p class="lead">
+        <a class="btn btn-primary" href="{% url 'location:place_edit' place.id %}">
+          <i class="fa fa-pencil-alt"></i>
+          Editer ce lieu
+        </a>
+        <a class="btn btn-danger" href="{% url 'location:place_delete' place.id %}">
+          <i class="fa fa-trash-alt"></i>
+          Supprimer ce lieu
+        </a>
+      </p>
+    </div>
+  </div>
   <section class="container">
-    <h1 class="mt-4">{{ place.name|title }}</h1>
-
     <div class="card">
       {% if place.picture %}
         <img class="img-responsive w-100" src="{{ place.picture.url }}" alt="image_lieu">
@@ -26,18 +39,6 @@
         </h5>
         {{ place.description }}
       </div>
-
-      <div class="card-footer">
-        <a class="btn btn-primary" href="{% url 'location:place_edit' place.id %}">
-          <i class="fa fa-pencil-alt"></i>
-          Editer ce lieu
-        </a>
-        <a class="btn btn-danger" href="{% url 'location:place_delete' place.id %}">
-          <i class="fa fa-trash-alt"></i>
-          Supprimer ce lieu
-        </a>
-      </div>
-
     </div>
 
     <div class="card">

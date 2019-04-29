@@ -9,30 +9,36 @@
 {% endblock %}
 
 {% block content %}
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">
+        {% if event %}
+          Mise à jour de '{{ event }}'
+        {% else %}
+          Création d'un nouvel évènement
+        {% endif %}
+      </h1>
+      <p class="lead">
+        <a href="{% url 'user:organization_create' %}" class="btn btn-success">
+          <i class="fa fa-users"></i>
+          Créer une Organisation
+        </a>
+        <a href="{% url 'event:condition_create' %}" class="btn btn-success">
+          <i class="fa fa-euro-sign"></i>
+          Créer une Condition
+        </a>
+        <a href="{% url 'event:activity_create' %}" class="btn btn-success">
+          <i class="fa fa-wrench"></i>
+          Créer une Activité
+        </a>
+        <a href="{% url 'location:place_create' %}" class="btn btn-success">
+          <i class="fa fa-map-marker"></i>
+          Créer un Lieu
+        </a>
+      </p>
+    </div>
+  </div>
   <section class="container mt-4">
-    <h1>
-      {% if event %}
-        Mise à jour de '{{ event }}'
-      {% else %}
-        Création d'un nouvel évènement
-      {% endif %}
-    </h1>
-    <a href="{% url 'user:organization_create' %}" class="btn btn-success">
-      <i class="fa fa-users"></i>
-      Créer une Organisation
-    </a>
-    <a href="{% url 'event:condition_create' %}" class="btn btn-success">
-      <i class="fa fa-euro-sign"></i>
-      Créer une Condition
-    </a>
-    <a href="{% url 'event:activity_create' %}" class="btn btn-success">
-      <i class="fa fa-wrench"></i>
-      Créer une Activité
-    </a>
-    <a href="{% url 'location:place_create' %}" class="btn btn-success">
-      <i class="fa fa-map-marker"></i>
-      Créer un Lieu
-    </a>
     <div class="card p-3">
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
