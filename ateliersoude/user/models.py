@@ -50,7 +50,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(
         _("phone number"), max_length=10, blank=True, default="-"
     )
-    birth_date = models.DateField(_("date of birth"), blank=True, default="-")
+    birth_date = models.DateField(_("date of birth"), blank=True, null=True)
     gender = models.CharField(
         max_length=1, choices=GENDERS, blank=True, default=GENDER_OTHER
     )

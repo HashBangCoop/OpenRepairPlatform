@@ -40,11 +40,7 @@ class UserDetailView(DetailView):
 class UserListView(ListView):
     model = CustomUser
     template_name = "user/user_list.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["list_type"] = "user"
-        return context
+    queryset = CustomUser.objects.filter(is_superuser=False)
 
 
 class OrganizationDetailView(DetailView):
