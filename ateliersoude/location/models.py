@@ -42,7 +42,7 @@ class Place(models.Model):
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("location:place_detail", args=(self.pk, self.slug))
+        return reverse("location:detail", args=(self.pk, self.slug))
 
     def future_published_events(self):
         return get_future_published_events(self.event_set)

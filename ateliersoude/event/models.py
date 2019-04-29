@@ -124,7 +124,7 @@ class Event(models.Model):
         return f"{starts_at_date} de {starts_at_time} à {ends_at_time}"
 
     def get_absolute_url(self):
-        return reverse("event:event_detail", args=(self.pk, self.slug))
+        return reverse("event:detail", args=(self.pk, self.slug))
 
     @property
     def has_ended(self):

@@ -38,7 +38,7 @@
         <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">Prochaines planifications de cette activité</h5>
         <ul>
           {% for event in activity.next_events %}
-            <li><a href="{% url 'event:event_detail' event.pk event.slug %}">{{ event }}</a></li>
+            <li><a href="{% url 'event:detail' event.pk event.slug %}">{{ event }}</a></li>
             {% empty %}
             <i class="fa fa-calendar-times"></i>
             Aucun évènement planifié pour le moment

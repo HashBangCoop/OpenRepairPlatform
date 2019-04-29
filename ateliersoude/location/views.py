@@ -20,7 +20,7 @@ class PlaceView(DetailView):
 
 class PlaceDeleteView(RedirectQueryParamView, DeleteView):
     model = Place
-    success_url = reverse_lazy("location:place_list")
+    success_url = reverse_lazy("location:list")
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "Le lieu a bien été supprimé")

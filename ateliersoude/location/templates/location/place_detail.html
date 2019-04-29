@@ -13,11 +13,11 @@
     <div class="container">
       <h1 class="display-4">{{ place.name|title }}</h1>
       <p class="lead">
-        <a class="btn btn-primary" href="{% url 'location:place_edit' place.id %}">
+        <a class="btn btn-primary" href="{% url 'location:edit' place.id %}">
           <i class="fa fa-pencil-alt"></i>
           Editer ce lieu
         </a>
-        <a class="btn btn-danger" href="{% url 'location:place_delete' place.id %}">
+        <a class="btn btn-danger" href="{% url 'location:delete' place.id %}">
           <i class="fa fa-trash-alt"></i>
           Supprimer ce lieu
         </a>
@@ -46,7 +46,7 @@
         <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">Prochains évènements en ce lieu</h5>
         <ul>
           {% for event in place.future_published_events %}
-            <li><a href="{% url 'event:event_detail' event.pk event.slug %}">{{ event }}</a></li>
+            <li><a href="{% url 'event:detail' event.pk event.slug %}">{{ event }}</a></li>
             {% empty %}
             <i class="fa fa-calendar-times"></i>
             Aucun évènement planifié ici pour le moment

@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
-{% load assets %}
-{% load l10n %}
+{% load assets l10n app_filters %}
 
 {% block extra_css %}
   {% assets "css_detail_event" %}
@@ -13,8 +12,8 @@
     <div class="container">
       <h1 class="display-4">{{ event.activity.name|title }}</h1>
       <p class="lead">
-        <a href="{% url 'event:event_edit' event.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
-        <a href="{% url 'event:event_delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
+        <a href="{% url 'event:edit' event.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
+        <a href="{% url 'event:delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
       </p>
     </div>
   </div>
@@ -23,7 +22,7 @@
       <div class="card-body">
         <h5 class="card-title">
           {{ event.activity }} du {{ event.starts_at|date:"d M" }}
-          {% if request.user in event.registered.all or request.user in event.present.all %}
+          {% if request.user in event.registered.all or request.user in event.presents.all %}
             <span class="badge badge-success badge-pill">Inscrit</span>
           {% endif %}
         </h5>
@@ -66,10 +65,12 @@
           <i class="fa fa-eye"></i>
           En savoir plus sur l'activité
         </a>
-        {% if request.user in event.registered.all or request.user in event.present.all %}
-          <a href="#" onclick="alert('not implemented')" class="btn btn-warning">Je ne participe plus</a>
-        {% else %}
-          <a href="#" onclick="alert('not implemented')" class="btn btn-success">Je participe !</a>
+        {% if request.user in event.registered.all %}
+          {% token user=request.user event=event action='cancel' as tok %}
+          <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-warning">Je ne participe plus</a>
+        {% elif request.user not in event.presents.all and request.user not in event.organizers.all %}
+          {% token user=request.user event=event action='book' as tok %}
+          <a href="{% url 'event:book' tok %}" class="btn btn-success">Je participe !</a>
         {% endif %}
       </div>
 
@@ -82,7 +83,7 @@
 
           <br>
           <i class="fa fa-map-marker"></i>
-          <a href="{% url 'location:place_detail' event.location.id event.location.slug %}">
+          <a href="{% url 'location:detail' event.location.id event.location.slug %}">
             {{ event.location.name }}</a>,
           {{ event.location.address }}
         </small>
@@ -123,18 +124,18 @@
             <li class="m-2">
               {{ user }}
               {% if event.has_started %}
-                <a href="#" class="btn btn-success btn-sm" onclick="alert('not implemented')"><i class="fa fa-plus"></i> Ce membre est présent</a>
+                {% token user=user event=event action='present' as tok %}
+                <a href="{% url 'event:user_present' tok %}" class="btn btn-success btn-sm"><i class="fa fa-plus"></i> Ce membre est présent</a>
               {% endif %}
-              <a href="#" class="btn btn-danger btn-sm" onclick="alert('not implemented')"><i class="fa fa-minus"></i> Ce membre est absent</a>
+              {% token user=user event=event action='cancel' as tok %}
+              <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-danger btn-sm"><i class="fa fa-minus"></i> Désinscrire ce membre</a>
             </li>
           {% endfor %}
           {% for user in event.presents.all %}
             <li class="m-2">
               {{ user }}
-              {% if event.has_started and not event.has_ended %}
-                <a href="#" class="btn btn-success btn-sm" onclick="alert('not implemented')"><i class="fa fa-plus"></i> Ce membre n'est pas encore présent</a>
-              {% endif %}
-              <a href="#" class="btn btn-danger btn-sm" onclick="alert('not implemented')"><i class="fa fa-minus"></i> Ce membre est absent</a>
+              {% token user=user event=event action='absent' as tok %}
+              <a href="{% url 'event:user_absent' tok %}" class="btn btn-danger btn-sm"><i class="fa fa-minus"></i> Ce membre est absent</a>
             </li>
           {% endfor %}
         </ul>

@@ -53,14 +53,14 @@ def event_data(
 
 
 def test_event_list(client, event_factory, published_event_factory):
-    response = client.get(reverse("event:event_list"))
+    response = client.get(reverse("event:list"))
     assert response.status_code == 200
     assert get_user(client).is_anonymous
     assert "Aucun évènement trouvé" in response.content.decode()
     unpublished_event = event_factory()
     event1 = published_event_factory()
     event2 = published_event_factory()
-    response = client.get(reverse("event:event_list"))
+    response = client.get(reverse("event:list"))
     html = response.content.decode()
     assert unpublished_event.activity.name not in html
     assert unpublished_event.activity.description not in html
@@ -73,7 +73,7 @@ def test_event_list(client, event_factory, published_event_factory):
 def test_event_detail_context(client, event_factory):
     event = event_factory()
     response = client.get(
-        reverse("event:event_detail", args=[event.pk, event.slug])
+        reverse("event:detail", args=[event.pk, event.slug])
     )
     assert response.status_code == 200
     assert isinstance(response.context_data["event"], Event)
@@ -83,7 +83,7 @@ def test_event_detail_context(client, event_factory):
 
 def test_get_event_delete(client, event_factory):
     event = event_factory()
-    response = client.get(reverse("event:event_delete", args=[event.pk]))
+    response = client.get(reverse("event:delete", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 200
     assert event.activity.name in html
@@ -93,14 +93,14 @@ def test_get_event_delete(client, event_factory):
 def test_event_delete(client, event_factory):
     event = event_factory()
     assert Event.objects.count() == 1
-    response = client.post(reverse("event:event_delete", args=[event.pk]))
+    response = client.post(reverse("event:delete", args=[event.pk]))
     assert Event.objects.count() == 0
     assert response.status_code == 302
-    assert response["Location"] == reverse("event:event_list")
+    assert response["Location"] == reverse("event:list")
 
 
 def test_get_event_create(client):
-    response = client.get(reverse("event:event_create"))
+    response = client.get(reverse("event:create"))
     html = response.content.decode()
     assert response.status_code == 200
     assert "Création d'un nouvel évènement" in html
@@ -109,7 +109,7 @@ def test_get_event_create(client):
 def test_get_event_create_default_orga(client, organization_factory):
     org1 = organization_factory()
     response = client.get(
-        reverse("event:event_create"),
+        reverse("event:create"),
         HTTP_REFERER="http://testserver{}".format(
             reverse("user:organization_detail", args=[org1.pk, org1.slug])
         ),
@@ -122,12 +122,12 @@ def test_get_event_create_default_orga(client, organization_factory):
 
 def test_event_create(client_log, event_data):
     assert Event.objects.count() == 0
-    response = client_log.post(reverse("event:event_create"), event_data)
+    response = client_log.post(reverse("event:create"), event_data)
     events = Event.objects.all()
     assert response.status_code == 302
     assert len(events) == 1
     assert response["Location"] == reverse(
-        "event:event_detail", args=[events[0].pk, events[0].slug]
+        "event:detail", args=[events[0].pk, events[0].slug]
     )
 
 
@@ -138,7 +138,7 @@ def test_event_create_invalid(client, event_data):
     assert Event.objects.count() == 0
     data = event_data
     del data["organization"]
-    response = client.post(reverse("event:event_create"), data)
+    response = client.post(reverse("event:create"), data)
     html = response.content.decode()
     assert response.status_code == 200
     assert Event.objects.count() == 0
@@ -147,7 +147,7 @@ def test_event_create_invalid(client, event_data):
 
 def test_get_event_update(client, event_factory):
     event = event_factory()
-    response = client.get(reverse("event:event_edit", args=[event.pk]))
+    response = client.get(reverse("event:edit", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 200
     assert f"Mise à jour de '" in html
@@ -158,12 +158,12 @@ def test_event_update(client_log, event_factory, event_data):
     event = event_factory()
     event_data["available_seats"] = 10
     response = client_log.post(
-        reverse("event:event_edit", args=[event.pk]), event_data
+        reverse("event:edit", args=[event.pk]), event_data
     )
     events = Event.objects.all()
     assert response.status_code == 302
     assert len(events) == 1
     assert events[0].available_seats == 10
     assert response["Location"] == reverse(
-        "event:event_detail", args=[events[0].pk, events[0].slug]
+        "event:detail", args=[events[0].pk, events[0].slug]
     )

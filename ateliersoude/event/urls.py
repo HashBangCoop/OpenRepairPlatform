@@ -3,6 +3,8 @@ from django.urls import path
 from . import views
 
 app_name = "event"
+
+
 urlpatterns = [
     path(
         "condition/create/",
@@ -43,23 +45,27 @@ urlpatterns = [
         views.ActivityView.as_view(),
         name="activity_detail",
     ),
-    path("", views.EventListView.as_view(), name="event_list"),
-    path("create/", views.EventCreateView.as_view(), name="event_create"),
-    path(
-        "cancel_reservation/<token>/",
-        views.cancel_reservation,
-        name="cancel_reservation",
-    ),
-    path(
-        "<int:pk>/book/", views.BookingEditView.as_view(), name="booking_form"
-    ),
-    path("<int:pk>/edit/", views.EventEditView.as_view(), name="event_edit"),
+    path("", views.EventListView.as_view(), name="list"),
+    path("create/", views.EventCreateView.as_view(), name="create"),
+    path("<int:pk>/edit/", views.EventEditView.as_view(), name="edit"),
     path(
         "<int:pk>/delete/",
         views.EventDeleteView.as_view(),
-        name="event_delete",
+        name="delete",
     ),
-    path("<int:pk>/<slug>/", views.EventView.as_view(), name="event_detail"),
+    path("<int:pk>/<slug>/", views.EventView.as_view(), name="detail"),
+
+    path(
+        "cancel_reservation/<token>/",
+        views.CancelReservationView.as_view(),
+        name="cancel_reservation",
+    ),
+    path(
+        "book/<token>", views.BookView.as_view(), name="book"
+    ),
+    path("present/<token>", views.PresentView.as_view(), name="user_present"),
+    path("absent/<token>", views.AbsentView.as_view(), name="user_absent"),
+
     path(
         "massevent/book/",
         views.MassBookingCreateView.as_view(),

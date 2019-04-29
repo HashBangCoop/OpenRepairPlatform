@@ -3,11 +3,8 @@ from operator import __or__ as OR
 from urllib.parse import parse_qs
 
 from django.core import signing
-from django.core.mail import send_mail
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
@@ -16,165 +13,7 @@ from ateliersoude.location.models import Place
 from ateliersoude.user.models import (
     CustomUser,
     Organization,
-    OrganizationPerson,
 )
-
-
-# mailers #
-def cancel_reservation(request, token):
-    ret = signing.loads(token)
-    event_id = ret["event_id"]
-    user_id = ret["user_id"]
-    event = Event.objects.get(pk=event_id)
-    user = CustomUser.objects.get(pk=user_id)
-    context = {"event": event, "user": user}
-    attendees = event.attendees.all()
-    if user in attendees:
-        event.attendees.remove(user)
-        event.available_seats += 1
-        event.save()
-        return render(request, "mail/cancel_ok.html", context)
-    else:
-        return render(request, "mail/cancel_failed.html", context)
-
-
-def send_booking_mail(request, user, event):
-    user_id = user.id
-    event_id = event.id
-
-    data = {"event_id": event_id, "user_id": user_id}
-
-    cancel_token = signing.dumps(data)
-    cancel_url = reverse("cancel_reservation", args=[cancel_token])
-    cancel_url = request.build_absolute_uri(cancel_url)
-
-    event_url = reverse("event_detail", args=[event_id, event.slug])
-    event_url = request.build_absolute_uri(event_url)
-
-    params = {"cancel_url": cancel_url, "event_url": event_url, "event": event}
-
-    msg_plain = render_to_string("mail/relance.html", params)
-    msg_html = render_to_string("mail/relance.html", params)
-
-    date = event.starts_at.date().strftime("%d %B")
-    location = event.location.name
-    subject = "Votre réservation pour le " + date + " à " + location
-
-    send_mail(
-        subject,
-        msg_plain,
-        "no-reply@atelier-soude.fr",
-        [user.email],
-        html_message=msg_html,
-    )
-
-
-# event #
-def delete_event(request):
-    if request.method != "POST":
-        # TODO change this
-        return HttpResponse("Circulez, il n'y a rien à voir")
-    else:
-        request_body = request.body.decode("utf-8")
-        post_data = parse_qs(request_body)
-
-        event_id = post_data["event_id"][0]
-        event = Event.objects.get(pk=event_id)
-        person = CustomUser.objects.get(email=request.user)
-        if person in event.organizers.all():
-            event.delete()
-            return JsonResponse({"status": "OK"})
-
-        return JsonResponse({"status": -1})
-
-
-def set_present(request):
-    if request.method != "POST":
-        # TODO change this
-        return HttpResponse("Circulez, il n'y a rien à voir")
-    else:
-        data = signing.loads(request.POST["idents"])
-        event_id = data["event_id"]
-        user_id = data["user_id"]
-
-        person = CustomUser.objects.get(pk=user_id)
-        event = Event.objects.get(pk=event_id)
-        event.attendees.remove(person)
-        event.presents.add(person)
-
-        return JsonResponse({"status": "OK", "user_id": user_id})
-
-
-def set_absent(request):
-    if request.method != "POST":
-        # TODO change this
-        return HttpResponse("Circulez, il n'y a rien à voir")
-    else:
-        data = signing.loads(request.POST["idents"])
-        event_id = data["event_id"]
-        user_id = data["user_id"]
-
-        person = CustomUser.objects.get(pk=user_id)
-        event = Event.objects.get(pk=event_id)
-        event.presents.remove(person)
-        event.attendees.add(person)
-
-        return JsonResponse({"status": "OK", "user_id": user_id})
-
-
-def get_organizations(request):
-    if request.method != "POST":
-        # TODO change this
-        return HttpResponse("Circulez, il n'y a rien à voir")
-    else:
-        organizations = OrganizationPerson.objects.filter(user=request.user)
-        volunteer_of = {}
-        for person in organizations:
-            if person.role >= OrganizationPerson.VOLUNTEER:
-                volunteer_of[person.organization.pk] = person.organization.name
-
-        return JsonResponse({"status": "OK", "organizations": volunteer_of})
-
-
-def get_places_for_organization(request):
-    if request.method != "POST":
-        # TODO change this
-        return HttpResponse("Circulez, il n'y a rien à voir")
-    else:
-        places = {}
-        organization_pk = request.POST["organization_id"]
-        organization = Organization.objects.get(pk=organization_pk)
-        places_qs = Place.objects.filter(organization=organization)
-        for place in places_qs:
-            places[place.pk] = str(place)
-
-        return JsonResponse({"status": "OK", "places": places})
-
-
-def get_dates(request):
-    if request.method != "POST":
-        # TODO change this
-        return HttpResponse("Circulez, il n'y a rien à voir")
-    else:
-        events = {}
-        request_body = request.body.decode("utf-8")
-        post_data = parse_qs(request_body)
-        organization_pk = int(post_data["organization_pk"][0])
-        today = timezone.now()
-
-        target_organization = Organization.objects.get(pk=organization_pk)
-        all_future_events = Event.objects.filter(
-            organization=target_organization, starts_at__gte=today
-        )
-
-        for event in all_future_events:
-            events[event.pk] = {
-                "title": event.activity.name,
-                "formatted_date": event.date_interval_format(),
-                "timestamp": event.starts_at.timestamp(),
-            }
-
-        return JsonResponse({"status": "OK", "dates": events})
 
 
 def list_events_in_context(
@@ -255,7 +94,7 @@ def list_events_in_context(
                 place_slug = place.slug
                 place_pk = place.pk
                 place_detail_url = reverse(
-                    "place_detail", args=[place_pk, place_slug]
+                    "detail", args=[place_pk, place_slug]
                 )
                 places[place_pk] = {
                     "pk": place_pk,
@@ -313,83 +152,6 @@ def list_events_in_context(
                 "activities": activitys,
             }
         )
-
-
-def book_event(request):
-    if request.method != "POST":
-        # TODO change this
-        return HttpResponse("Circulez, il n'y a rien à voir")
-    else:
-        request_body = request.body.decode("utf-8")
-        post_data = parse_qs(request_body)
-        event_id = post_data["event_id"][0]
-        user = CustomUser.objects.get(email=request.user.email)
-        event = Event.objects.get(pk=event_id)
-        organization = event.organization
-        attendees = event.attendees.all()
-
-        user_volunteer_orgs = OrganizationPerson.objects.filter(
-            user=user, role__gte=OrganizationPerson.VOLUNTEER
-        )
-
-        if user in attendees:
-            if organization not in user_volunteer_orgs:
-                event.available_seats += 1
-            event.attendees.remove(user)
-            event.save()
-            return JsonResponse(
-                {"status": "unbook", "available_seats": event.available_seats}
-            )
-        else:
-            if event.available_seats >= 0:
-                if organization not in user_volunteer_orgs:
-                    event.available_seats -= 1
-                event.attendees.add(user)
-                # send booking mail here or notification here
-                send_booking_mail(request, user, event)
-
-            else:
-                return JsonResponse({"status": -1})
-
-        event.save()
-        return JsonResponse(
-            {"status": "unbook", "available_seats": event.available_seats}
-        )
-
-
-def list_users(request, organization_pk, event_pk):
-    if request.method != "GET":
-        # TODO change this
-        return HttpResponse("Circulez, il n'y a rien à voir")
-    else:
-        user = CustomUser.objects.get(email=request.user.email)
-        organization = Organization.objects.get(pk=organization_pk)
-        user_is_admin = OrganizationPerson.objects.get(
-            user=user,
-            organization=organization,
-            role__gte=OrganizationPerson.ADMIN,
-        )
-        if not user_is_admin:
-            return JsonResponse({"status": -1})
-
-        users = OrganizationPerson.objects.filter(organization=organization)
-        event = Event.objects.get(pk=event_pk)
-        every_attendee = (
-            event.attendees.all()
-            | event.presents.all()
-            | event.organizers.all()
-        )
-        users_dict = []
-        for user in users:
-            if user.user not in every_attendee:
-                new_user = {
-                    "pk": user.user.pk,
-                    "name": user.user.get_full_name(),
-                    "email": user.user.email,
-                    "role": user.role,
-                }
-                users_dict += [new_user]
-        return JsonResponse({"status": "OK", "user": users_dict})
 
 
 def add_users(request):

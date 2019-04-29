@@ -19,14 +19,14 @@
       </div>
     </div>
 
-    <a href="{% url 'event:event_create' %}" class="btn btn-success">
+    <a href="{% url 'event:create' %}" class="btn btn-success">
       <i class="fa fa-plus"></i> Créer un évènement
     </a>
     <div class="row m-0">
       {% for event in event_list %}
         <div class="col-lg-6 col-md-12 p-0">
           <div class="card">
-            <a href="{% url 'event:event_detail' event.pk event.slug %}" class="card-link">
+            <a href="{% url 'event:detail' event.pk event.slug %}" class="card-link">
               {% if event.activity.picture %}
                 <img class="card-img-top rounded-0" src="{{ event.activity.picture.url }}" alt="event img">
               {% endif %}

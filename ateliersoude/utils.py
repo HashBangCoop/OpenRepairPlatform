@@ -26,6 +26,17 @@ def get_future_published_events(events_objects):
     )
 
 
+def is_valid_path(path: str) -> bool:
+    if not isinstance(path, str):
+        return False
+    try:
+        # this call throws if the redirect is not registered in urls.py
+        resolve(path)
+        return True
+    except Resolver404:
+        return False
+
+
 def get_referer_resolver(request: HttpRequest) -> Optional[ResolverMatch]:
     """
     Return the referer's ResolverMatch
@@ -38,7 +49,7 @@ def get_referer_resolver(request: HttpRequest) -> Optional[ResolverMatch]:
     if url.netloc != request.get_host():
         return None
 
-    try:
+    if is_valid_path(url.path):
         return resolve(url.path)
-    except Resolver404:
+    else:
         return None
