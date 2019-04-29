@@ -7,11 +7,14 @@ from ateliersoude.event.templatetags.app_filters import serialize_id
 pytestmark = pytest.mark.django_db
 
 
+class MockId:
+    def __init__(self, id):
+        self.id = id
+
+
 def test_serialize_id():
-    user_id = 1
-    event_id = 2
-    signed = serialize_id(user_id, event_id)
-    data = {"user_id": user_id, "event_id": event_id}
-    signed_expected = signing.dumps(data, key=settings.SECRET_KEY)
+    signed = serialize_id(MockId(1), MockId(2), "book")
+    data = {"user_id": 1, "event_id": 2}
+    signed_expected = signing.dumps(data, key=settings.SECRET_KEY, salt="book")
     assert signed == signed_expected
-    assert signing.loads(signed, key=settings.SECRET_KEY) == data
+    assert signing.loads(signed, key=settings.SECRET_KEY, salt="book") == data

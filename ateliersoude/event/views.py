@@ -4,10 +4,9 @@ from django.contrib import messages
 from django.core import signing
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.views.decorators.http import require_http_methods
 from django.views.generic import (
     CreateView,
     DetailView,
@@ -82,7 +81,6 @@ class ActivityListView(ListView):
 class ActivityFormView:
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        print(form.fields["organization"].choices)
         # TODO: get orgas where user is admin
         # form.fields["organization"].choices = self.request.user.orga_admins
         return form

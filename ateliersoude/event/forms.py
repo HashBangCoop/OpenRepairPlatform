@@ -5,11 +5,7 @@ from ateliersoude.event.models import Event, Activity, Condition
 
 
 class EventForm(ModelForm):
-    starts_at = forms.DateTimeField(
-        widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local", "class": ""}
-        )
-    )
+    starts_at = forms.DateTimeField()
     ends_at = forms.DateTimeField()
 
     class Meta:
@@ -25,8 +21,6 @@ class EventForm(ModelForm):
 
 
 class ActivityForm(ModelForm):
-    description = forms.CharField(widget=forms.Textarea)
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["picture"].widget.attrs.update({"class": "form-control"})
@@ -37,8 +31,6 @@ class ActivityForm(ModelForm):
 
 
 class ConditionForm(ModelForm):
-    description = forms.CharField(widget=forms.Textarea)
-
     class Meta:
         model = Condition
         exclude = ["slug"]

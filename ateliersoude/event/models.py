@@ -15,16 +15,10 @@ class Condition(models.Model):
     name = models.CharField(
         verbose_name=_("Condition Type"),
         max_length=100,
-        null=False,
-        blank=False,
     )
-    description = models.TextField(
-        verbose_name=_("Condition description"), null=False, blank=False
-    )
+    description = models.TextField(verbose_name=_("Condition description"))
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    price = models.FloatField(
-        verbose_name=_("Price"), null=False, blank=False, default=5
-    )
+    price = models.FloatField(verbose_name=_("Price"), default=5)
 
     def get_absolute_url(self):
         return reverse(

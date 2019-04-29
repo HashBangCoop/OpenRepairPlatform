@@ -5,7 +5,6 @@ from ateliersoude.location.models import Place
 
 
 class PlaceForm(ModelForm):
-    description = forms.CharField(widget=forms.Textarea)
     longitude = forms.CharField(widget=forms.HiddenInput)
     latitude = forms.CharField(widget=forms.HiddenInput)
 
