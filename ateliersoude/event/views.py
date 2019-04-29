@@ -115,7 +115,9 @@ class EventView(DetailView):
 class EventListView(ListView):
     model = Event
     template_name = "event/event_list.html"
-    queryset = Event.future_published_events()
+
+    def get_queryset(self):
+        return Event.future_published_events()
 
 
 class EventFormView:
