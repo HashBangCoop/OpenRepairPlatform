@@ -16,6 +16,7 @@ from django.views.generic import (
 
 from ateliersoude.event.forms import EventForm, ActivityForm, ConditionForm
 from ateliersoude.event.models import Activity, Condition, Event
+from ateliersoude.mixins import RedirectQueryParamView
 from ateliersoude.user.models import CustomUser, OrganizationPerson
 from ateliersoude.utils import get_referer_resolver
 
@@ -30,7 +31,6 @@ class ConditionFormView:
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        print(form.fields["organization"].choices)
         # TODO: get orgas where user is admin
         # form.fields["organization"].choices = self.request.user.orga_admins
         return form
@@ -40,11 +40,12 @@ class ConditionFormView:
         return super().form_valid(form)
 
 
-class ConditionCreateView(ConditionFormView, CreateView):
+class ConditionCreateView(RedirectQueryParamView, ConditionFormView,
+                          CreateView):
     success_message = "La Condition a bien été créée"
 
 
-class ConditionEditView(ConditionFormView, UpdateView):
+class ConditionEditView(RedirectQueryParamView, ConditionFormView, UpdateView):
     success_message = "La Condition a bien été mise à jour"
 
 
@@ -86,19 +87,19 @@ class ActivityFormView:
         return super().form_valid(form)
 
 
-class ActivityCreateView(ActivityFormView, CreateView):
+class ActivityCreateView(RedirectQueryParamView, ActivityFormView, CreateView):
     model = Activity
     form_class = ActivityForm
     success_message = "L'activité a bien été créée"
 
 
-class ActivityEditView(ActivityFormView, UpdateView):
+class ActivityEditView(RedirectQueryParamView, ActivityFormView, UpdateView):
     model = Activity
     form_class = ActivityForm
     success_message = "L'activité a bien été mise à jour"
 
 
-class ActivityDeleteView(DeleteView):
+class ActivityDeleteView(RedirectQueryParamView, DeleteView):
     model = Activity
     success_url = reverse_lazy("event:activity_list")
 
@@ -128,13 +129,13 @@ class EventFormView:
         return HttpResponseRedirect(event.get_absolute_url())
 
 
-class EventEditView(EventFormView, UpdateView):
+class EventEditView(RedirectQueryParamView, EventFormView, UpdateView):
     model = Event
     form_class = EventForm
     success_message = "L'évènement a bien été modifié"
 
 
-class EventCreateView(EventFormView, CreateView):
+class EventCreateView(RedirectQueryParamView, EventFormView, CreateView):
     model = Event
     form_class = EventForm
     success_message = "L'évènement a bien été créé"
@@ -148,7 +149,7 @@ class EventCreateView(EventFormView, CreateView):
         return initial
 
 
-class EventDeleteView(DeleteView):
+class EventDeleteView(RedirectQueryParamView, DeleteView):
     model = Event
     success_url = reverse_lazy("event:event_list")
 

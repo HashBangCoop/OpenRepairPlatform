@@ -11,13 +11,14 @@ from django.views.generic import (
 
 from ateliersoude.location.forms import PlaceForm
 from ateliersoude.location.models import Place
+from ateliersoude.mixins import RedirectQueryParamView
 
 
 class PlaceView(DetailView):
     model = Place
 
 
-class PlaceDeleteView(DeleteView):
+class PlaceDeleteView(RedirectQueryParamView, DeleteView):
     model = Place
     success_url = reverse_lazy("location:place_list")
 
@@ -37,13 +38,13 @@ class PlaceFormView:
         return validated
 
 
-class PlaceCreateView(PlaceFormView, CreateView):
+class PlaceCreateView(RedirectQueryParamView, PlaceFormView, CreateView):
     form_class = PlaceForm
     model = Place
     success_message = "Le lieu a bien été créé"
 
 
-class PlaceEditView(PlaceFormView, UpdateView):
+class PlaceEditView(RedirectQueryParamView, PlaceFormView, UpdateView):
     form_class = PlaceForm
     model = Place
     success_message = "Le lieu a bien été modifié"
