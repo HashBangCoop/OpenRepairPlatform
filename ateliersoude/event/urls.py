@@ -54,7 +54,6 @@ urlpatterns = [
         name="delete",
     ),
     path("<int:pk>/<slug>/", views.EventView.as_view(), name="detail"),
-
     path(
         "cancel_reservation/<token>/",
         views.CancelReservationView.as_view(),
