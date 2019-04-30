@@ -81,6 +81,12 @@ class OrganizationCreateView(CreateView):
     model = Organization
     form_class = OrganizationForm
 
+    def form_valid(self, form):
+        res = super().form_valid(form)
+        # TODO : restriction user staff
+        form.instance.admins.add(self.request.user)
+        return res
+
 
 class OrganizationUpdateView(UpdateView):
     template_name = "user/organisation/organization_form.html"

@@ -113,7 +113,6 @@ class Organization(models.Model):
         null=True,
         blank=True,
     )
-    active = models.BooleanField(verbose_name=_("Active"))
     slug = models.SlugField(default="")
     visitors = models.ManyToManyField(
         CustomUser, related_name="visitor_organisations", blank=True

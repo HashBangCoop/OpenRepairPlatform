@@ -55,7 +55,7 @@
       </div>
       {% if object.pk == request.user.pk %}
         <div class="row">
-          <a class="mr-3 btn btn-primary" href="{% url "user:user_profile" object.pk %}">
+          <a class="mr-3 btn btn-primary" href="{% url "user:user_update" object.pk %}">
             <i class="fa fa-pencil-square-o 2-xs pt-1"></i>
             Editer mon profil
           </a>
