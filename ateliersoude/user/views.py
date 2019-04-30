@@ -9,8 +9,8 @@ from django.views.generic import (
     DeleteView,
 )
 
-from ateliersoude.event.models import Event
 from ateliersoude.user.models import CustomUser, Organization
+
 from .forms import (
     UserUpdateForm,
     UserCreateForm,
@@ -21,13 +21,18 @@ from .forms import (
 
 class UserUpdateView(UpdateView):
     model = CustomUser
-    template_name = "user/user_profile.html"
+    template_name = "user/user_form.html"
     form_class = UserUpdateForm
+
+    def form_valid(self, form):
+        res = super().form_valid(form)
+        messages.success(self.request, "L'utilisateur a bien été mis à jour.")
+        return res
 
 
 class UserCreateView(CreateView):
     model = CustomUser
-    template_name = "user/user_profile.html"
+    template_name = "user/user_form.html"
     form_class = UserCreateForm
     success_url = reverse_lazy("login")
 
@@ -40,13 +45,6 @@ class UserCreateView(CreateView):
 class UserDetailView(DetailView):
     model = CustomUser
     template_name = "user/user_detail.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["attending_events"] = Event.objects.filter(
-            registered=self.object
-        )
-        return context
 
 
 class UserListView(ListView):

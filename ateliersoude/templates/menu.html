@@ -42,9 +42,16 @@
       {% if user.is_authenticated %}
 
       <div class="navbar-brand avatar">
-        <a class="nav-link mr-3" href="{{ user.get_absolute_url }}"> {{ user.first_name }}</a></div>
+        <a class="nav-link mr-3" href="{{ user.get_absolute_url }}"> {{ user.first_name }}
+          <i class="fa fa-user"></i>
+        </a>
+      </div>
       {% else %}
-      <div class="navbar-brand" ><a class="nav-link mr-3" href="{% url "login" %}"><i class="fa fa-user-circle-o fa-2x"></i></a></div>
+      <div class="navbar-brand" >
+        <a class="nav-link mr-3" href="{% url "login" %}">
+          <i class="fa fa-user"></i>
+        </a>
+      </div>
       {% endif %}
       {% if user.is_authenticated %}
 

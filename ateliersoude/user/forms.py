@@ -15,6 +15,12 @@ class CustomUserChangeForm(UserChangeForm):
         model = CustomUser
 
 
+class UserCreateForm(UserCreationForm):
+    class Meta:
+        model = CustomUser
+        fields = ["email", "first_name", "last_name", "street_address"]
+
+
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = CustomUser
@@ -35,19 +41,13 @@ class UserUpdateForm(forms.ModelForm):
         }
 
 
-class UserCreateForm(UserCreationForm):
+class AddUserToEventForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ["email", "first_name", "last_name", "street_address"]
+        fields = ["email"]
 
 
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = Organization
         exclude = ["visitors", "members", "volunteers", "admins", "slug"]
-
-
-class AddUserToEventForm(forms.ModelForm):
-    class Meta:
-        model = CustomUser
-        fields = ["email"]
