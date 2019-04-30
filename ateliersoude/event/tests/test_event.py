@@ -73,9 +73,7 @@ def test_event_list(client, event_factory, published_event_factory):
 
 def test_event_detail_context(client, event_factory):
     event = event_factory()
-    response = client.get(
-        reverse("event:detail", args=[event.pk, event.slug])
-    )
+    response = client.get(reverse("event:detail", args=[event.pk, event.slug]))
     assert response.status_code == 200
     assert isinstance(response.context_data["event"], Event)
     assert event.pk == response.context_data["event"].pk
@@ -184,27 +182,32 @@ def test_cancel_reservation(client, event_factory, custom_user_factory):
     event.save()
     nb_registered = Event.objects.first().registered.count()
     assert nb_registered == 1
-    token = signing.dumps({"user_id": user.id, "event_id": event.id},
-                          salt="cancel")
+    token = signing.dumps(
+        {"user_id": user.id, "event_id": event.id}, salt="cancel"
+    )
     resp = client.get(reverse("event:cancel_reservation", args=[token]))
     assert resp.status_code == 302
-    assert resp["Location"] == reverse("event:detail",
-                                       args=[event.id, event.slug])
+    assert resp["Location"] == reverse(
+        "event:detail", args=[event.id, event.slug]
+    )
     nb_registered = Event.objects.first().registered.count()
     assert nb_registered == 0
 
 
-def test_cancel_reservation_redirect(client, event_factory,
-                                     custom_user_factory):
+def test_cancel_reservation_redirect(
+    client, event_factory, custom_user_factory
+):
     user = custom_user_factory()
     event = event_factory()
     event.registered.add(user)
     event.save()
-    token = signing.dumps({"user_id": user.id, "event_id": event.id},
-                          salt="cancel")
+    token = signing.dumps(
+        {"user_id": user.id, "event_id": event.id}, salt="cancel"
+    )
     query_params = "?redirect=/location/place/"
-    resp = client.get(reverse("event:cancel_reservation", args=[token]) +
-                      query_params)
+    resp = client.get(
+        reverse("event:cancel_reservation", args=[token]) + query_params
+    )
     assert resp.status_code == 302
     assert resp["Location"] == reverse("location:list")
 
@@ -221,12 +224,14 @@ def test_book(client, event_factory, custom_user_factory):
     event = event_factory()
     nb_registered = Event.objects.first().registered.count()
     assert nb_registered == 0
-    token = signing.dumps({"user_id": user.id, "event_id": event.id},
-                          salt="book")
+    token = signing.dumps(
+        {"user_id": user.id, "event_id": event.id}, salt="book"
+    )
     resp = client.get(reverse("event:book", args=[token]))
     assert resp.status_code == 302
-    assert resp["Location"] == reverse("event:detail",
-                                       args=[event.id, event.slug])
+    assert resp["Location"] == reverse(
+        "event:detail", args=[event.id, event.slug]
+    )
     nb_registered = Event.objects.first().registered.count()
     assert nb_registered == 1
 
@@ -234,11 +239,11 @@ def test_book(client, event_factory, custom_user_factory):
 def test_book_redirect(client, event_factory, custom_user_factory):
     user = custom_user_factory()
     event = event_factory()
-    token = signing.dumps({"user_id": user.id, "event_id": event.id},
-                          salt="book")
+    token = signing.dumps(
+        {"user_id": user.id, "event_id": event.id}, salt="book"
+    )
     query_params = "?redirect=/location/place/"
-    resp = client.get(reverse("event:book", args=[token]) +
-                      query_params)
+    resp = client.get(reverse("event:book", args=[token]) + query_params)
     assert resp.status_code == 302
     assert resp["Location"] == reverse("location:list")
 
@@ -255,12 +260,14 @@ def test_user_present(client, event_factory, custom_user_factory):
     event = event_factory()
     nb_presents = Event.objects.first().presents.count()
     assert nb_presents == 0
-    token = signing.dumps({"user_id": user.id, "event_id": event.id},
-                          salt="present")
+    token = signing.dumps(
+        {"user_id": user.id, "event_id": event.id}, salt="present"
+    )
     resp = client.get(reverse("event:user_present", args=[token]))
     assert resp.status_code == 302
-    assert resp["Location"] == reverse("event:detail",
-                                       args=[event.id, event.slug])
+    assert resp["Location"] == reverse(
+        "event:detail", args=[event.id, event.slug]
+    )
     nb_presents = Event.objects.first().presents.count()
     assert nb_presents == 1
 
@@ -268,11 +275,13 @@ def test_user_present(client, event_factory, custom_user_factory):
 def test_user_present_redirect(client, event_factory, custom_user_factory):
     user = custom_user_factory()
     event = event_factory()
-    token = signing.dumps({"user_id": user.id, "event_id": event.id},
-                          salt="present")
+    token = signing.dumps(
+        {"user_id": user.id, "event_id": event.id}, salt="present"
+    )
     query_params = "?redirect=/location/place/"
-    resp = client.get(reverse("event:user_present", args=[token]) +
-                      query_params)
+    resp = client.get(
+        reverse("event:user_present", args=[token]) + query_params
+    )
     assert resp.status_code == 302
     assert resp["Location"] == reverse("location:list")
 
@@ -291,12 +300,14 @@ def test_user_absent(client, event_factory, custom_user_factory):
     event.save()
     nb_presents = Event.objects.first().presents.count()
     assert nb_presents == 1
-    token = signing.dumps({"user_id": user.id, "event_id": event.id},
-                          salt="absent")
+    token = signing.dumps(
+        {"user_id": user.id, "event_id": event.id}, salt="absent"
+    )
     resp = client.get(reverse("event:user_absent", args=[token]))
     assert resp.status_code == 302
-    assert resp["Location"] == reverse("event:detail",
-                                       args=[event.id, event.slug])
+    assert resp["Location"] == reverse(
+        "event:detail", args=[event.id, event.slug]
+    )
     nb_presents = Event.objects.first().presents.count()
     assert nb_presents == 0
 
@@ -304,10 +315,12 @@ def test_user_absent(client, event_factory, custom_user_factory):
 def test_user_absent_redirect(client, event_factory, custom_user_factory):
     user = custom_user_factory()
     event = event_factory()
-    token = signing.dumps({"user_id": user.id, "event_id": event.id},
-                          salt="absent")
+    token = signing.dumps(
+        {"user_id": user.id, "event_id": event.id}, salt="absent"
+    )
     query_params = "?redirect=/location/place/"
-    resp = client.get(reverse("event:user_absent", args=[token]) +
-                      query_params)
+    resp = client.get(
+        reverse("event:user_absent", args=[token]) + query_params
+    )
     assert resp.status_code == 302
     assert resp["Location"] == reverse("location:list")

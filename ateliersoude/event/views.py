@@ -13,7 +13,8 @@ from django.views.generic import (
     ListView,
     UpdateView,
     DeleteView,
-    RedirectView)
+    RedirectView,
+)
 
 from ateliersoude import utils
 from ateliersoude.event.forms import EventForm, ActivityForm, ConditionForm
@@ -44,8 +45,9 @@ class ConditionFormView:
         return super().form_valid(form)
 
 
-class ConditionCreateView(RedirectQueryParamView, ConditionFormView,
-                          CreateView):
+class ConditionCreateView(
+    RedirectQueryParamView, ConditionFormView, CreateView
+):
     success_message = "La Condition a bien été créée"
 
 
@@ -170,13 +172,15 @@ def _load_token(token, salt):
 
 class PresentView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
-        token = kwargs['token']
+        token = kwargs["token"]
         try:
             event, user = _load_token(token, "present")
         except Exception:
             logger.exception(f"Error loading token {token} during present")
-            messages.error(self.request, "Une erreur est survenue lors de "
-                                         "votre requête")
+            messages.error(
+                self.request,
+                "Une erreur est survenue lors de " "votre requête",
+            )
             return reverse("event:list")
 
         event.registered.remove(user)
@@ -190,13 +194,15 @@ class PresentView(RedirectView):
 
 class AbsentView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
-        token = kwargs['token']
+        token = kwargs["token"]
         try:
             event, user = _load_token(token, "absent")
         except Exception:
             logger.exception(f"Error loading token {token} during asbent")
-            messages.error(self.request, "Une erreur est survenue lors de "
-                                         "votre requête")
+            messages.error(
+                self.request,
+                "Une erreur est survenue lors de " "votre requête",
+            )
             return reverse("event:list")
 
         event.presents.remove(user)
@@ -210,20 +216,23 @@ class AbsentView(RedirectView):
 
 class CancelReservationView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
-        token = kwargs['token']
+        token = kwargs["token"]
         try:
             event, user = _load_token(token, "cancel")
         except Exception:
             logger.exception(f"Error loading token {token} during unbook")
-            messages.error(self.request, "Une erreur est survenue lors de "
-                                         "votre requête")
+            messages.error(
+                self.request,
+                "Une erreur est survenue lors de " "votre requête",
+            )
             return reverse("event:list")
 
         event.registered.remove(user)
         event.save()
         # TODO send email
-        messages.success(self.request, "Vous n'êtes plus inscrit à cet "
-                                       "évènement")
+        messages.success(
+            self.request, "Vous n'êtes plus inscrit à cet " "évènement"
+        )
 
         # TODO if id_user in present -> ???
 
@@ -236,20 +245,23 @@ class CancelReservationView(RedirectView):
 class BookView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         # TODO: change with email, if not `user`, create one with email
-        token = kwargs['token']
+        token = kwargs["token"]
         try:
             event, user = _load_token(token, "book")
         except Exception:
             logger.exception(f"Error loading token {token} during book")
-            messages.error(self.request, "Une erreur est survenue lors de "
-                                         "votre requête")
+            messages.error(
+                self.request,
+                "Une erreur est survenue lors de " "votre requête",
+            )
             return reverse("event:list")
 
         event.registered.add(user)
         event.save()
         # TODO send email
-        messages.success(self.request, "Vous êtes inscrit à cet évènement, "
-                                       "à bientôt !")
+        messages.success(
+            self.request, "Vous êtes inscrit à cet évènement, " "à bientôt !"
+        )
 
         # TODO if id_user in present -> ???
 
@@ -257,6 +269,7 @@ class BookView(RedirectView):
         if utils.is_valid_path(next_url):
             return next_url
         return reverse("event:detail", args=[event.id, event.slug])
+
 
 # Following lines not used for now
 
