@@ -2,7 +2,7 @@ import pytest
 from django.core import signing
 
 from ateliersoude import settings
-from ateliersoude.event.templatetags.app_filters import serialize_id
+from ateliersoude.event.templatetags.app_filters import token
 
 pytestmark = pytest.mark.django_db
 
@@ -12,8 +12,8 @@ class MockId:
         self.id = id
 
 
-def test_serialize_id():
-    signed = serialize_id(MockId(1), MockId(2), "book")
+def test_token():
+    signed = token(MockId(1), MockId(2), "book")
     data = {"user_id": 1, "event_id": 2}
     signed_expected = signing.dumps(data, key=settings.SECRET_KEY, salt="book")
     assert signed == signed_expected

@@ -40,7 +40,7 @@
       {% if organization.places.all %}
         <div>
           {% for place in organization.places.all %}
-            <a class="card-link" href="{% url 'location:place_detail' place.pk place.slug %}">
+            <a class="card-link" href="{% url 'location:detail' place.pk place.slug %}">
               <div class="card">
                 <div class="card-body">
                   <h4 class="card-title">{{ place.name }}</h4>
@@ -51,12 +51,12 @@
                 {% if admin %}
                   <div class="card-footer">
                     <a class="card-link btn btn-primary" 
-                       href="{% url 'location:place_edit' place.id %}">
+                       href="{% url 'location:edit' place.id %}">
                       <i class="fa fa-pencil-alt"></i>
                       Editer ce lieu
                     </a>
                     <a class="card-link btn btn-danger"
-                       href="{% url 'location:place_delete' place.id %}">
+                       href="{% url 'location:delete' place.id %}">
                       <i class="fa fa-trash-alt"></i>
                       Supprimer ce lieu
                     </a>
