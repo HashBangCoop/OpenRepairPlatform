@@ -9,9 +9,22 @@
 {% endblock %}
 
 {% block content %}
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">{{ place.name|title }}</h1>
+      <p class="lead">
+        <a class="btn btn-primary" href="{% url 'location:edit' place.id %}">
+          <i class="fa fa-pencil-alt"></i>
+          Editer ce lieu
+        </a>
+        <a class="btn btn-danger" href="{% url 'location:delete' place.id %}">
+          <i class="fa fa-trash-alt"></i>
+          Supprimer ce lieu
+        </a>
+      </p>
+    </div>
+  </div>
   <section class="container">
-    <h1 class="mt-4">{{ place.name }}</h1>
-
     <div class="card">
       {% if place.picture %}
         <img class="img-responsive w-100" src="{{ place.picture.url }}" alt="image_lieu">
@@ -26,28 +39,18 @@
         </h5>
         {{ place.description }}
       </div>
-
-      <div class="card-footer">
-        <a class="card-link btn btn-primary" href="{% url 'location:place_edit' place.id %}">
-          <i class="fa fa-pencil-alt"></i>
-          Editer ce lieu
-        </a>
-        <a class="card-link btn btn-danger" href="{% url 'location:place_delete' place.id %}">
-          <i class="fa fa-trash-alt"></i>
-          Supprimer ce lieu
-        </a>
-      </div>
-
     </div>
 
     <div class="card">
       <div class="card-body">
-        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">Évènements organisés à {{place.name}}</h5>
+        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">Prochains évènements en ce lieu</h5>
         <ul>
-          <li><a href="#">evenement 1</a></li>
-          <li><a href="#">evenement 2</a></li>
-          <li><a href="#">evenement 3</a></li>
-          <li><a href="#">evenement 4</a></li>
+          {% for event in place.future_published_events %}
+            <li><a href="{% url 'event:detail' event.pk event.slug %}">{{ event }}</a></li>
+            {% empty %}
+            <i class="fa fa-calendar-times"></i>
+            Aucun évènement planifié ici pour le moment
+          {% endfor %}
         </ul>
       </div>
     </div>

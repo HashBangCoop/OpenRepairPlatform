@@ -5,17 +5,12 @@ from ateliersoude.location.models import Place
 
 
 class PlaceForm(ModelForm):
-    description = forms.CharField(widget=forms.Textarea)
     longitude = forms.CharField(widget=forms.HiddenInput)
     latitude = forms.CharField(widget=forms.HiddenInput)
 
     def __init__(self, *args, **kwargs):
-        super(PlaceForm, self).__init__(*args, **kwargs)
-        picture_widget = self.fields["picture"].widget
-        existing_classes = picture_widget.attrs.get("class", "")
-        picture_widget.attrs.update({
-            "class": f"{existing_classes} form-control".strip()
-        })
+        super().__init__(*args, **kwargs)
+        self.fields["picture"].widget.attrs.update({"class": "form-control"})
 
     class Meta:
         model = Place

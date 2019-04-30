@@ -1,343 +1,156 @@
-{% extends 'detail_view.html' %}
+{% extends 'base.html' %}
+{% load assets l10n app_filters %}
 
-{% load staticfiles %}
-{% load fontawesome %}
-{% load app_filters %}
-{% load avatar_tags %}
-{% load django_bootstrap_breadcrumbs %}
-{% load django_markdown django_markdown_static %}
-{% load easy_maps_tags %}
-{% load activity_tags %}
-
-{% block breadcrumbs %}
-{% with type="events" list_view="event_list" detail_name=event.title %}
-   {{ block.super }}
-{% endwith %}
+{% block extra_css %}
+  {% assets "css_detail_event" %}
+    <link type="text/css" href="{{ ASSET_URL }}" rel="stylesheet"/>
+  {% endassets %}
 {% endblock %}
 
-<!-- define right header-bar color -->
-{% block header_ban %}
-    {% with object="event" %}
-        {{ block.super }}
-{% endwith %}
-{% endblock header_ban %}
-<!-- end define -->
-
-<!--- Item banner -->
-{% block TitleAndEdit %}
-
-{% if not request.user.is_authenticated %}
-{% else %}
-    {% if request.user in event.organizers.all %}
-        <a class="card-link mr-3 fm-update btn btn-primary float-right" href="{% url 'event_edit' event.id %}"
-    data-fm-head="Create" data-fm-callback="reload">&nbsp
-        <i class="fa fa-pencil-square-o 2-xs pt-1"></i>
-        Editer
-        </a>
-    {% elif request.user in event.presents.all %}
-    {% else %}
-        <a class="card-link mr-3 fm-update btn btn-primary float-right" href="{% url 'booking_form' event.id %}"
-        data-fm-head="Book" data-fm-callback="reload">&nbsp
-        <i class="fa fa-pencil-square-o 2-xs pt-1"></i>
-        {% if request.user in event.attendees.all %}
-            Je ne participe plus
-        {% else %}
-            Je participe
-        {% endif %}
-        </a>
-    {% endif %}
-{% endif %}
-
-<h5 class="row">
-    {{ event.type }} du {{ event.starts_at|date:"d M" }} à
-    <a href="{% url 'place_detail' event.location.id event.location.slug %}">
-          {{ event.location.name }}
-    </a>
-    <div class="float-left ml-3">
-            {% if event.available_seats == 0 %}
-                <span class="badge badge-warning">Complet</span>
-            {% else %}
-                <span class="badge badge-primary">{{ event.available_seats }}
-                <small>Places</small></span>
-            {% endif %}
+{% block content %}
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">{{ event.activity.name|title }}</h1>
+      <p class="lead">
+        <a href="{% url 'event:edit' event.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
+        <a href="{% url 'event:delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
+      </p>
     </div>
-</h5>
-
-<div class="row">
-    par <a href="{% url 'organization_detail' event.organization.id event.organization.slug %}">
-            {{ event.organization.name }}
-      </a>
-</div>
-
-{% endblock TitleAndEdit %}
-<!-- End item banner -->
-
-
-{% block context %}
-<!-- About event -->
-    <div class="card sticky-position sticky-top sticky-keep" >
-        <img class="img-fluid img-place" src="{{ event.type.picture.url }}">
-    </div>
-
-    <div class="m-3 pt-3 p-2 card">
-            <p>
-                {% for condition in event.condition.all %}
-                    <span>{{condition.resume}}</span>
-                {% empty %}
-                    <span>La participation est libre / pas de condition d'accès</span>
-                {% endfor %}
-            </p>
-    </div>
-
-    <a href="{% url 'activity_detail' event.type.id event.type.slug %}">
-        <div class="m-3 pt-3 p-2 card">
-            <p>
-            {{event.type.description|truncatechars:100|markdown}}
-            </p>
-            <a href="{% url 'activity_detail' event.type.id event.type.slug %}">En savoir +</a>
-        </div>
-    </a>
-<!-- End about event -->
-
-
-<!-- Location -->
-<div class="m-3 pt-3 p-2 bg-white">
-        <h6>
-            {% fontawesome_icon 'map-marker' %}
-            <a href="{% url 'place_detail' event.location.id event.location.slug %}">
-                {{ event.location.name }}</a>,
-            {{ event.location.address }}
+  </div>
+  <section class="container">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          {{ event.activity }} du {{ event.starts_at|date:"d M" }}
+          {% if request.user in event.registered.all or request.user in event.presents.all %}
+            <span class="badge badge-success badge-pill">Inscrit</span>
+          {% endif %}
+        </h5>
+        <h6 class="card-subtitle text-muted">
+          {% if event.available_seats == 0 %}
+            <span class="badge badge-warning badge-pill">Complet</span>
+          {% else %}
+            Encore
+            <span class="badge badge-info badge-pill">{{ event.available_seats }}
+                </span> places disponibles
+          {% endif %}
         </h6>
-         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css"
-   integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
-   crossorigin=""/>
 
-  <script src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js"
-   integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
-   crossorigin=""></script>
+        <p class="pt-3">
+          {{ event.activity.description }}
+        </p>
+        <p>
+          <i class="fa fa-calendar-alt"></i> Début le <i>{{ event.starts_at|date:"l d M à H\hi" }}</i>
+          <br>
+          <i class="fa fa-calendar-times"></i> Fin le <i>{{ event.ends_at|date:"l d M à H\hi" }}</i>
+        </p>
 
-  <div style="height:250px;" id="event_map"></div>
-</div>
-<!-- End location -->
+        <hr>
 
+        <b>Condition(s) de venue:</b>
+        <ul class="pt-3">
+          {% for condition in event.conditions.all %}
+            <li>
+              {% if condition.price > 0 %}
+                <span class="badge badge-pill badge-secondary">{{ condition.price }}€</span> -
+              {% endif %}
+              {{ condition.description }}
+            </li>
+            {% empty %}
+            <li>La participation est libre / pas de condition d'accès</li>
+          {% endfor %}
+        </ul>
 
-<!-- Leaflet script -->
-  <script>
-    var longitude = new Array({{event.location.address.longitude}}).join('.');
-    var latitude = new Array({{event.location.address.latitude}}).join('.');
-    var event_map = L.map('event_map').setView([latitude, longitude], 16);
-
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        minZoom: 14,
-        maxZoom: 16,
-        id: 'mapbox.streets',
-        accessToken: 'pk.eyJ1IjoiYXRlbGllcnNvdWRlIiwiYSI6ImNqazEwZW16aDAzbDkza254cHhucHJtMncifQ.01v1DWXApDJmCySy4QvD4A',
-        noWrap: true,
-        reuseTiles: true,
-    }).addTo(event_map);
-
-    var marker = L.marker([latitude,longitude]).addTo(event_map);
-
-    event_map.touchZoom.disable();
-    event_map.doubleClickZoom.disable();
-    event_map.scrollWheelZoom.disable();
-    event_map.boxZoom.disable();
-    event_map.keyboard.disable();
-  </script>
-<!-- End Leaflet script -->
-{% endblock context %}
-
-{% block stream %}
-    {% with object=event %}
-    {{ block.super }}
-    {% endwith %}
-{% endblock stream %}
-
-
-{% block about %}
-
-<!-- Add user to event : attendees if date_event < current_date , presents if date_event = current_date -->
-
-<!-- end add user to event -->
-{% if request.user.is_authenticated and request.user in admin_or_volunteer %}
-
-
-<!-- validating presents possibilities for volonteers -->
-{% include "plateformeweb/add_user.html" %}
-{% endif %}
-
-<!-- Users that have a role in the organization -->
-
-<h5 class="border-bottom border-gray pb-2 mb-0 clear ">Animateur.trice.s</h5>
-
-<div class="card-columns">
-
-    {% for user in event.organizers.all %}
-        {% include "user/user.html" with float="float-left" class="row checked administrator" orga=True img_class="col-12" content_class="col-12 text-center" %}
-    {% endfor %}
-
-    {% for user in admin_or_volunteer %}
-        {% if user in event.attendees.all %}
-            {% include "user/user.html" with float="float-left" class="row" user_id=user.id img_class="col-12" content_class="col-12 text-center" absentee=True userid=user.id|serialize_id:event.id %}
+        <a href="{% url 'event:activity_detail' event.activity.pk event.activity.slug %}" class="btn btn-info">
+          <i class="fa fa-eye"></i>
+          En savoir plus sur l'activité
+        </a>
+        {% if request.user in event.registered.all %}
+          {% token user=request.user event=event action='cancel' as tok %}
+          <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-warning">Je ne participe plus</a>
+        {% elif request.user not in event.presents.all and request.user not in event.organizers.all %}
+          {% token user=request.user event=event action='book' as tok %}
+          <a href="{% url 'event:book' tok %}" class="btn btn-success">Je participe !</a>
         {% endif %}
-        {% if user in event.presents.all %}
-            {% include "user/user.html" with float="float-left" class="row checked" user_id=user.id img_class="col-12" content_class="col-12 text-center" absentee=True userid=user.id|serialize_id:event.id %}
-        {% endif %}
-    {% endfor %}
+      </div>
 
-</div>
-<!-- End user that have a role in the organization -->
+      <div class="card-footer">
+        <small>
+          Organisé par
+          <a href="{% url 'user:organization_detail' event.organization.id event.organization.slug %}">
+            {{ event.organization.name }}
+          </a>
 
-<!-- Attendees and presents -->
+          <br>
+          <i class="fa fa-map-marker"></i>
+          <a href="{% url 'location:detail' event.location.id event.location.slug %}">
+            {{ event.location.name }}</a>,
+          {{ event.location.address }}
+        </small>
+      </div>
 
-<h5 class="border-bottom border-gray pb-2 mb-0 clear ">Participant.e.s</h5>
-
-{% if request.user.is_authenticated and request.user in admin_or_volunteer %}
-    <div class="card-columns">
-<!-- display presents for admin or volonteers -->
-        {% for user in event.presents.all %}
-            {% if user not in admin_or_volunteer %}
-                {% include "user/user.html" with float="float-left" class="row checked" user_id=user.id img_class="col-12" content_class="col-12" absentee=False userid=user.id|serialize_id:event.id %}
-            {% endif %}
-        {% endfor %}
-        {% for user in event.attendees.all %}
-            {% if user not in admin_or_volunteer %}
-                {% include "user/user.html" with float="float-left" class="row" user_id=user.id img_class="col-12" content_class="col-12" absentee=True userid=user.id|serialize_id:event.id %}
-            {% endif %}
-        {% endfor %}
+      {% if event.activity.picture %}
+        <img class="img-responsive w-100" src="{{ event.activity.picture.url }}" alt="activity illustration">
+      {% endif %}
     </div>
-{% else %}
-<!-- or warning message for others user -->
-<div class="alert alert-warning alert-dismissible fade show" role="alert">
-    Vous devez être membre actif de l'association pour voir les participants
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
+  </section>
 
-    {% if request.user in event.attendees.all %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Vous êtes bien inscrit à cet évènement
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    {% endif %}
-{% endif %}
+  <div style="height:70vh;" id="event_map"></div>
 
+  <section class="container">
+    <div class="card">
+      <div class="card-body">
+        {% if event.has_started %}
+          <a href="#" class="btn btn-success btn-sm" onclick="alert('not implemented')"><i class="fa fa-plus"></i> Un membre est présent</a>
+        {% endif %}
+        {% if not event.has_ended %}
+          <a href="#" class="btn btn-success btn-sm" onclick="alert('not implemented')"><i class="fa fa-plus"></i> Inscrire un membre</a>
+        {% endif %}
+        <br>
 
-<!-- End attendees and presents -->
+        <h5 class="mt-4">Animateur.trice.s</h5>
+        <ul>
+          {% for user in event.organizers.all %}
+            <li>{{ user }}</li>
+          {% endfor %}
+        </ul>
 
-<script src="{% static "js/helper_functions.js" %}"></script>
-<script src="{% static "js/event_detail.js" %}"></script>
+        <hr>
 
+        <h5>Participant.e.s</h5>
+        {# TODO: display only if request.user > volunteer #}
+        <ul>
+          {% for user in event.registered.all %}
+            <li class="m-2">
+              {{ user }}
+              {% if event.has_started %}
+                {% token user=user event=event action='present' as tok %}
+                <a href="{% url 'event:user_present' tok %}" class="btn btn-success btn-sm"><i class="fa fa-plus"></i> Ce membre est présent</a>
+              {% endif %}
+              {% token user=user event=event action='cancel' as tok %}
+              <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-danger btn-sm"><i class="fa fa-minus"></i> Désinscrire ce membre</a>
+            </li>
+          {% endfor %}
+          {% for user in event.presents.all %}
+            <li class="m-2">
+              {{ user }}
+              {% token user=user event=event action='absent' as tok %}
+              <a href="{% url 'event:user_absent' tok %}" class="btn btn-danger btn-sm"><i class="fa fa-minus"></i> Ce membre est absent</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
 
-<!-- Add user script -->
-{% if request.user.is_authenticated and request.user in admin_or_volunteer %}
+{% endblock %}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
-<script>
-  var organization_pk = {{event.organization.pk}};
-  var event_pk = {{event.pk}};
-  var options = {
-      shouldSort: true,
-      findAllMatches: true,
-      threshold: 0.6,
-      location: 0,
-      distance: 100,
-      maxPatternLength: 32,
-      minMatchCharLength: 3,
-      keys: [
-          "name",
-          "email"
-      ]
-  };
-
-  const user_add = new Vue({
-      delimiters: ['[[', ']]'],
-      el: "#add-user",
-      data() {
-        
-          return {
-              fuzzy_input: "",
-              selected_member_type: 0,
-              text_roles: {
-                  0: "Visiteur",
-                  10: "Adhérent",
-                  20: "Membre Actif",
-                  30: "Administrateur",
-              },
-              all_users_in_org: [],
-              selected_users: [],
-              seen: false,
-          }
-      },
-      created() {
-          let csrftoken = getCookie('csrftoken');
-          let headers = new Headers();
-
-          headers.append('X-CSRFToken', csrftoken);
-          fetch("/api/getUsers/" + organization_pk + "/" + event_pk, {
-              headers: headers,
-              method: "GET",
-              credentials: 'include',
-          })
-              .then(response => response.json())
-              .then(json => {
-                  this.all_users_in_org = json.users;
-              });
-      },
-      methods: {
-          text_role: function(role_int){
-              return this.text_roles[role_int];
-          },
-          add_users: function(event){
-              let csrftoken = getCookie('csrftoken');
-              let headers = new Headers();
-              let payload = {
-                  event_pk: event_pk,
-                  user_list: this.selected_users,
-              };
-
-              let formData = payload_to_formBody(payload);
-
-              headers.append('X-CSRFToken', csrftoken);
-              headers.append('Content-Type',
-                             'application/x-ww-form-urlencoded; charset=UTF-8');
-
-              fetch("/api/addUsers/", {
-                  headers: headers,
-                  method: "POST",
-                  credentials: 'include',
-                  body: formData,
-              })
-                  .then(response => response.json())
-                  .then(json => {
-                      document.getElementById("available-seats").innerHTML = json.seats;
-                      location.reload(true);
-                  });
-          }
-      },
-      computed: {
-          users_matching_role: function(){
-              return this.all_users_in_org.filter(
-                  (user) => user.role >=this.selected_member_type);
-          },
-          fuzzy_list: function(){
-              var fuse = new Fuse(this.users_matching_role, options);
-              var result = fuse.search(this.fuzzy_input);
-
-              return result;
-          },
-      }
-  });
-
-</script>
-<!-- End add user script -->
-
-
-{% endif %}
-{% endblock about %}
-
+{% block extra_js %}
+  <script>
+      const longitude = {{ event.location.longitude|unlocalize }};
+      const latitude = {{ event.location.latitude|unlocalize }};
+  </script>
+  {% assets "js_detail_event" %}
+    <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+{% endblock %}

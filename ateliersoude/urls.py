@@ -6,30 +6,29 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
-    path("", views.HomeView.as_view(), name='homepage'),
-    path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')),
-    path(
-        "event/",
-        include("ateliersoude.event.urls", namespace='event')
-    ),
+    path("", views.HomeView.as_view(), name="homepage"),
+    path("admin/", admin.site.urls),
+    path("accounts/", include("django.contrib.auth.urls")),
+    path("event/", include("ateliersoude.event.urls", namespace="event")),
     path(
         "location/",
-        include("ateliersoude.location.urls", namespace='location')
+        include("ateliersoude.location.urls", namespace="location"),
     ),
     path(
         "api/location/",
-        include("ateliersoude.location.api_urls", namespace='api_location')
+        include("ateliersoude.location.api_urls", namespace="api_location"),
     ),
-    path("user/", include("ateliersoude.user.urls", namespace='user')),
+    path("user/", include("ateliersoude.user.urls", namespace="user")),
     path("api/", include("ateliersoude.api.urls")),
 ]
 
 if settings.DEBUG:
     import debug_toolbar  # noqa
-    urlpatterns = [
-                      path('__debug__/', include(debug_toolbar.urls)),
-                  ] + urlpatterns
 
-    urlpatterns += static(settings.MEDIA_URL,
-                          document_root=settings.MEDIA_ROOT)
+    urlpatterns = [
+        path("__debug__/", include(debug_toolbar.urls))
+    ] + urlpatterns
+
+    urlpatterns += static(
+        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+    )

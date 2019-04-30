@@ -23,7 +23,7 @@ def location_data(organization_factory):
 
 
 def test_location_list(client):
-    response = client.get(reverse("location:place_list"))
+    response = client.get(reverse("location:list"))
     assert response.status_code == 200
     assert get_user(client).is_anonymous
 
@@ -54,7 +54,7 @@ def test_location_api_list(client, place_factory):
 def test_location_detail_context(client, place_factory):
     place = place_factory()
     response = client.get(
-        reverse("location:place_detail", args=[place.pk, place.slug])
+        reverse("location:detail", args=[place.pk, place.slug])
     )
     assert response.status_code == 200
     assert isinstance(response.context_data["place"], Place)
@@ -64,7 +64,7 @@ def test_location_detail_context(client, place_factory):
 
 def test_get_location_delete(client, place_factory):
     place = place_factory()
-    response = client.get(reverse("location:place_delete", args=[place.pk]))
+    response = client.get(reverse("location:delete", args=[place.pk]))
     html = response.content.decode()
     assert response.status_code == 200
     assert place.name in html
@@ -74,14 +74,14 @@ def test_get_location_delete(client, place_factory):
 def test_location_delete(client, place_factory):
     place = place_factory()
     assert Place.objects.count() == 1
-    response = client.post(reverse("location:place_delete", args=[place.pk]))
+    response = client.post(reverse("location:delete", args=[place.pk]))
     assert Place.objects.count() == 0
     assert response.status_code == 302
-    assert response["Location"] == reverse("location:place_list")
+    assert response["Location"] == reverse("location:list")
 
 
 def test_get_location_create(client):
-    response = client.get(reverse("location:place_create"))
+    response = client.get(reverse("location:create"))
     html = response.content.decode()
     assert response.status_code == 200
     assert "Création d'un nouveau lieu" in html
@@ -89,37 +89,20 @@ def test_get_location_create(client):
 
 def test_location_create(client_log, location_data):
     assert Place.objects.count() == 0
-    response = client_log.post(
-        reverse("location:place_create"),
-        location_data,
-    )
+    response = client_log.post(reverse("location:create"), location_data)
     places = Place.objects.all()
     assert response.status_code == 302
     assert len(places) == 1
     assert response["Location"] == reverse(
-        "location:place_detail", args=[places[0].pk, places[0].slug]
+        "location:detail", args=[places[0].pk, places[0].slug]
     )
-
-
-def test_location_create_user_anonymous(client, location_data):
-    assert Place.objects.count() == 0
-    response = client.post(
-        reverse("location:place_create"),
-        location_data,
-    )
-    assert response.status_code == 400
-    assert (
-        response.content == "Impossible de créer un Lieu avec cet "
-        "utilisateur".encode()
-    )
-    assert Place.objects.count() == 0
 
 
 def test_location_create_invalid(client, location_data):
     assert Place.objects.count() == 0
     data = location_data
     data["name"] = ""
-    response = client.post(reverse("location:place_create"), data)
+    response = client.post(reverse("location:create"), data)
     html = response.content.decode()
     assert response.status_code == 200
     assert Place.objects.count() == 0
@@ -128,7 +111,7 @@ def test_location_create_invalid(client, location_data):
 
 def test_get_location_update(client, place_factory):
     place = place_factory()
-    response = client.get(reverse("location:place_edit", args=[place.pk]))
+    response = client.get(reverse("location:edit", args=[place.pk]))
     html = response.content.decode()
     assert response.status_code == 200
     assert f"Mise à jour de '{place.name}'" in html
@@ -137,26 +120,15 @@ def test_get_location_update(client, place_factory):
 def test_location_update(client_log, place_factory, location_data):
     place = place_factory()
     response = client_log.post(
-        reverse("location:place_edit", args=[place.pk]),
-        location_data,
+        reverse("location:edit", args=[place.pk]), location_data
     )
     places = Place.objects.all()
     assert response.status_code == 302
     assert len(places) == 1
     assert places[0].name == "myname"
     assert response["Location"] == reverse(
-        "location:place_detail", args=[places[0].pk, places[0].slug]
+        "location:detail", args=[places[0].pk, places[0].slug]
     )
 
 
-def test_location_update_user_anonymous(client, place_factory, location_data):
-    place = place_factory()
-    response = client.post(
-        reverse("location:place_edit", args=[place.pk]), location_data
-    )
-    assert response.status_code == 400
-    assert (
-        response.content == "Impossible de mettre à jour ce Lieu avec cet"
-        " utilisateur".encode()
-    )
-    assert Place.objects.first().name == place.name
+# TODO: test create/update activity with organization where user isn't admin

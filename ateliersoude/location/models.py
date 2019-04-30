@@ -3,21 +3,16 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from ateliersoude.user.models import CustomUser, Organization
-from ateliersoude.utils import validate_image
+from ateliersoude.user.models import Organization
+from ateliersoude.utils import validate_image, get_future_published_events
 
 
 class Place(models.Model):
-    name = models.CharField(
-        max_length=100, null=False, blank=False, verbose_name=_("Name")
-    )
+    name = models.CharField(max_length=100, verbose_name=_("Name"))
     organization = models.ForeignKey(
-        Organization, on_delete=models.CASCADE, null=False
+        Organization, on_delete=models.CASCADE, null=True, blank=True
     )
-    owner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     description = models.TextField(
-        null=False,
-        blank=False,
         default="",
         verbose_name=_("Place description"),
     )
@@ -43,7 +38,10 @@ class Place(models.Model):
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("location:place_detail", args=(self.pk, self.slug))
+        return reverse("location:detail", args=(self.pk, self.slug))
+
+    def future_published_events(self):
+        return get_future_published_events(self.event_set)
 
     def __str__(self):
         return self.name

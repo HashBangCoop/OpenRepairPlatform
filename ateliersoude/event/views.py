@@ -1,21 +1,308 @@
-import datetime
+import logging
 
-from django import forms
+from django.contrib import messages
 from django.core import signing
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
-
-from ateliersoude.event.models import Activity, Condition, Event
-from ateliersoude.location.models import Place
-from ateliersoude.user.models import (
-    CustomUser,
-    Organization,
-    OrganizationPerson,
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    UpdateView,
+    DeleteView,
+    RedirectView,
 )
+
+from ateliersoude import utils
+from ateliersoude.event.forms import EventForm, ActivityForm, ConditionForm
+from ateliersoude.event.models import Activity, Condition, Event
+from ateliersoude.mixins import RedirectQueryParamView
+from ateliersoude.user.models import CustomUser
+from ateliersoude.utils import get_referer_resolver
+
+logger = logging.getLogger(__name__)
+
+
+class ConditionFormView:
+    model = Condition
+    form_class = ConditionForm
+
+    def get_success_url(self):
+        orga = self.object.organization
+        return reverse("user:organization_detail", args=[orga.pk, orga.slug])
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # TODO: get orgas where user is admin
+        # form.fields["organization"].choices = self.request.user.orga_admins
+        return form
+
+    def form_valid(self, form):
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)
+
+
+class ConditionCreateView(
+    RedirectQueryParamView, ConditionFormView, CreateView
+):
+    success_message = "La Condition a bien été créée"
+
+
+class ConditionEditView(RedirectQueryParamView, ConditionFormView, UpdateView):
+    success_message = "La Condition a bien été mise à jour"
+
+
+class ConditionListView(ListView):
+    model = Condition
+    template_name = "event/condition_index.html"
+
+
+class ConditionDeleteView(DeleteView):
+    model = Condition
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "La condition a bien été supprimée")
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
+
+
+class ActivityView(DetailView):
+    model = Activity
+
+
+class ActivityListView(ListView):
+    model = Activity
+    template_name = "event/activity_list.html"
+
+
+class ActivityFormView:
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # TODO: get orgas where user is admin
+        # form.fields["organization"].choices = self.request.user.orga_admins
+        return form
+
+    def form_valid(self, form):
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)
+
+
+class ActivityCreateView(RedirectQueryParamView, ActivityFormView, CreateView):
+    model = Activity
+    form_class = ActivityForm
+    success_message = "L'activité a bien été créée"
+
+
+class ActivityEditView(RedirectQueryParamView, ActivityFormView, UpdateView):
+    model = Activity
+    form_class = ActivityForm
+    success_message = "L'activité a bien été mise à jour"
+
+
+class ActivityDeleteView(RedirectQueryParamView, DeleteView):
+    model = Activity
+    success_url = reverse_lazy("event:activity_list")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "L'activité a bien été supprimée")
+        return super().delete(request, *args, **kwargs)
+
+
+class EventView(DetailView):
+    model = Event
+    template_name = "event/event_detail.html"
+
+
+class EventListView(ListView):
+    model = Event
+    template_name = "event/event_list.html"
+
+    def get_queryset(self):
+        return Event.future_published_events()
+
+
+class EventFormView:
+    def form_valid(self, form):
+        event = form.save()
+        event.organizers.add(self.request.user)
+        messages.success(self.request, self.success_message)
+        return HttpResponseRedirect(event.get_absolute_url())
+
+
+class EventEditView(RedirectQueryParamView, EventFormView, UpdateView):
+    model = Event
+    form_class = EventForm
+    success_message = "L'évènement a bien été modifié"
+
+
+class EventCreateView(RedirectQueryParamView, EventFormView, CreateView):
+    model = Event
+    form_class = EventForm
+    success_message = "L'évènement a bien été créé"
+
+    def get_initial(self):
+        initial = super().get_initial()
+        matched = get_referer_resolver(self.request)
+        if not matched or matched.view_name != "user:organization_detail":
+            return initial
+        initial["organization"] = matched.kwargs.get("pk")
+        return initial
+
+
+class EventDeleteView(RedirectQueryParamView, DeleteView):
+    model = Event
+    success_url = reverse_lazy("event:list")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "L'évènement a bien été supprimé")
+        return super().delete(request, *args, **kwargs)
+
+
+def _load_token(token, salt):
+    ret = signing.loads(token, salt=salt)
+    event_id = ret["event_id"]
+    user_id = ret["user_id"]
+    return Event.objects.get(pk=event_id), CustomUser.objects.get(pk=user_id)
+
+
+class PresentView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        token = kwargs["token"]
+        try:
+            event, user = _load_token(token, "present")
+        except Exception:
+            logger.exception(f"Error loading token {token} during present")
+            messages.error(
+                self.request,
+                "Une erreur est survenue lors de " "votre requête",
+            )
+            return reverse("event:list")
+
+        event.registered.remove(user)
+        event.presents.add(user)
+
+        next_url = self.request.GET.get("redirect")
+        if utils.is_valid_path(next_url):
+            return next_url
+        return reverse("event:detail", args=[event.id, event.slug])
+
+
+class AbsentView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        token = kwargs["token"]
+        try:
+            event, user = _load_token(token, "absent")
+        except Exception:
+            logger.exception(f"Error loading token {token} during asbent")
+            messages.error(
+                self.request,
+                "Une erreur est survenue lors de " "votre requête",
+            )
+            return reverse("event:list")
+
+        event.presents.remove(user)
+        event.registered.add(user)
+
+        next_url = self.request.GET.get("redirect")
+        if utils.is_valid_path(next_url):
+            return next_url
+        return reverse("event:detail", args=[event.id, event.slug])
+
+
+class CancelReservationView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        token = kwargs["token"]
+        try:
+            event, user = _load_token(token, "cancel")
+        except Exception:
+            logger.exception(f"Error loading token {token} during unbook")
+            messages.error(
+                self.request,
+                "Une erreur est survenue lors de " "votre requête",
+            )
+            return reverse("event:list")
+
+        event.registered.remove(user)
+        event.save()
+        # TODO send email
+        messages.success(
+            self.request, "Vous n'êtes plus inscrit à cet " "évènement"
+        )
+
+        # TODO if id_user in present -> ???
+
+        next_url = self.request.GET.get("redirect")
+        if utils.is_valid_path(next_url):
+            return next_url
+        return reverse("event:detail", args=[event.id, event.slug])
+
+
+class BookView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        # TODO: change with email, if not `user`, create one with email
+        token = kwargs["token"]
+        try:
+            event, user = _load_token(token, "book")
+        except Exception:
+            logger.exception(f"Error loading token {token} during book")
+            messages.error(
+                self.request,
+                "Une erreur est survenue lors de " "votre requête",
+            )
+            return reverse("event:list")
+
+        event.registered.add(user)
+        event.save()
+        # TODO send email
+        messages.success(
+            self.request, "Vous êtes inscrit à cet évènement, " "à bientôt !"
+        )
+
+        # TODO if id_user in present -> ???
+
+        next_url = self.request.GET.get("redirect")
+        if utils.is_valid_path(next_url):
+            return next_url
+        return reverse("event:detail", args=[event.id, event.slug])
+
+
+# Following lines not used for now
+
+
+def send_booking_mail(request, user, event):
+    user_id = user.id
+    event_id = event.id
+
+    data = {"event_id": event_id, "user_id": user_id}
+
+    cancel_token = signing.dumps(data)
+    cancel_url = reverse("cancel_reservation", args=[cancel_token])
+    cancel_url = request.build_absolute_uri(cancel_url)
+
+    event_url = reverse("event_detail", args=[event_id, event.slug])
+    event_url = request.build_absolute_uri(event_url)
+
+    params = {"cancel_url": cancel_url, "event_url": event_url, "event": event}
+
+    msg_plain = render_to_string("mail/relance.html", params)
+    msg_html = render_to_string("mail/relance.html", params)
+
+    date = event.starts_at.date().strftime("%d %B")
+    location = event.location.name
+    subject = "Votre réservation pour le " + date + " à " + location
+
+    send_mail(
+        subject,
+        msg_plain,
+        "no-reply@atelier-soude.fr",
+        [user.email],
+        html_message=msg_html,
+    )
 
 
 def send_notification(notification, activity):
@@ -36,365 +323,6 @@ def send_notification(notification, activity):
             [user.email],
             html_message=msg_html,
         )
-
-
-class ConditionView(DetailView):
-    model = Condition
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-
-class ConditionFormView:
-    model = Condition
-    fields = ["name", "resume", "description", "organization", "price"]
-
-    def get_form(self, form_class=None):
-        if form_class is None:
-            form_class = self.get_form_class()
-        form = super().get_form(form_class)
-
-        limited_choices = [["", "---------"]]
-        form.fields["description"] = forms.CharField()
-        user_orgs = OrganizationPerson.objects.filter(
-            user=self.request.user, role__gte=OrganizationPerson.ADMIN
-        )
-        for result in user_orgs:
-            organization = result.organization
-            limited_choices.append([organization.pk, organization.name])
-        form.fields["organization"].choices = limited_choices
-
-        return form
-
-    def get_success_url(self):
-        return reverse_lazy(
-            "activity_detail", args=(self.object.pk, self.object.slug)
-        )
-
-
-class ConditionCreateView(ConditionFormView, CreateView):
-    # permission_required = 'plateformeweb.create_activity'
-
-    # set owner to current user on creation
-    def form_valid(self, form):
-        return super().form_valid(form)
-
-
-class ConditionEditView(ConditionFormView, UpdateView):
-    # permission_required = 'plateformeweb.edit_acivity'
-    queryset = Activity.objects
-
-
-# --- Activity Types ---
-
-
-class ActivityView(DetailView):
-    model = Activity
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-
-class ActivityListView(ListView):
-    model = Activity
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["list_type"] = "activity"
-        return context
-
-
-class ActivityFormView:
-    model = Activity
-    fields = ["name", "description", "organization", "picture"]
-
-    def get_form(self, form_class=None):
-        if form_class is None:
-            form_class = self.get_form_class()
-        form = super().get_form(form_class)
-        form.fields["description"] = forms.CharField()
-
-        limited_choices = [["", "---------"]]
-        form.fields["description"] = forms.CharField()
-        user_orgs = OrganizationPerson.objects.filter(
-            user=self.request.user, role__gte=OrganizationPerson.ADMIN
-        )
-        for result in user_orgs:
-            organization = result.organization
-            limited_choices.append([organization.pk, organization.name])
-        form.fields["organization"].choices = limited_choices
-
-        return form
-
-    def get_success_url(self):
-        return reverse_lazy(
-            "activity_detail", args=(self.object.pk, self.object.slug)
-        )
-
-
-class ActivityCreateView(ActivityFormView, CreateView):
-    # permission_required = 'plateformeweb.create_activity'
-
-    # set owner to current user on creation
-    def form_valid(self, form):
-        obj = form.save()
-        obj.owner = self.request.user
-        # Make messages django for information : "'user' a créé" Action
-        notification = f"{obj.owner} a créé {obj}"
-        send_notification(notification, activity=obj)
-        return super().form_valid(form)
-
-
-class ActivityEditView(ActivityFormView, UpdateView):
-    # permission_required = 'plateformeweb.edit_acivity'
-    queryset = Activity.objects
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.owner = self.request.user
-        # Make messages django for information : "'user' a modifié" Action
-        notification = f"{obj.owner} a modifié {obj}"
-        send_notification(notification, activity=obj)
-        return super().form_valid(form)
-
-
-# --- Events ---
-
-
-def cancel_reservation(request, token):
-    ret = signing.loads(token)
-    event_id = ret["event_id"]
-    user_id = ret["user_id"]
-    event = Event.objects.get(pk=event_id)
-    user = CustomUser.objects.get(pk=user_id)
-    context = {"event": event, "user": user}
-    attendees = event.attendees.all()
-    if user in attendees:
-        event.attendees.remove(user)
-        event.available_seats += 1
-        event.save()
-        return render(request, "mail/cancel_ok.html", context)
-    else:
-        return render(request, "mail/cancel_failed.html", context)
-
-
-class EventView(DetailView):
-    model = Event
-
-    def get(self, request, **kwargs):
-        event = Event.objects.get(pk=kwargs["pk"])
-        confirmed = event.presents.all()
-        for person in confirmed:
-            event.attendees.remove(person)
-
-        return super().get(request)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        event = context["event"]
-        context["event_id"] = event.id
-        orga = event.organization
-        admins = orga.admins()
-        orga_volunteers = orga.volunteers()
-
-        volunteers = []
-        for v in orga_volunteers:
-            if v in event.attendees.all():
-                volunteers.append(v)
-
-        context["admin_or_volunteer"] = admins + volunteers
-        context["volunteers"] = volunteers
-        context["admins"] = admins
-        return context
-
-
-class EventListView(ListView):
-    queryset = {}
-
-    def get(self, request, **kwargs):
-        return render(request, "plateformeweb/event_list.html", {})
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-
-    #     context["list_type"] = "event"
-    #     return context
-
-
-# --- edit ---
-
-
-class EventEditView(UpdateView):
-    permission_required = "plateformeweb.edit_event"
-    fields = [
-        "title",
-        "type",
-        "starts_at",
-        "ends_at",
-        "available_seats",
-        "organizers",
-        "location",
-        "publish_at",
-        "published",
-        "organization",
-        "condition",
-    ]
-    queryset = Event.objects
-
-
-# --- booking form for current user ---
-
-
-class BookingFormView:
-    def send_booking_mail(self, user, event):
-        user_id = user.id
-        event_id = event.id
-
-        data = {"event_id": event_id, "user_id": user_id}
-
-        cancel_token = signing.dumps(data)
-        cancel_url = reverse("cancel_reservation", args=[cancel_token])
-        cancel_url = self.request.build_absolute_uri(cancel_url)
-
-        event_url = reverse("event_detail", args=[event_id, event.slug])
-        event_url = self.request.build_absolute_uri(event_url)
-
-        params = {
-            "cancel_url": cancel_url,
-            "event_url": event_url,
-            "event": event,
-        }
-
-        msg_plain = render_to_string("mail/relance.html", params)
-        msg_html = render_to_string("mail/relance.html", params)
-
-        date = event.starts_at.date().strftime("%d %B")
-        location = event.location.name
-        subject = "Votre réservation pour le " + date + " à " + location
-
-        send_mail(
-            subject,
-            msg_plain,
-            "no-reply@atelier-soude.fr",
-            [user.email],
-            html_message=msg_html,
-        )
-
-
-class BookingEditView(BookingFormView, UpdateView):
-
-    template_name = "plateformeweb/booking_form.html"
-    queryset = Event.objects
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        event_id = context["event"].id
-        data = {"event_id": event_id}
-        context["booking_id"] = signing.dumps(data)
-        return context
-
-
-# --- mass event ---
-
-
-class EventCreateView(CreateView):
-    # permission_required = 'plateformeweb.create_event'
-    template_name = "plateformeweb/event_form.html"
-    model = Event
-    fields = [
-        "type",
-        "available_seats",
-        "organization",
-        "location",
-        "condition",
-        "starts_at",
-        "ends_at",
-        "publish_at",
-    ]
-
-    def date_substract(self, starts_at, countdown):
-        # TODO: change this if haing a publish_date in the past is a problem
-        return starts_at - datetime.timedelta(days=countdown)
-
-    def post(self, request, *args, **kwargs):
-        try:
-            import simplejson as json
-        except (ImportError,):
-            import json
-
-        json_data = request.POST["dates"]
-        starts_at = request.POST["starts_at"]
-        ends_at = request.POST["ends_at"]
-        publish_countdown = int(request.POST["publish_at"])
-        date_timestamps = json.loads(json_data)
-
-        event_type = Activity.objects.get(pk=request.POST["type"])
-        organization = Organization.objects.get(
-            pk=request.POST["organization"]
-        )
-        available_seats = int(request.POST["available_seats"])
-        location = Place.objects.get(pk=request.POST["location"])
-
-        new_slug = str(event_type)
-        new_slug += "-" + organization.slug
-        new_slug += "-" + location.slug
-
-        # today = timezone.now()
-
-        for date in date_timestamps:
-            starts_at = datetime.datetime.fromtimestamp(
-                int(date + int(request.POST["starts_at"]))
-            )
-            ends_at = datetime.datetime.fromtimestamp(
-                int(date + int(request.POST["ends_at"]))
-            )
-            publish_date = self.date_substract(starts_at, publish_countdown)
-
-            e = Event.objects.create(
-                organization=organization,
-                slug=new_slug,
-                owner=request.user,
-                starts_at=starts_at,
-                ends_at=ends_at,
-                publish_at=publish_date,
-                available_seats=available_seats,
-                location=location,
-                type=event_type,
-            )
-
-            e.organizers.add(CustomUser.objects.get(email=request.user.email))
-            e.title = e.type.name
-            e.save()
-            # Make messages django for information : "'user' a créé" Event
-
-        return HttpResponseRedirect(reverse("event_create"))
-
-    def get_form(self, form_class=None):
-        if form_class is None:
-            form_class = self.get_form_class()
-        form = super().get_form(form_class)
-        for field in ("starts_at", "ends_at", "publish_at"):
-            form.fields[field].widget = forms.HiddenInput()
-
-        limited_choices = [["", "---------"]]
-        user_orgs = OrganizationPerson.objects.filter(
-            user=self.request.user, role__gte=OrganizationPerson.ADMIN
-        )
-
-        for result in user_orgs:
-            organization = result.organization
-            limited_choices.append([organization.pk, organization.name])
-
-        form.fields["organization"].choices = limited_choices
-        # form.fields['organization'].queryset = user_orgs
-
-        return form
-
-    # set owner to current user on creation
-    def form_valid(self, form):
-        return super().form_valid(form)
 
 
 class MassBookingCreateView(CreateView):

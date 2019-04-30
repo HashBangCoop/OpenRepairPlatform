@@ -3,6 +3,8 @@ from django.urls import path
 from . import views
 
 app_name = "event"
+
+
 urlpatterns = [
     path(
         "condition/create/",
@@ -13,6 +15,14 @@ urlpatterns = [
         "condition/<int:pk>/edit/",
         views.ConditionEditView.as_view(),
         name="condition_edit",
+    ),
+    path(
+        "condition/", views.ConditionListView.as_view(), name="condition_list"
+    ),
+    path(
+        "condition/<int:pk>/delete/",
+        views.ConditionDeleteView.as_view(),
+        name="condition_delete",
     ),
     path("activity/", views.ActivityListView.as_view(), name="activity_list"),
     path(
@@ -26,34 +36,28 @@ urlpatterns = [
         name="activity_edit",
     ),
     path(
+        "activity/<int:pk>/delete/",
+        views.ActivityDeleteView.as_view(),
+        name="activity_delete",
+    ),
+    path(
         "activity/<int:pk>/<slug>/",
         views.ActivityView.as_view(),
         name="activity_detail",
     ),
-    path("event/", views.EventListView.as_view(), name="event_list"),
+    path("", views.EventListView.as_view(), name="list"),
+    path("create/", views.EventCreateView.as_view(), name="create"),
+    path("<int:pk>/edit/", views.EventEditView.as_view(), name="edit"),
+    path("<int:pk>/delete/", views.EventDeleteView.as_view(), name="delete"),
+    path("<int:pk>/<slug>/", views.EventView.as_view(), name="detail"),
     path(
-        "event/create/", views.EventCreateView.as_view(), name="event_create"
-    ),
-    path(
-        "event/cancel_reservation/<token>/",
-        views.cancel_reservation,
+        "cancel_reservation/<token>/",
+        views.CancelReservationView.as_view(),
         name="cancel_reservation",
     ),
-    path(
-        "event/<int:pk>/book/",
-        views.BookingEditView.as_view(),
-        name="booking_form",
-    ),
-    path(
-        "event/<int:pk>/edit/",
-        views.EventEditView.as_view(),
-        name="event_edit",
-    ),
-    path(
-        "event/<int:pk>/<slug>/",
-        views.EventView.as_view(),
-        name="event_detail",
-    ),
+    path("book/<token>", views.BookView.as_view(), name="book"),
+    path("present/<token>", views.PresentView.as_view(), name="user_present"),
+    path("absent/<token>", views.AbsentView.as_view(), name="user_absent"),
     path(
         "massevent/book/",
         views.MassBookingCreateView.as_view(),

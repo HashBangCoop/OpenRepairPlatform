@@ -9,16 +9,26 @@
 {% endblock %}
 
 {% block content %}
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">
+        {% if place %}
+          Mise à jour de '{{ place }}'
+        {% else %}
+          Création d'un nouveau lieu
+        {% endif %}
+      </h1>
+      <p class="lead">
+        <a href="{% url 'user:organization_create' %}" class="btn btn-success">
+          <i class="fa fa-users"></i>
+          Créer une organisation
+        </a>
+      </p>
+    </div>
+  </div>
   <section class="container mt-4">
-    <h1>
-      {% if place %}
-        Mise à jour de '{{ place }}'
-      {% else %}
-        Création d'un nouveau lieu
-      {% endif %}
-    </h1>
     <div class="card p-3">
-      <form method="post" enctype="multipart/form-data" class="form">
+      <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% bootstrap_form form %}
         <div class="form-group p-2">

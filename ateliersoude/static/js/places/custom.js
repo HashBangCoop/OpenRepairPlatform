@@ -11,12 +11,12 @@ function htmlEscape(str) {
 function popup_message(place){
     message = "<a href=\"" + place.get_absolute_url + "\">" ;
     if (place.picture) {
-        message += "<img src=\"" + place.picture + "\" class=\"pt-2 w-100\">";
+        message += "<img src=\"" + place.picture + "\" class=\"pt-2 pb-2 w-100\">";
     }
-    message += htmlEscape(place.name) + "</a>";
-    message += "<br> " +  htmlEscape(place.place_type);
-    message += "<br> <a href=\"" + place.orga_url + "\">" + htmlEscape(place.orga_name) + "</a>";
-    message += "<br><br>" + htmlEscape(place.address);
+    message += htmlEscape(place.name) + "</a> - ";
+    message += htmlEscape(place.place_type);
+    message += "<br> <a href=\"" + place.orga_url + "\">" + htmlEscape(place.orga_name) + "</a> - ";
+    message += htmlEscape(place.address);
     return message;
 }
 
