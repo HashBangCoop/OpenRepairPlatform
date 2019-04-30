@@ -23,11 +23,11 @@
           <i class="fa fa-users"></i>
           Créer une Organisation
         </a>
-        <a href="{% url 'event:condition_create' %}" class="btn btn-success">
+        <a href="{% url 'event:condition_create' orga.pk %}" class="btn btn-success">
           <i class="fa fa-euro-sign"></i>
           Créer une Condition
         </a>
-        <a href="{% url 'event:activity_create' %}" class="btn btn-success">
+        <a href="{% url 'event:activity_create' orga.pk %}" class="btn btn-success">
           <i class="fa fa-wrench"></i>
           Créer une Activité
         </a>

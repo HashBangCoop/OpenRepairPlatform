@@ -3,8 +3,9 @@ import logging
 from django.contrib import messages
 from django.core import signing
 from django.core.mail import send_mail
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect, \
+    HttpResponseForbidden
+from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -20,8 +21,7 @@ from ateliersoude import utils
 from ateliersoude.event.forms import EventForm, ActivityForm, ConditionForm
 from ateliersoude.event.models import Activity, Condition, Event
 from ateliersoude.mixins import RedirectQueryParamView
-from ateliersoude.user.models import CustomUser
-from ateliersoude.utils import get_referer_resolver
+from ateliersoude.user.models import CustomUser, Organization
 
 logger = logging.getLogger(__name__)
 
@@ -29,20 +29,25 @@ logger = logging.getLogger(__name__)
 class ConditionFormView:
     model = Condition
     form_class = ConditionForm
+    orga = None
+
+    def post(self, request, *args, **kwargs):
+        orga_pk = kwargs.pop("orga_pk")
+        orga = get_object_or_404(Organization, pk=orga_pk)
+        if request.user not in orga.volunteers.union(orga.admins.all()):
+            return HttpResponseForbidden("You cannot create an event for "
+                                         "this organisation")
+        self.orga = orga
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.organization = self.orga
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)
 
     def get_success_url(self):
         orga = self.object.organization
         return reverse("user:organization_detail", args=[orga.pk, orga.slug])
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        # TODO: get orgas where user is admin
-        # form.fields["organization"].choices = self.request.user.orga_admins
-        return form
-
-    def form_valid(self, form):
-        messages.success(self.request, self.success_message)
-        return super().form_valid(form)
 
 
 class ConditionCreateView(
@@ -88,6 +93,7 @@ class ActivityFormView:
         return form
 
     def form_valid(self, form):
+        form.instance.organization = self.orga
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
 
@@ -127,11 +133,33 @@ class EventListView(ListView):
 
 
 class EventFormView:
+    orga = None
+
+    def get(self, request, *args, **kwargs):
+        orga_pk = kwargs.pop("orga_pk")
+        orga = get_object_or_404(Organization, pk=orga_pk)
+        if request.user not in orga.volunteers.union(orga.admins.all()):
+            return HttpResponseForbidden("You cannot create an event for "
+                                         "this organisation")
+        self.orga = orga
+        return super().get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'orga': self.orga})
+        return kwargs
+
     def form_valid(self, form):
+        form.instance.organization = self.orga
         event = form.save()
         event.organizers.add(self.request.user)
         messages.success(self.request, self.success_message)
         return HttpResponseRedirect(event.get_absolute_url())
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['orga'] = self.orga
+        return ctx
 
 
 class EventEditView(RedirectQueryParamView, EventFormView, UpdateView):
@@ -144,14 +172,6 @@ class EventCreateView(RedirectQueryParamView, EventFormView, CreateView):
     model = Event
     form_class = EventForm
     success_message = "L'évènement a bien été créé"
-
-    def get_initial(self):
-        initial = super().get_initial()
-        matched = get_referer_resolver(self.request)
-        if not matched or matched.view_name != "user:organization_detail":
-            return initial
-        initial["organization"] = matched.kwargs.get("pk")
-        return initial
 
 
 class EventDeleteView(RedirectQueryParamView, DeleteView):
@@ -257,7 +277,6 @@ class BookView(RedirectView):
             return reverse("event:list")
 
         event.registered.add(user)
-        event.save()
         # TODO send email
         messages.success(
             self.request, "Vous êtes inscrit à cet évènement, " "à bientôt !"

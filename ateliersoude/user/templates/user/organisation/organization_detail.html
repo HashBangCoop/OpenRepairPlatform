@@ -11,10 +11,13 @@
       <h1>{{ organization.name }}</h1>
       {% if admin %}
         <a class="btn btn-success" href="{% url 'user:organization_update' organization.id %}">
-          <i class="fa fa-pencil-alt mr-1"></i>Editer
+          <i class="fa fa-pencil-alt"></i> Editer
         </a>
         <a class="btn btn-primary" href="#manager">
-          <i class="fa fa-plus-circle mr-1"></i>Manager
+          <i class="fa fa-plus-circle"></i> Manager
+        </a>
+        <a class="btn btn-primary" href="{% url 'event:create' organization.id %}">
+          <i class="fa fa-plus-circle"></i> Créer un évènement
         </a>
       {% endif %}
   </div>

@@ -91,7 +91,7 @@ def test_condition_create_invalid(client, condition_data):
 
 def test_get_condition_update(client, condition_factory):
     condition = condition_factory()
-    response = client.get(reverse("event:condition_edit", args=[condition.pk]))
+    response = client.get(reverse("event:condition_edit", args=[condition.pk, condition.organization.pk]))
     html = response.content.decode()
     assert response.status_code == 200
     assert f"Mise à jour de '{condition.name}'" in html
@@ -101,7 +101,7 @@ def test_condition_update(client_log, condition_factory, condition_data):
     condition = condition_factory()
     condition_data["name"] = "cond_name2"
     response = client_log.post(
-        reverse("event:condition_edit", args=[condition.pk]), condition_data
+        reverse("event:condition_edit", args=[condition.pk, condition.organization.pk]), condition_data
     )
     conditions = Condition.objects.all()
     assert response.status_code == 302

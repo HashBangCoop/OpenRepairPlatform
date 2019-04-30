@@ -1,9 +1,3 @@
-
-<a class="btn btn-success mb-4" href="{% url 'event:condition_create' %}">
-  <i class="fa fa-plus"></i>
-  Créer une nouvelle Condition
-</a>
-
 <div class="row">
   <div class="col-4">
     <div class="list-group" id="list-tab" role="tablist">
@@ -20,7 +14,7 @@
     <div class="tab-content" id="nav-tabContent">
       {% for c in conditions %}
         <div class="pt-2 tab-pane fade show {% if forloop.first %}active{% endif %}" id="list-{{ c.pk }}" role="tabpanel" aria-labelledby="list-{{ c.pk }}-list">
-          <a href="{% url 'event:condition_edit' c.pk %}" class="btn btn-info btn-sm">
+          <a href="{% url 'event:condition_edit' c.pk c.organization.pk %}" class="btn btn-info btn-sm">
             <i class="fa fa-pencil-alt"></i>
             Éditer
           </a>

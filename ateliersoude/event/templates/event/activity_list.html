@@ -2,9 +2,6 @@
 
 {% block content %}
   <section class="container pt-3">
-    <a href="{% url 'event:activity_create' %}" class="btn btn-success">
-      <i class="fa fa-plus"></i> Créer une activité
-    </a>
     <div class="row m-0">
       {% for activity in activity_list.all %}
         <div class="col-lg-6 col-md-12 p-0">
