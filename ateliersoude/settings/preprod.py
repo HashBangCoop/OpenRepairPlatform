@@ -11,6 +11,13 @@ MEDIA_ROOT = "/srv/app/ateliersoude/media/"
 
 INSTALLED_APPS += ["raven.contrib.django.raven_compat"]  # noqa
 
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "ateliersoude",
+        "USER": "ateliersoude",
+    }
+}
 
 RAVEN_CONFIG = {
     "dsn": "http://0e041413044f46ff86cedea29c38048d:"
