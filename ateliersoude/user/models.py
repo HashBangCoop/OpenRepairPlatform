@@ -42,10 +42,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
 
     email = models.EmailField(_("email address"), max_length=254, unique=True)
-    first_name = models.CharField(_("first name"), max_length=30)
-    last_name = models.CharField(_("last name"), max_length=30)
+    first_name = models.CharField(_("first name"), max_length=30, default="")
+    last_name = models.CharField(_("last name"), max_length=30, default="")
     street_address = models.CharField(
-        verbose_name=_("street address"), max_length=255, default=""
+        verbose_name=_("street address"), max_length=255, default="-"
     )
     phone_number = models.CharField(
         _("phone number"), max_length=10, blank=True, default="-"
@@ -115,9 +115,6 @@ class Organization(models.Model):
     )
     active = models.BooleanField(verbose_name=_("Active"))
     slug = models.SlugField(default="")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
     visitors = models.ManyToManyField(
         CustomUser, related_name="visitor_organisations", blank=True
     )

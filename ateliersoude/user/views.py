@@ -1,6 +1,13 @@
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    UpdateView,
+    DeleteView,
+)
 
 from ateliersoude.event.models import Event
 from ateliersoude.user.models import CustomUser, Organization
@@ -23,6 +30,11 @@ class UserCreateView(CreateView):
     template_name = "user/user_profile.html"
     form_class = UserCreateForm
     success_url = reverse_lazy("login")
+
+    def form_valid(self, form):
+        res = super().form_valid(form)
+        messages.success(self.request, "L'utilisateur a bien été créé.")
+        return res
 
 
 class UserDetailView(DetailView):
@@ -76,3 +88,14 @@ class OrganizationUpdateView(UpdateView):
     template_name = "user/organisation/organization_form.html"
     model = Organization
     form_class = OrganizationForm
+
+
+class OrganizationDeleteView(DeleteView):
+    template_name = "user/organisation/confirmation_delete.html"
+    model = Organization
+    success_url = reverse_lazy("user:organization_list")
+
+    def delete(self, request, *args, **kwargs):
+        delete = super().delete(request, *args, **kwargs)
+        messages.success(request, "Le lieu a bien été supprimé")
+        return delete
