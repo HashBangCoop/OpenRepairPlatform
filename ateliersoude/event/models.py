@@ -33,7 +33,9 @@ class Condition(models.Model):
 class Activity(models.Model):
     name = models.CharField(verbose_name=_("Activity type"), max_length=100)
     slug = models.SlugField(blank=True)
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name="activities"
+    )
     description = models.TextField(verbose_name=_("Activity description"))
     picture = models.ImageField(
         verbose_name=_("Image"),
@@ -58,7 +60,9 @@ class Activity(models.Model):
 
 
 class Event(models.Model):
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name="events"
+    )
     conditions = models.ManyToManyField(
         Condition,
         related_name="events",
@@ -105,6 +109,10 @@ class Event(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.activity.name)
         return super().save(*args, kwargs)
+
+    @property
+    def remaining_seats(self):
+        return self.available_seats - self.registered.count()
 
     def date_interval_format(self):
         starts_at_date = self.starts_at.date().strftime("%A %d %B")

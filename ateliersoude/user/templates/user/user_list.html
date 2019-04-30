@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1>Utilisateurs</h1>
+  </div>
+</div>
+
+
+<section class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      {% for user in object_list %}
+        <div class="card-user card p-2">
+          <a href="{{ user.get_absolute_url }}">
+            <div class="row" id="square-{{ user.pk }}">
+              <div class="avatar-card-user col-12">
+                <i class="fa fa-user fa-4x"></i>
+              </div>
+              <div class="col-12 text-center">
+                <h5 class="mx-auto col-12">
+                    {{ user.first_name|capfirst }} {{ user.last_name|capfirst}}
+                </h5>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% empty %}
+        <div>No users yet.</div>  
+      {% endfor %}
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

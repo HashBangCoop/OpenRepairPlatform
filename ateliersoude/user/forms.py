@@ -1,67 +1,27 @@
-from datetime import date
-
-import django.forms.widgets as widgets
+from django import forms
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from django.forms import ModelForm
 
-from .models import CustomUser
+from .models import CustomUser, Organization
 
 
-# TODO: issue with 2 following forms, only the 3rd one works
 class CustomUserCreationForm(UserCreationForm):
-    """
-    A form that creates a user, with no privileges, from the given email and
-    password.
-    """
-
-    def __init__(self, *args, **kargs):
-        super(CustomUserCreationForm, self).__init__(*args, **kargs)
-        # del self.fields['username']
-
     class Meta:
         model = CustomUser
-        fields = ("email",)
-
-    def clean(self):
-
-        super(CustomUserCreationForm, self).clean()
-
-    def save(self, commit=True):
-
-        user = super(CustomUserCreationForm, self).save(commit=False)
-
-        if commit:
-            user.save()
+        fields = ["email"]
 
 
 class CustomUserChangeForm(UserChangeForm):
-    """A form for updating user. Includes all the fields on
-    the user, but replaces the password field with admin's
-    password hash display field.
-    """
+    class Meta(UserChangeForm.Meta):
+        model = CustomUser
 
-    def __init__(self, *args, **kargs):
-        super(CustomUserChangeForm, self).__init__(*args, **kargs)
-        # del self.fields['username']
 
+class UserCreateForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = [
-            "email",
-            "first_name",
-            "last_name",
-            "phone_number",
-            "street_address",
-            "birth_date",
-            "avatar_img",
-            "bio",
-        ]
+        fields = ["email", "first_name", "last_name", "street_address"]
 
 
-# works OK
-
-
-class UserForm(ModelForm):
+class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = [
@@ -75,18 +35,19 @@ class UserForm(ModelForm):
             "bio",
         ]
         widgets = {
-            "birth_date": widgets.SelectDateWidget(
-                years=range(1900, date.today().year + 1)
-            ),
-            # TODO: possible to switch to a jquery datepicker,
-            #  once the localization
-            #  issue is fixed
-            #  (see the user profile form, and base.html)
-            #
-            # 'birth_date': forms.DateInput(attrs={'class':'datepicker'}),
-            "email": widgets.EmailInput(attrs={"activity": "email"}),
-            "phone_number": widgets.TextInput(
-                attrs={"activity": "tel", "placeholder": "+336012345678"}
-            ),
+            "birth_date": forms.DateInput(
+                attrs={"type": "date"}, format="%Y-%m-%d"
+            )
         }
-        localized_fields = ["birth_date"]
+
+
+class AddUserToEventForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ["email"]
+
+
+class OrganizationForm(forms.ModelForm):
+    class Meta:
+        model = Organization
+        exclude = ["visitors", "members", "volunteers", "admins", "slug"]

@@ -5,12 +5,13 @@ from . import views
 app_name = "user"
 urlpatterns = [
     path("", views.UserListView.as_view(), name="user_list"),
-    path("userprofile/", views.user_profile, name="user_profile"),
     path("<int:pk>/", views.UserDetailView.as_view(), name="user_detail"),
-    path("create/", views.register, name="user_create"),
-    # Organisation
     path(
-        "organization/",
+        "update/<int:pk>", views.UserUpdateView.as_view(), name="user_update"
+    ),
+    path("create/", views.UserCreateView.as_view(), name="user_create"),
+    path(
+        "organizations/",
         views.OrganizationListView.as_view(),
         name="organization_list",
     ),
@@ -20,18 +21,18 @@ urlpatterns = [
         name="organization_create",
     ),
     path(
-        "organization/<int:pk>/edit/",
-        views.OrganizationEditView.as_view(),
-        name="organization_edit",
+        "organization/<int:pk>/update/",
+        views.OrganizationUpdateView.as_view(),
+        name="organization_update",
     ),
     path(
         "organization/<int:pk>/<slug>/",
-        views.OrganizationView.as_view(),
+        views.OrganizationDetailView.as_view(),
         name="organization_detail",
     ),
     path(
-        "organization_manager/<int:pk>/",
-        views.OrganizationManager,
-        name="organization_manager",
+        "organization/<int:pk>/",
+        views.OrganizationDeleteView.as_view(),
+        name="organization_delete",
     ),
 ]

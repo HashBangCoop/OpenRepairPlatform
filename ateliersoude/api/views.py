@@ -9,10 +9,7 @@ from django.utils import timezone
 
 from ateliersoude.event.models import Event
 from ateliersoude.location.models import Place
-from ateliersoude.user.models import (
-    CustomUser,
-    Organization,
-)
+from ateliersoude.user.models import CustomUser, Organization
 
 
 def list_events_in_context(

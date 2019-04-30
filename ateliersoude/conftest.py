@@ -10,8 +10,11 @@ from ateliersoude.event.factories import (
     EventFactory,
     PublishedEventFactory)
 
-from ateliersoude.factories import USER_PASSWORD, CustomUserFactory
-from ateliersoude.user.factories import OrganizationFactory
+from ateliersoude.user.factories import (
+    USER_PASSWORD,
+    CustomUserFactory,
+    OrganizationFactory,
+)
 
 register(CustomUserFactory)
 register(PlaceFactory)

@@ -13,10 +13,9 @@ class Place(models.Model):
         Organization, on_delete=models.CASCADE, null=True, blank=True
     )
     description = models.TextField(
-        default="",
-        verbose_name=_("Place description"),
+        default="", verbose_name=_("Place description")
     )
-    place_type = models.CharField(max_length=100, default="Other")
+    category = models.CharField(max_length=100, default="Other")
     slug = models.SlugField(default="", blank=True)
     address = models.CharField(
         max_length=255, verbose_name=_("street address")

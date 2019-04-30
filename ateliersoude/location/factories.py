@@ -13,7 +13,7 @@ class PlaceFactory(DjangoModelFactory):
     organization = factory.SubFactory(OrganizationFactory)
     name = faker.word()
     description = faker.text()
-    place_type = faker.sentence()
+    category = faker.sentence()
     address = faker.address()
     longitude = faker.longitude()
     latitude = faker.latitude()

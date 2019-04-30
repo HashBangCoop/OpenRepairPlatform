@@ -24,5 +24,5 @@ class PlaceSerializer(serializers.ModelSerializer):
             "address",
             "latitude",
             "longitude",
-            "place_type",
+            "category",
         ]

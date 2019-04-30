@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% load static app_filters %}
+
+{% block content %}
+
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1>{{ object.first_name }}</h1>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row justify-content-md-center">
+    <div class="col-md-10">
+      <div class="row">
+        <ul class="list-group">
+          {% for organization in object.visitor_organisations.all %}
+            <li class="list-group-item">
+              Visiteur 
+            <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
+              {{ organization.name }}
+            </a>
+            </li>
+            {% endfor %}
+            {% for organization in object.member_organisations.all %}
+            <li class="list-group-item">
+              Membre
+            <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
+              {{ organization.name }}
+            </a>
+            </li>
+            {% endfor %}
+            {% for organization in object.volunteer_organisations.all %}
+            <li class="list-group-item">
+              Membre actif
+            <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
+              {{ organization.name }}
+            </a>
+            </li>
+            {% endfor %}
+            {% for organization in object.admin_organisations.all %}
+            <li class="list-group-item">
+              Administrateur à 
+            <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
+              {{ organization.name }}
+            </a>
+            </li>
+          {% endfor %}
+
+          {% if not object.get_organizations %}
+            <p>Ce profil n'est rattaché à aucune organisation</p>
+          {% endif %}
+        </ul>
+      </div>
+      {% if object.pk == request.user.pk %}
+        <div class="row">
+          <a class="mr-3 btn btn-primary" href="{% url "user:user_update" object.pk %}">
+            <i class="fa fa-pencil-square-o 2-xs pt-1"></i>
+            Editer mon profil
+          </a>
+          <a class="btn btn-warning" href="{% url "logout" %}">Deconnexion</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+
+<section class="container">
+  <div class="row justify-content-md-center">
+    <section class="col-md-6">
+
+      <div class="card">
+        <div class="card-header">
+          <div class="avatar-card-user col-lg">
+            <i class="fa fa-user fa-4x"></i>
+          </div>
+          <h5 class="mx-auto col-12">
+            {{ object.first_name|capfirst }} {{ object.last_name|capfirst}}
+          </h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group">
+            <li class="list-group-item">
+              <i class="fa fa-phone pr-2"></i>{{ object.phone_number }} 
+            </li>
+            <li class="list-group-item">
+              <i class="fa fa-envelope pr-2"></i>{{ object.email }}
+            </li>
+            <li class="list-group-item">
+              <i class="fa fa-map pr-2"></i>{{ object.street_address }}
+            </li>
+            <li class="list-group-item">
+              <i class="fa fa-birthday-cake pr-2"></i>{{ object.birth_date }}
+            </li>
+            <li class="list-group-item">
+              <i class="fa fa-clock pr-2"></i> Membre depuis le {{ object.date_joined|date:"d F Y" }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    
+    </section>   
+
+    {% if object.registered_events.all %}
+      
+      <section class="col-md-6">
+        <h5 class="border-bottom border-gray pb-2">Rendez-vous</h5>
+        <div class="row">
+          <ul class="list-group">
+            {% for event in object.registered_events.all %}
+              <li class="list-group-item">
+              {{ event.title }}
+              {{ event.starts_at|date:"d F Y" }}
+              {% if object.pk == request.user.pk %}
+                {% token user=object event=event action='unbook' as tok %}
+                <a class="btn btn-error" href="{% url 'event:cancel_reservation' tok %}">
+                  Annuler ma présence
+                </a>
+              {% endif %}  
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </section>
+      
+    {% endif %} 
+
+
+{% endblock %}
