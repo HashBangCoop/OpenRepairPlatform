@@ -6,10 +6,12 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["ateliersoude.hashbang.fr"]
 
+INSTALLED_APPS += ["raven.contrib.django.raven_compat"]  # noqa
+
 STATIC_ROOT = "/srv/app/ateliersoude/static/"
 MEDIA_ROOT = "/srv/app/ateliersoude/media/"
+ASSETS_ROOT = STATIC_ROOT
 
-INSTALLED_APPS += ["raven.contrib.django.raven_compat"]  # noqa
 
 DATABASES = {
     "default": {
