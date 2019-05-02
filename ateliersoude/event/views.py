@@ -2,12 +2,9 @@ import logging
 
 from django.contrib import messages
 from django.core import signing
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
-from django.http import (
-    HttpResponse,
-    HttpResponseRedirect,
-    HttpResponseForbidden,
-)
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
@@ -35,31 +32,22 @@ class ConditionFormView:
     orga = None
 
     def get(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs)
-        if request.user not in self.orga.volunteers.union(
-            self.orga.admins.all()
-        ):
-            return HttpResponseForbidden(
-                "Vous ne pouvez pas créer de "
-                "condition pour cette association"
-            )
+        self._set_orga_from_kwargs(kwargs, request.user)
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs)
-        if request.user not in self.orga.volunteers.union(
-            self.orga.admins.all()
-        ):
-            return HttpResponseForbidden(
-                "Vous ne pouvez pas créer de "
-                "condition pour cette association"
-            )
+        self._set_orga_from_kwargs(kwargs, request.user)
         return super().post(request, *args, **kwargs)
 
-    def _set_orga_from_kwargs(self, kwargs):
+    def _set_orga_from_kwargs(self, kwargs, user):
         orga_pk = kwargs.pop("orga_pk")
         orga = get_object_or_404(Organization, pk=orga_pk)
         self.orga = orga
+        if user not in orga.volunteers.union(orga.admins.all()):
+            raise PermissionDenied(
+                "Vous ne pouvez pas créer de "
+                "condition pour cette association"
+            )
 
     def form_valid(self, form):
         form.instance.organization = self.orga
@@ -110,29 +98,21 @@ class ActivityFormView:
     orga = None
 
     def get(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs)
-        if request.user not in self.orga.volunteers.union(
-            self.orga.admins.all()
-        ):
-            return HttpResponseForbidden(
-                "Vous ne pouvez pas créer d'activité " "pour cette association"
-            )
+        self._set_orga_from_kwargs(kwargs, request.user)
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs)
-        if request.user not in self.orga.volunteers.union(
-            self.orga.admins.all()
-        ):
-            return HttpResponseForbidden(
-                "Vous ne pouvez pas créer d'activité " "pour cette association"
-            )
+        self._set_orga_from_kwargs(kwargs, request.user)
         return super().post(request, *args, **kwargs)
 
-    def _set_orga_from_kwargs(self, kwargs):
+    def _set_orga_from_kwargs(self, kwargs, user):
         orga_pk = kwargs.pop("orga_pk")
         orga = get_object_or_404(Organization, pk=orga_pk)
         self.orga = orga
+        if user not in orga.volunteers.union(orga.admins.all()):
+            raise PermissionDenied(
+                "Vous ne pouvez pas créer d'activité pour cette association"
+            )
 
     def form_valid(self, form):
         form.instance.organization = self.orga
@@ -178,31 +158,21 @@ class EventFormView:
     orga = None
 
     def get(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs)
-        if request.user not in self.orga.volunteers.union(
-            self.orga.admins.all()
-        ):
-            return HttpResponseForbidden(
-                "Vous ne pouvez pas créer d'évènement"
-                " pour cette association"
-            )
+        self._set_orga_from_kwargs(kwargs, request.user)
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs)
-        if request.user not in self.orga.volunteers.union(
-            self.orga.admins.all()
-        ):
-            return HttpResponseForbidden(
-                "Vous ne pouvez pas créer d'évènement"
-                " pour cette association"
-            )
+        self._set_orga_from_kwargs(kwargs, request.user)
         return super().post(request, *args, **kwargs)
 
-    def _set_orga_from_kwargs(self, kwargs):
+    def _set_orga_from_kwargs(self, kwargs, user):
         orga_pk = kwargs.pop("orga_pk")
         orga = get_object_or_404(Organization, pk=orga_pk)
         self.orga = orga
+        if user not in orga.volunteers.union(orga.admins.all()):
+            raise PermissionDenied(
+                "Vous ne pouvez pas créer d'évènement pour cette association"
+            )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

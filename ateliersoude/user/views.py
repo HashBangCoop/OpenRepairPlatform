@@ -85,6 +85,7 @@ class OrganizationCreateView(CreateView):
         res = super().form_valid(form)
         # TODO : restriction user staff
         form.instance.admins.add(self.request.user)
+        messages.success(self.request, "L'association a bien été créé.")
         return res
 
 
@@ -92,6 +93,12 @@ class OrganizationUpdateView(UpdateView):
     template_name = "user/organization/organization_form.html"
     model = Organization
     form_class = OrganizationForm
+
+    def form_valid(self, form):
+        res = super().form_valid(form)
+        # TODO : restriction user staff
+        messages.success(self.request, "L'association a bien été mise à jour.")
+        return res
 
 
 class OrganizationDeleteView(DeleteView):
@@ -101,5 +108,5 @@ class OrganizationDeleteView(DeleteView):
 
     def delete(self, request, *args, **kwargs):
         delete = super().delete(request, *args, **kwargs)
-        messages.success(request, "Le lieu a bien été supprimé")
+        messages.success(request, "L'association a bien été supprimé")
         return delete

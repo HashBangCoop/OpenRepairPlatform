@@ -17,7 +17,7 @@ FILES_DIR = join(dirname(abspath(__file__)), "files")
 def test_organization_list(client, organization):
     response = client.get(reverse("user:organization_list"))
     assert response.status_code == 200
-    response.context_data["object_list"].count() == 1
+    assert response.context_data["object_list"].count() == 1
 
 
 def test_organization_detail(client, organization):
@@ -57,3 +57,13 @@ def test_organization_update(client_log, organization):
         kwargs={"pk": organization.pk, "slug": organization.slug},
     )
     assert organization.name == "Test Orga"
+
+
+def test_organization_delete(client_log, organization):
+    assert Organization.objects.count() == 1
+    response = client_log.post(
+        reverse("user:organization_delete", kwargs={"pk": organization.pk})
+    )
+    assert response.status_code == 302
+    assert response.url == reverse("user:organization_list")
+    assert Organization.objects.count() == 0

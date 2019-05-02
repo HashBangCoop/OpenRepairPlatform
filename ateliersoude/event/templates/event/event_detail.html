@@ -27,11 +27,11 @@
           {% endif %}
         </h5>
         <h6 class="card-subtitle text-muted">
-          {% if event.available_seats == 0 %}
+          {% if event.remaining_seats == 0 %}
             <span class="badge badge-warning badge-pill">Complet</span>
           {% else %}
             Encore
-            <span class="badge badge-info badge-pill">{{ event.available_seats }}
+            <span class="badge badge-info badge-pill">{{ event.remaining_seats }}
                 </span> places disponibles
           {% endif %}
         </h6>
