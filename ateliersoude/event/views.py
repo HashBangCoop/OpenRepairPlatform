@@ -20,6 +20,7 @@ from django.views.generic import (
 from ateliersoude import utils
 from ateliersoude.event.forms import EventForm, ActivityForm, ConditionForm
 from ateliersoude.event.models import Activity, Condition, Event
+from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.mixins import RedirectQueryParamView
 from ateliersoude.user.models import CustomUser, Organization
 
@@ -229,7 +230,7 @@ class PresentView(RedirectView):
             logger.exception(f"Error loading token {token} during present")
             messages.error(
                 self.request,
-                "Une erreur est survenue lors de " "votre requête",
+                "Une erreur est survenue lors de votre requête",
             )
             return reverse("event:list")
 
@@ -251,7 +252,7 @@ class AbsentView(RedirectView):
             logger.exception(f"Error loading token {token} during asbent")
             messages.error(
                 self.request,
-                "Une erreur est survenue lors de " "votre requête",
+                "Une erreur est survenue lors de votre requête",
             )
             return reverse("event:list")
 
@@ -273,18 +274,39 @@ class CancelReservationView(RedirectView):
             logger.exception(f"Error loading token {token} during unbook")
             messages.error(
                 self.request,
-                "Une erreur est survenue lors de " "votre requête",
+                "Une erreur est survenue lors de votre requête",
             )
             return reverse("event:list")
 
         event.registered.remove(user)
         event.save()
-        # TODO send email
-        messages.success(
-            self.request, "Vous n'êtes plus inscrit à cet " "évènement"
+
+        book_token = tokenize(user, event, "book")
+        book_url = reverse("event:book", args=[book_token])
+        book_url = self.request.build_absolute_uri(book_url)
+
+        event_url = reverse("event:detail", args=[event.id, event.slug])
+        event_url = self.request.build_absolute_uri(event_url)
+
+        msg_plain = render_to_string("event/mail/unbook.txt",
+                                     context=locals())
+        msg_html = render_to_string("event/mail/unbook.html", context=locals())
+
+        date = event.starts_at.date().strftime("%d %B")
+        subject = f"Confirmation d'annulation pour le " \
+            f"{date} à {event.location.name}"
+
+        send_mail(
+            subject,
+            msg_plain,
+            "no-reply@atelier-soude.fr",
+            [user.email],
+            html_message=msg_html,
         )
 
-        # TODO if id_user in present -> ???
+        messages.success(
+            self.request, "Vous n'êtes plus inscrit à cet évènement"
+        )
 
         next_url = self.request.GET.get("redirect")
         if utils.is_valid_path(next_url):
@@ -302,17 +324,39 @@ class BookView(RedirectView):
             logger.exception(f"Error loading token {token} during book")
             messages.error(
                 self.request,
-                "Une erreur est survenue lors de " "votre requête",
+                "Une erreur est survenue lors de votre requête",
             )
             return reverse("event:list")
 
         event.registered.add(user)
-        # TODO send email
+
+        unbook_token = tokenize(user, event, "cancel")
+        cancel_url = reverse("event:cancel_reservation", args=[unbook_token])
+        cancel_url = self.request.build_absolute_uri(cancel_url)
+        register_url = reverse("user:user_create")
+        register_url = self.request.build_absolute_uri(register_url)
+
+        event_url = reverse("event:detail", args=[event.id, event.slug])
+        event_url = self.request.build_absolute_uri(event_url)
+
+        msg_plain = render_to_string("event/mail/book.txt",
+                                     context=locals())
+        msg_html = render_to_string("event/mail/book.html", context=locals())
+
+        date = event.starts_at.date().strftime("%d %B")
+        subject = f"Votre réservation du {date} à {event.location.name}"
+
+        send_mail(
+            subject,
+            msg_plain,
+            "no-reply@atelier-soude.fr",
+            [user.email],
+            html_message=msg_html,
+        )
+
         messages.success(
             self.request, "Vous êtes inscrit à cet évènement, " "à bientôt !"
         )
-
-        # TODO if id_user in present -> ???
 
         next_url = self.request.GET.get("redirect")
         if utils.is_valid_path(next_url):
@@ -321,56 +365,6 @@ class BookView(RedirectView):
 
 
 # Following lines not used for now
-
-
-def send_booking_mail(request, user, event):
-    user_id = user.id
-    event_id = event.id
-
-    data = {"event_id": event_id, "user_id": user_id}
-
-    cancel_token = signing.dumps(data)
-    cancel_url = reverse("cancel_reservation", args=[cancel_token])
-    cancel_url = request.build_absolute_uri(cancel_url)
-
-    event_url = reverse("event_detail", args=[event_id, event.slug])
-    event_url = request.build_absolute_uri(event_url)
-
-    params = {"cancel_url": cancel_url, "event_url": event_url, "event": event}
-
-    msg_plain = render_to_string("mail/relance.html", params)
-    msg_html = render_to_string("mail/relance.html", params)
-
-    date = event.starts_at.date().strftime("%d %B")
-    location = event.location.name
-    subject = "Votre réservation pour le " + date + " à " + location
-
-    send_mail(
-        subject,
-        msg_plain,
-        "no-reply@atelier-soude.fr",
-        [user.email],
-        html_message=msg_html,
-    )
-
-
-def send_notification(notification, activity):
-    send_to = activity.participants.all()
-    params = {"notification": notification}
-
-    msg_plain = render_to_string("mail/notification.html", params)
-    msg_html = render_to_string("mail/notification.html", params)
-
-    subject = "nouvelle notification"
-
-    for user in send_to:
-        send_mail(
-            subject,
-            msg_plain,
-            "no-reply@atelier-soude.fr",
-            [user.email],
-            html_message=msg_html,
-        )
 
 
 class MassBookingCreateView(CreateView):
