@@ -355,7 +355,7 @@ class BookView(RedirectView):
         )
 
         messages.success(
-            self.request, "Vous êtes inscrit à cet évènement, " "à bientôt !"
+            self.request, "Vous êtes inscrit à cet évènement, à bientôt !"
         )
 
         next_url = self.request.GET.get("redirect")

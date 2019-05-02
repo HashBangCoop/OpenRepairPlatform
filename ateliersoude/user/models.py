@@ -66,7 +66,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         _("staff status"),
         default=False,
         help_text=_(
-            "Designates whether the user can log into this admin " "site."
+            "Designates whether the user can log into this admin site."
         ),
     )
     is_active = models.BooleanField(

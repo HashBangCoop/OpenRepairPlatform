@@ -1,3 +1,6 @@
+import secrets
+import string
+
 from django import forms
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 
@@ -41,10 +44,22 @@ class UserUpdateForm(forms.ModelForm):
         }
 
 
-class AddUserToEventForm(forms.ModelForm):
-    class Meta:
-        model = CustomUser
-        fields = ["email"]
+class AddUserToEventForm(UserCreateForm):
+    def __init__(self):
+        super().__init__()
+        self.fields["first_name"].widget = forms.HiddenInput()
+        self.fields["last_name"].widget = forms.HiddenInput()
+        self.fields["street_address"].widget = forms.HiddenInput()
+        self.fields["password1"].widget = forms.HiddenInput()
+        self.fields["password2"].widget = forms.HiddenInput()
+
+        alphabet = string.ascii_letters + string.digits
+        random_password = "Aa1" + ''.join(secrets.choice(alphabet) for _ in
+                                          range(20))
+        self.fields["first_name"].initial = "Utilisateur"
+        self.fields["last_name"].initial = "Anonyme"
+        self.fields["password1"].initial = random_password
+        self.fields["password2"].initial = random_password
 
 
 class OrganizationForm(forms.ModelForm):

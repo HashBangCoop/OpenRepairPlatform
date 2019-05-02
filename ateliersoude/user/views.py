@@ -1,5 +1,6 @@
 from django.contrib import messages
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import (
     CreateView,
@@ -9,6 +10,8 @@ from django.views.generic import (
     DeleteView,
 )
 
+from ateliersoude.event.models import Event
+from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.user.models import CustomUser, Organization
 
 from .forms import (
@@ -40,6 +43,21 @@ class UserCreateView(CreateView):
         res = super().form_valid(form)
         messages.success(self.request, "L'utilisateur a bien été créé.")
         return res
+
+
+class UserCreateAndBookView(CreateView):
+    model = CustomUser
+    template_name = "user/user_form.html"
+    form_class = UserCreateForm
+
+    def get_success_url(self):
+        event_id = self.request.GET.get("event")
+        redirect = self.request.GET.get("redirect")
+        event = get_object_or_404(Event, pk=event_id)
+        token = tokenize(self.object, event, "book")
+        return reverse("event:book", kwargs={
+            "token": token,
+        }) + f"?redirect={redirect}"
 
 
 class UserDetailView(DetailView):
