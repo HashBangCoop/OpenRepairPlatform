@@ -3,6 +3,7 @@ from django.contrib.auth import get_user
 from django.urls import reverse
 
 from ateliersoude.event.models import Activity
+from ateliersoude.user.factories import USER_PASSWORD
 
 pytestmark = pytest.mark.django_db
 
@@ -59,16 +60,42 @@ def test_activity_delete(client, activity_factory):
     assert response["Location"] == reverse("event:activity_list")
 
 
-def test_get_activity_create(client):
-    response = client.get(reverse("event:activity_create"))
+def test_get_activity_create(client, user_log, organization):
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    organization.admins.add(user_log)
+    response = client.get(
+        reverse("event:activity_create", args=[organization.pk])
+    )
     html = response.content.decode()
     assert response.status_code == 200
     assert "Création d'une nouvelle activité" in html
 
 
-def test_activity_create(client_log, activity_data):
+def test_get_activity_create_403(client, organization):
+    response = client.get(
+        reverse("event:activity_create", args=[organization.pk])
+    )
+    html = response.content.decode()
+    assert response.status_code == 403
+    assert "Vous ne pouvez pas créer" in html
+
+
+def test_get_activity_create_403_not_in_orga(client_log, organization):
+    response = client_log.get(
+        reverse("event:activity_create", args=[organization.pk])
+    )
+    html = response.content.decode()
+    assert response.status_code == 403
+    assert "Vous ne pouvez pas créer" in html
+
+
+def test_activity_create(client, user_log, organization, activity_data):
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    organization.admins.add(user_log)
     assert Activity.objects.count() == 0
-    response = client_log.post(reverse("event:activity_create"), activity_data)
+    response = client.post(
+        reverse("event:activity_create", args=[organization.pk]), activity_data
+    )
     activities = Activity.objects.all()
     assert response.status_code == 302
     assert len(activities) == 1
@@ -77,33 +104,63 @@ def test_activity_create(client_log, activity_data):
     )
 
 
-# TODO: test create/update activity with organization where user isn't admin
-
-
-def test_activity_create_invalid(client, activity_data):
+def test_activity_create_invalid(
+    user_log, client, activity_data, organization
+):
     assert Activity.objects.count() == 0
     data = activity_data
     data["name"] = ""
-    response = client.post(reverse("event:activity_create"), data)
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    organization.admins.add(user_log)
+    response = client.post(
+        reverse("event:activity_create", args=[organization.pk]), data
+    )
     html = response.content.decode()
     assert response.status_code == 200
     assert Activity.objects.count() == 0
     assert "Ce champ est obligatoire." in html
 
 
-def test_get_activity_update(client, activity_factory):
-    activity = activity_factory()
-    response = client.get(reverse("event:activity_edit", args=[activity.pk]))
+def test_get_activity_update_403(client, organization, activity):
+    response = client.get(
+        reverse("event:activity_edit", args=[activity.pk, organization.pk])
+    )
+    html = response.content.decode()
+    assert response.status_code == 403
+    assert "Vous ne pouvez pas créer" in html
+
+
+def test_get_activity_update_403_not_in_orga(
+    client_log, organization, activity
+):
+    response = client_log.get(
+        reverse("event:activity_edit", args=[activity.pk, organization.pk])
+    )
+    html = response.content.decode()
+    assert response.status_code == 403
+    assert "Vous ne pouvez pas créer" in html
+
+
+def test_get_activity_update(user_log, client, activity, organization):
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    organization.admins.add(user_log)
+    response = client.get(
+        reverse("event:activity_edit", args=[activity.pk, organization.pk])
+    )
     html = response.content.decode()
     assert response.status_code == 200
     assert f"Mise à jour de '{activity.name}'" in html
 
 
-def test_activity_update(client_log, activity_factory, activity_data):
-    activity = activity_factory()
+def test_activity_update(
+    user_log, client, activity, activity_data, organization
+):
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    organization.admins.add(user_log)
     activity_data["name"] = "activity_name2"
-    response = client_log.post(
-        reverse("event:activity_edit", args=[activity.pk]), activity_data
+    response = client.post(
+        reverse("event:activity_edit", args=[activity.pk, organization.pk]),
+        activity_data,
     )
     activities = Activity.objects.all()
     assert response.status_code == 302

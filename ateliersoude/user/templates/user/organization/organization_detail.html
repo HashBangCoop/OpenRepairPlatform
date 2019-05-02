@@ -14,7 +14,7 @@
           <i class="fa fa-pencil-alt"></i> Editer
         </a>
         <a class="btn btn-primary" href="#manager">
-          <i class="fa fa-plus-circle"></i> Manager
+          <i class="fa fa-plus-circle"></i> Gérer l'orga
         </a>
         <a class="btn btn-primary" href="{% url 'event:create' organization.id %}">
           <i class="fa fa-plus-circle"></i> Créer un évènement
@@ -39,7 +39,11 @@
 
   <div class="row justify-content-md-center">
     <div class="col-md-10">
-      <h3>Locaux</h3> 
+      <h3>Locaux</h3>
+      <a href="{% url 'location:create' %}" class="btn btn-info">
+        <i class="fa fa-plus-circle"></i>
+        Ajouter un local
+      </a>
       {% if organization.places.all %}
         <div>
           {% for place in organization.places.all %}
@@ -70,7 +74,7 @@
           {% endfor %}
         </div>
       {% else %}
-        <div>Il n'y a pas de local associé à cette organization.</div>
+        <div>Il n'y a pas de local associé à cette association.</div>
       {% endif %}
     </div>
   </div>
@@ -214,7 +218,7 @@
 
 
   {% if admin %}
-    {% include 'user/organisation/organization_manager.html' %}
+    {% include 'user/organization/organization_manager.html' %}
   {% endif %}
 
 {% endblock %}

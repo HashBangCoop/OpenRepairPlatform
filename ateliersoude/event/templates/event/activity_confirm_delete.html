@@ -11,7 +11,7 @@
   <section class="container">
     <p>
       <i class="fa fa-exclamation-triangle"></i>
-      Vous êtes sur le point de supprimer l'activité <code>'{{ activity }}'</code> reliée à l'organisation <code>'{{ activity.organization }}'</code>. Êtes-vous certain de votre choix ?
+      Vous êtes sur le point de supprimer l'activité <code>'{{ activity }}'</code> reliée à l'association <code>'{{ activity.organization }}'</code>. Êtes-vous certain de votre choix ?
     </p>
     <form method="post">{% csrf_token %}
       {{ form.as_p }}

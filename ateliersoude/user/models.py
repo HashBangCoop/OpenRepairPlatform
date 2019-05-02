@@ -86,10 +86,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     @property
     def get_organizations(self):
         member_orgas, visitor_orgas, volunteer_orgas, admin_orgas = (
-            self.member_organisations.all(),
-            self.visitor_organisations.all(),
-            self.volunteer_organisations.all(),
-            self.admin_organisations.all(),
+            self.member_organizations.all(),
+            self.visitor_organizations.all(),
+            self.volunteer_organizations.all(),
+            self.admin_organizations.all(),
         )
         return member_orgas.union(visitor_orgas, volunteer_orgas, admin_orgas)
 
@@ -115,16 +115,16 @@ class Organization(models.Model):
     )
     slug = models.SlugField(default="")
     visitors = models.ManyToManyField(
-        CustomUser, related_name="visitor_organisations", blank=True
+        CustomUser, related_name="visitor_organizations", blank=True
     )
     members = models.ManyToManyField(
-        CustomUser, related_name="member_organisations", blank=True
+        CustomUser, related_name="member_organizations", blank=True
     )
     volunteers = models.ManyToManyField(
-        CustomUser, related_name="volunteer_organisations", blank=True
+        CustomUser, related_name="volunteer_organizations", blank=True
     )
     admins = models.ManyToManyField(
-        CustomUser, related_name="admin_organisations", blank=True
+        CustomUser, related_name="admin_organizations", blank=True
     )
 
     def save(self, *args, **kwargs):

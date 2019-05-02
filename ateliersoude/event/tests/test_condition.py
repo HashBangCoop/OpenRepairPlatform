@@ -3,6 +3,7 @@ from django.contrib.auth import get_user
 from django.urls import reverse
 
 from ateliersoude.event.models import Condition
+from ateliersoude.user.factories import USER_PASSWORD
 
 pytestmark = pytest.mark.django_db
 
@@ -54,17 +55,42 @@ def test_condition_delete(client, condition_factory):
     )
 
 
-def test_get_condition_create(client):
-    response = client.get(reverse("event:condition_create"))
+def test_get_condition_create_403(client, organization):
+    response = client.get(
+        reverse("event:condition_create", args=[organization.pk])
+    )
+    html = response.content.decode()
+    assert response.status_code == 403
+    assert "Vous ne pouvez pas créer" in html
+
+
+def test_get_condition_create_403_not_in_orga(client_log, organization):
+    response = client_log.get(
+        reverse("event:condition_create", args=[organization.pk])
+    )
+    html = response.content.decode()
+    assert response.status_code == 403
+    assert "Vous ne pouvez pas créer" in html
+
+
+def test_get_condition_create(client, user_log, organization):
+    organization.admins.add(user_log)
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.get(
+        reverse("event:condition_create", args=[organization.pk])
+    )
     html = response.content.decode()
     assert response.status_code == 200
     assert "Création d'une nouvelle Condition" in html
 
 
-def test_condition_create(client_log, condition_data):
+def test_condition_create(client, user_log, condition_data, organization):
+    organization.admins.add(user_log)
+    client.login(email=user_log.email, password=USER_PASSWORD)
     assert Condition.objects.count() == 0
-    response = client_log.post(
-        reverse("event:condition_create"), condition_data
+    response = client.post(
+        reverse("event:condition_create", args=[organization.pk]),
+        condition_data,
     )
     conditions = Condition.objects.all()
     assert response.status_code == 302
@@ -75,33 +101,63 @@ def test_condition_create(client_log, condition_data):
     )
 
 
-# TODO: test create/update condition with organization where user isn't admin
-
-
-def test_condition_create_invalid(client, condition_data):
+def test_condition_create_invalid(
+    client, user_log, condition_data, organization
+):
+    organization.admins.add(user_log)
+    client.login(email=user_log.email, password=USER_PASSWORD)
     assert Condition.objects.count() == 0
     data = condition_data
     data["name"] = ""
-    response = client.post(reverse("event:condition_create"), data)
+    response = client.post(
+        reverse("event:condition_create", args=[organization.pk]), data
+    )
     html = response.content.decode()
     assert response.status_code == 200
     assert Condition.objects.count() == 0
     assert "Ce champ est obligatoire." in html
 
 
-def test_get_condition_update(client, condition_factory):
-    condition = condition_factory()
-    response = client.get(reverse("event:condition_edit", args=[condition.pk, condition.organization.pk]))
+def test_get_condition_update_403(client, organization, condition):
+    response = client.get(
+        reverse("event:condition_edit", args=[condition.pk, organization.pk])
+    )
+    html = response.content.decode()
+    assert response.status_code == 403
+    assert "Vous ne pouvez pas créer" in html
+
+
+def test_get_condition_update_403_not_in_orga(
+    client_log, organization, condition
+):
+    response = client_log.get(
+        reverse("event:condition_edit", args=[condition.pk, organization.pk])
+    )
+    html = response.content.decode()
+    assert response.status_code == 403
+    assert "Vous ne pouvez pas créer" in html
+
+
+def test_get_condition_update(client, user_log, condition, organization):
+    organization.admins.add(user_log)
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.get(
+        reverse("event:condition_edit", args=[condition.pk, organization.pk])
+    )
     html = response.content.decode()
     assert response.status_code == 200
     assert f"Mise à jour de '{condition.name}'" in html
 
 
-def test_condition_update(client_log, condition_factory, condition_data):
-    condition = condition_factory()
+def test_condition_update(
+    client, user_log, condition, condition_data, organization
+):
+    organization.admins.add(user_log)
+    client.login(email=user_log.email, password=USER_PASSWORD)
     condition_data["name"] = "cond_name2"
-    response = client_log.post(
-        reverse("event:condition_edit", args=[condition.pk, condition.organization.pk]), condition_data
+    response = client.post(
+        reverse("event:condition_edit", args=[condition.pk, organization.pk]),
+        condition_data,
     )
     conditions = Condition.objects.all()
     assert response.status_code == 302

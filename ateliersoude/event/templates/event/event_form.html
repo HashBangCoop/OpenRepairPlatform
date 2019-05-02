@@ -12,6 +12,7 @@
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <h1 class="display-4">
+        {{ orga }} -
         {% if event %}
           Mise à jour de '{{ event }}'
         {% else %}
@@ -19,10 +20,6 @@
         {% endif %}
       </h1>
       <p class="lead">
-        <a href="{% url 'user:organization_create' %}" class="btn btn-success">
-          <i class="fa fa-users"></i>
-          Créer une Organisation
-        </a>
         <a href="{% url 'event:condition_create' orga.pk %}" class="btn btn-success">
           <i class="fa fa-euro-sign"></i>
           Créer une Condition

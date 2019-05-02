@@ -9,15 +9,19 @@ class EventForm(ModelForm):
     ends_at = forms.DateTimeField()
 
     def __init__(self, *args, **kwargs):
-        orga = kwargs.pop('orga')
+        self.orga = kwargs.pop("orga")
         super().__init__(*args, **kwargs)
-        self.fields['organizers'] = forms.ModelMultipleChoiceField(
-            queryset=(orga.volunteers.all() | orga.admins.all()).distinct(),
+        self.fields["organizers"] = forms.ModelMultipleChoiceField(
+            queryset=(
+                self.orga.volunteers.all() | self.orga.admins.all()
+            ).distinct(),
             widget=forms.CheckboxSelectMultiple,
+            required=False,
         )
-        self.fields['conditions'] = forms.ModelMultipleChoiceField(
-            queryset=orga.conditions,
+        self.fields["conditions"] = forms.ModelMultipleChoiceField(
+            queryset=self.orga.conditions,
             widget=forms.CheckboxSelectMultiple,
+            required=False,
         )
 
     class Meta:

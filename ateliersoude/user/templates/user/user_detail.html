@@ -15,7 +15,7 @@
     <div class="col-md-10">
       <div class="row">
         <ul class="list-group">
-          {% for organization in object.visitor_organisations.all %}
+          {% for organization in object.visitor_organizations.all %}
             <li class="list-group-item">
               Visiteur 
             <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
@@ -23,7 +23,7 @@
             </a>
             </li>
             {% endfor %}
-            {% for organization in object.member_organisations.all %}
+            {% for organization in object.member_organizations.all %}
             <li class="list-group-item">
               Membre
             <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
@@ -31,7 +31,7 @@
             </a>
             </li>
             {% endfor %}
-            {% for organization in object.volunteer_organisations.all %}
+            {% for organization in object.volunteer_organizations.all %}
             <li class="list-group-item">
               Membre actif
             <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
@@ -39,7 +39,7 @@
             </a>
             </li>
             {% endfor %}
-            {% for organization in object.admin_organisations.all %}
+            {% for organization in object.admin_organizations.all %}
             <li class="list-group-item">
               Administrateur à 
             <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
@@ -49,7 +49,7 @@
           {% endfor %}
 
           {% if not object.get_organizations %}
-            <p>Ce profil n'est rattaché à aucune organisation</p>
+            <p>Ce profil n'est rattaché à aucune association</p>
           {% endif %}
         </ul>
       </div>

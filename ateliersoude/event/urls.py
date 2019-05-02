@@ -47,9 +47,7 @@ urlpatterns = [
     ),
     path("", views.EventListView.as_view(), name="list"),
     path(
-        "create/<int:orga_pk>/",
-        views.EventCreateView.as_view(),
-        name="create"
+        "create/<int:orga_pk>/", views.EventCreateView.as_view(), name="create"
     ),
     path(
         "<int:pk>/edit/<int:orga_pk>/",

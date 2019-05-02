@@ -55,7 +55,7 @@ class UserListView(ListView):
 
 class OrganizationDetailView(DetailView):
     model = Organization
-    template_name = "user/organisation/organization_detail.html"
+    template_name = "user/organization/organization_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -73,11 +73,11 @@ class OrganizationDetailView(DetailView):
 
 class OrganizationListView(ListView):
     model = Organization
-    template_name = "user/organisation/organization_list.html"
+    template_name = "user/organization/organization_list.html"
 
 
 class OrganizationCreateView(CreateView):
-    template_name = "user/organisation/organization_form.html"
+    template_name = "user/organization/organization_form.html"
     model = Organization
     form_class = OrganizationForm
 
@@ -89,13 +89,13 @@ class OrganizationCreateView(CreateView):
 
 
 class OrganizationUpdateView(UpdateView):
-    template_name = "user/organisation/organization_form.html"
+    template_name = "user/organization/organization_form.html"
     model = Organization
     form_class = OrganizationForm
 
 
 class OrganizationDeleteView(DeleteView):
-    template_name = "user/organisation/confirmation_delete.html"
+    template_name = "user/organization/confirmation_delete.html"
     model = Organization
     success_url = reverse_lazy("user:organization_list")
 
