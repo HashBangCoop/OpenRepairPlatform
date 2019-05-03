@@ -6,7 +6,7 @@ from ateliersoude.event.models import Event
 
 # Run every hour
 # 20 * * * *
-class PublishEvents(BaseCommand):
+class Command(BaseCommand):
     help = "Publish non published events"
 
     def handle(self, *args, **options):
@@ -17,4 +17,3 @@ class PublishEvents(BaseCommand):
         for event in unpublished_events:
             event.published = True
             event.save()
-
