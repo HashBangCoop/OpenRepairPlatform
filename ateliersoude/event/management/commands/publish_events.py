@@ -4,7 +4,9 @@ from django.utils import timezone
 from ateliersoude.event.models import Event
 
 
-class Command(BaseCommand):
+# Run every hour
+# 20 * * * *
+class PublishEvents(BaseCommand):
     help = "Publish non published events"
 
     def handle(self, *args, **options):
