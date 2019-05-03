@@ -31,7 +31,7 @@ class Command(BaseCommand):
             .filter(starts_at__lte=tomorrow_23h59)\
             .filter(starts_at__gte=tomorrow_00h00)
         for event in events_next_day:
-            for user in event.registered:
+            for user in event.registered.all():
                 unbook_token = tokenize(user, event, "cancel")
                 cancel_url = base_url + reverse("event:cancel_reservation",
                                                 args=[unbook_token])
