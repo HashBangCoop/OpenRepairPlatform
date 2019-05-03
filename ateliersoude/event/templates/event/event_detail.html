@@ -65,13 +65,7 @@
           <i class="fa fa-eye"></i>
           En savoir plus sur l'activité
         </a>
-        {% if request.user in event.registered.all %}
-          {% tokenize user=request.user event=event action='cancel' as tok %}
-          <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-warning">Je ne participe plus</a>
-        {% elif request.user not in event.presents.all and request.user not in event.organizers.all %}
-          {% tokenize user=request.user event=event action='book' as tok %}
-          <a href="{% url 'event:book' tok %}" class="btn btn-success">Je participe !</a>
-        {% endif %}
+        {% include "event/register.html" with user=request.user event=event show_button=True %}
       </div>
 
       <div class="card-footer">

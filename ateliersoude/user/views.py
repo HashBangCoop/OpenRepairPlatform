@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import (
@@ -50,14 +50,24 @@ class UserCreateAndBookView(CreateView):
     template_name = "user/user_form.html"
     form_class = UserCreateForm
 
+    def post(self, request, *args, **kwargs):
+        existing_user = CustomUser.objects.filter(
+            email=request.POST.get("email", "invalid email")
+        ).first()
+        if existing_user:
+            self.object = existing_user
+            return redirect(self.get_success_url())
+        return super().post(request, *args, **kwargs)
+
     def get_success_url(self):
         event_id = self.request.GET.get("event")
-        redirect = self.request.GET.get("redirect")
+        redirect_url = self.request.GET.get("redirect")
         event = get_object_or_404(Event, pk=event_id)
         token = tokenize(self.object, event, "book")
-        return reverse("event:book", kwargs={
-            "token": token,
-        }) + f"?redirect={redirect}"
+        return (
+            reverse("event:book", kwargs={"token": token})
+            + f"?redirect={redirect_url}"
+        )
 
 
 class UserDetailView(DetailView):

@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
-
 {% load static %}
-{% load bootstrap4 %}
 
 
 {% block content %}
@@ -103,7 +101,7 @@
                 </div>
               </div>
             {% else %}
-              <div>Il n'y a pas d'administrateur associé à cette organization.</div>
+              <div>Il n'y a pas d'administrateur associé à cette association.</div>
             {% endif %}
           </div>
 
@@ -124,7 +122,7 @@
                 </div>
               </div>
             {% else %}
-              <div>Il n'y a pas de volontaire associé à cette organization.</div>
+              <div>Il n'y a pas de volontaire associé à cette association.</div>
             {% endif %}
           </div>
         </div>
@@ -178,34 +176,14 @@
                       {% endif %}
                     </p>
                     {% if admin %}
-                      <a href="#" class="btn btn-error">Supprimer</a>
+                      <a href="#" class="btn btn-danger">Supprimer</a>
                     {% else %}
                       <button class="btn btn-primary" data-toggle="modal" data-target="#reservation{{ event.pk }}">
                         Réserver
                       </button>
                     {% endif %}
                   </li>
-                  <div class="modal" id="reservation{{ event.pk }}" tabindex="-1" role="dialog">
-                    <div class="modal-dialog modal-lg" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title">Réserver</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                        <form action="{% url 'user:create_and_book' %}?redirect={% url 'user:organization_detail' organization.pk organization.slug %}&event={{ event.pk }}" method="post">
-                          <div class="modal-body">
-                            {% csrf_token %}
-                            {% bootstrap_form form %}
-                          </div>
-                          <div class="modal-footer">
-                            <input type="submit" value="Réserver" class="btn btn-primary"/>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
+                  {% include "event/register.html" with event=event user=request.user %}
                 {% endfor %}
               </ul>
             </div>

@@ -22,6 +22,7 @@ from ateliersoude.event.forms import EventForm, ActivityForm, ConditionForm
 from ateliersoude.event.models import Activity, Condition, Event
 from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.mixins import RedirectQueryParamView
+from ateliersoude.user.forms import AddUserToEventForm
 from ateliersoude.user.models import CustomUser, Organization
 
 logger = logging.getLogger(__name__)
@@ -146,6 +147,11 @@ class EventView(DetailView):
     model = Event
     template_name = "event/event_detail.html"
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["form"] = AddUserToEventForm
+        return ctx
+
 
 class EventListView(ListView):
     model = Event
@@ -229,8 +235,7 @@ class PresentView(RedirectView):
         except Exception:
             logger.exception(f"Error loading token {token} during present")
             messages.error(
-                self.request,
-                "Une erreur est survenue lors de votre requête",
+                self.request, "Une erreur est survenue lors de votre requête"
             )
             return reverse("event:list")
 
@@ -251,8 +256,7 @@ class AbsentView(RedirectView):
         except Exception:
             logger.exception(f"Error loading token {token} during asbent")
             messages.error(
-                self.request,
-                "Une erreur est survenue lors de votre requête",
+                self.request, "Une erreur est survenue lors de votre requête"
             )
             return reverse("event:list")
 
@@ -273,8 +277,7 @@ class CancelReservationView(RedirectView):
         except Exception:
             logger.exception(f"Error loading token {token} during unbook")
             messages.error(
-                self.request,
-                "Une erreur est survenue lors de votre requête",
+                self.request, "Une erreur est survenue lors de votre requête"
             )
             return reverse("event:list")
 
@@ -288,13 +291,14 @@ class CancelReservationView(RedirectView):
         event_url = reverse("event:detail", args=[event.id, event.slug])
         event_url = self.request.build_absolute_uri(event_url)
 
-        msg_plain = render_to_string("event/mail/unbook.txt",
-                                     context=locals())
+        msg_plain = render_to_string("event/mail/unbook.txt", context=locals())
         msg_html = render_to_string("event/mail/unbook.html", context=locals())
 
         date = event.starts_at.date().strftime("%d %B")
-        subject = f"Confirmation d'annulation pour le " \
+        subject = (
+            f"Confirmation d'annulation pour le "
             f"{date} à {event.location.name}"
+        )
 
         send_mail(
             subject,
@@ -316,15 +320,13 @@ class CancelReservationView(RedirectView):
 
 class BookView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
-        # TODO: change with email, if not `user`, create one with email
         token = kwargs["token"]
         try:
             event, user = _load_token(token, "book")
         except Exception:
             logger.exception(f"Error loading token {token} during book")
             messages.error(
-                self.request,
-                "Une erreur est survenue lors de votre requête",
+                self.request, "Une erreur est survenue lors de votre requête"
             )
             return reverse("event:list")
 
@@ -339,8 +341,7 @@ class BookView(RedirectView):
         event_url = reverse("event:detail", args=[event.id, event.slug])
         event_url = self.request.build_absolute_uri(event_url)
 
-        msg_plain = render_to_string("event/mail/book.txt",
-                                     context=locals())
+        msg_plain = render_to_string("event/mail/book.txt", context=locals())
         msg_html = render_to_string("event/mail/book.html", context=locals())
 
         date = event.starts_at.date().strftime("%d %B")
