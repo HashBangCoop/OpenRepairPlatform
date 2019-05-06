@@ -7,12 +7,12 @@ app_name = "event"
 
 urlpatterns = [
     path(
-        "condition/create/",
+        "condition/create/<int:orga_pk>/",
         views.ConditionCreateView.as_view(),
         name="condition_create",
     ),
     path(
-        "condition/<int:pk>/edit/",
+        "condition/<int:pk>/edit/<int:orga_pk>/",
         views.ConditionEditView.as_view(),
         name="condition_edit",
     ),
@@ -26,12 +26,12 @@ urlpatterns = [
     ),
     path("activity/", views.ActivityListView.as_view(), name="activity_list"),
     path(
-        "activity/create/",
+        "activity/create/<int:orga_pk>/",
         views.ActivityCreateView.as_view(),
         name="activity_create",
     ),
     path(
-        "activity/<int:pk>/edit/",
+        "activity/<int:pk>/edit/<int:orga_pk>/",
         views.ActivityEditView.as_view(),
         name="activity_edit",
     ),
@@ -46,8 +46,14 @@ urlpatterns = [
         name="activity_detail",
     ),
     path("", views.EventListView.as_view(), name="list"),
-    path("create/", views.EventCreateView.as_view(), name="create"),
-    path("<int:pk>/edit/", views.EventEditView.as_view(), name="edit"),
+    path(
+        "create/<int:orga_pk>/", views.EventCreateView.as_view(), name="create"
+    ),
+    path(
+        "<int:pk>/edit/<int:orga_pk>/",
+        views.EventEditView.as_view(),
+        name="edit",
+    ),
     path("<int:pk>/delete/", views.EventDeleteView.as_view(), name="delete"),
     path("<int:pk>/<slug>/", views.EventView.as_view(), name="detail"),
     path(
@@ -55,9 +61,9 @@ urlpatterns = [
         views.CancelReservationView.as_view(),
         name="cancel_reservation",
     ),
-    path("book/<token>", views.BookView.as_view(), name="book"),
-    path("present/<token>", views.PresentView.as_view(), name="user_present"),
-    path("absent/<token>", views.AbsentView.as_view(), name="user_absent"),
+    path("book/<token>/", views.BookView.as_view(), name="book"),
+    path("present/<token>/", views.PresentView.as_view(), name="user_present"),
+    path("absent/<token>/", views.AbsentView.as_view(), name="user_absent"),
     path(
         "massevent/book/",
         views.MassBookingCreateView.as_view(),

@@ -12,7 +12,7 @@
     <div class="container">
       <h1 class="display-4">{{ event.activity.name|title }}</h1>
       <p class="lead">
-        <a href="{% url 'event:edit' event.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
+        <a href="{% url 'event:edit' event.pk event.organization.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
         <a href="{% url 'event:delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
       </p>
     </div>
@@ -27,11 +27,11 @@
           {% endif %}
         </h5>
         <h6 class="card-subtitle text-muted">
-          {% if event.available_seats == 0 %}
+          {% if event.remaining_seats == 0 %}
             <span class="badge badge-warning badge-pill">Complet</span>
           {% else %}
             Encore
-            <span class="badge badge-info badge-pill">{{ event.available_seats }}
+            <span class="badge badge-info badge-pill">{{ event.remaining_seats }}
                 </span> places disponibles
           {% endif %}
         </h6>
@@ -65,13 +65,7 @@
           <i class="fa fa-eye"></i>
           En savoir plus sur l'activité
         </a>
-        {% if request.user in event.registered.all %}
-          {% token user=request.user event=event action='cancel' as tok %}
-          <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-warning">Je ne participe plus</a>
-        {% elif request.user not in event.presents.all and request.user not in event.organizers.all %}
-          {% token user=request.user event=event action='book' as tok %}
-          <a href="{% url 'event:book' tok %}" class="btn btn-success">Je participe !</a>
-        {% endif %}
+        {% include "event/register.html" with user=request.user event=event show_button=True %}
       </div>
 
       <div class="card-footer">
@@ -124,17 +118,17 @@
             <li class="m-2">
               {{ user }}
               {% if event.has_started %}
-                {% token user=user event=event action='present' as tok %}
+                {% tokenize user=user event=event action='present' as tok %}
                 <a href="{% url 'event:user_present' tok %}" class="btn btn-success btn-sm"><i class="fa fa-plus"></i> Ce membre est présent</a>
               {% endif %}
-              {% token user=user event=event action='cancel' as tok %}
+              {% tokenize user=user event=event action='cancel' as tok %}
               <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-danger btn-sm"><i class="fa fa-minus"></i> Désinscrire ce membre</a>
             </li>
           {% endfor %}
           {% for user in event.presents.all %}
             <li class="m-2">
               {{ user }}
-              {% token user=user event=event action='absent' as tok %}
+              {% tokenize user=user event=event action='absent' as tok %}
               <a href="{% url 'event:user_absent' tok %}" class="btn btn-danger btn-sm"><i class="fa fa-minus"></i> Ce membre est absent</a>
             </li>
           {% endfor %}

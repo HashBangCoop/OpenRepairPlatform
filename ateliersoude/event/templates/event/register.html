@@ -1,0 +1,38 @@
+{% load app_filters bootstrap4 %}
+
+{% if user.is_authenticated %}
+  {% if request.user in event.registered.all %}
+    {% tokenize user=request.user event=event action='cancel' as tok %}
+    <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-warning">Je ne participe plus</a>
+  {% elif request.user not in event.presents.all and request.user not in event.organizers.all %}
+    {% tokenize user=request.user event=event action='book' as tok %}
+    <a href="{% url 'event:book' tok %}" class="btn btn-success">Je participe !</a>
+  {% endif %}
+{% else %}
+  {% if show_button %}
+    <button class="btn btn-success" data-toggle="modal" data-target="#reservation{{ event.pk }}">
+      Je participe !
+    </button>
+  {% endif %}
+  <div class="modal" id="reservation{{ event.pk }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Réserver</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form action="{% url 'user:create_and_book' %}?redirect={% url 'event:detail' event.pk event.slug %}&event={{ event.pk }}" method="post">
+          <div class="modal-body">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+          </div>
+          <div class="modal-footer">
+            <input type="submit" value="Réserver" class="btn btn-primary"/>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endif %}

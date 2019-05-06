@@ -43,6 +43,10 @@ class EventFactory(DjangoModelFactory):
     ends_at = faker.date_time_between_dates(
         datetime_start=None, datetime_end=None
     )
+    published = True
+    publish_at = faker.date_time_between_dates(
+        datetime_start=None, datetime_end=None
+    )
 
     class Meta:
         model = Event

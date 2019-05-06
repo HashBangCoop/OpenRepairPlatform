@@ -3,11 +3,11 @@
 <section class="container" id="manager">
   <div class="row justify-content-md-center">
     <div class="col-md-10">
-      <h3>Gestion de l'organisation</h3> 
+      <h3>Gestion de l'association</h3>
       
       <div class="row m-4">
         <h4 class="mr-2">Conditions d'accès</h4>
-        <a href="{% url 'event:condition_create' %}" title="create condition">
+        <a href="{% url 'event:condition_create' organization.pk %}" title="create condition">
           <i class="fa fa-plus-circle fa-2x"></i>
         </a>
       </div>
@@ -16,7 +16,7 @@
 
       <div class="row m-4">
         <h4 class="mr-2">Activity</h4>
-        <a href="{% url 'event:activity_create' %}" title="activity place">
+        <a href="{% url 'event:activity_create' organization.pk %}" title="activity place">
           <i class="fa fa-plus-circle fa-2x"></i>
         </a>
       </div>
@@ -28,7 +28,7 @@
             <div class="card-body {{about_class}}">
               <h5 class="card-title">{{ activity.name }}</h5>
               <p class="card-text">{{ activity.description  }}</p>
-              <a href="{% url 'event:activity_edit' activity.pk %}" title="update condition">
+              <a href="{% url 'event:activity_edit' activity.pk activity.organization.pk %}" title="update condition">
                 <i class="fa fa-edit fa-2x"></i>
               </a>
             </div>

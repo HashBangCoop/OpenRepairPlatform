@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block breadcrumbs %}
+  {% with type="organizations" view="organization_list" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1>Associations</h1>
+      <a class="btn btn-success" href="{% url 'user:organization_create' %}">
+        <i class="fa fa-pencil-alt mr-1"></i>Créer une association
+      </a>
+    </div>
+  </div>
+
+  <section class="container">
+    <div class="row justify-content-md-center">
+      <div class="col-md-10">
+        <div class="row">
+          {% for organization in object_list %}
+            <div class="card">
+              <a class="card-link" href="{% url 'user:organization_detail' organization.id organization.slug %}">
+                {% if organization.picture %}
+                  <img class="card-img-top" src="{{ organization.picture.url }}">
+                {% endif %}
+                <div class="card-body">
+                  <h5 class="card-title">{{ organization.name }}</h5>
+                </div>
+              </a>
+            </div>
+            {% empty %}
+            <div>Aucune association n'est inscrite sur le site pour le moment</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

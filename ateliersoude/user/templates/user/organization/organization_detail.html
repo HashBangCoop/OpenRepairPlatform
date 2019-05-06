@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1>{{ organization.name }}</h1>
+      {% if admin %}
+        <a class="btn btn-success" href="{% url 'user:organization_update' organization.id %}">
+          <i class="fa fa-pencil-alt"></i> Editer
+        </a>
+        <a class="btn btn-primary" href="#manager">
+          <i class="fa fa-plus-circle"></i> Gérer l'orga
+        </a>
+        <a class="btn btn-primary" href="{% url 'event:create' organization.id %}">
+          <i class="fa fa-plus-circle"></i> Créer un évènement
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <section class="container">
+
+    <div class="row justify-content-md-center">
+      <div class="col-md-10">
+        <h3>Description</h3>
+        <div>
+          {{ organization.description }}
+        </div>
+      </div>
+    </div>
+
+    <br />
+
+    <div class="row justify-content-md-center">
+      <div class="col-md-10">
+        <h3>Locaux</h3>
+        <a href="{% url 'location:create' %}" class="btn btn-info">
+          <i class="fa fa-plus-circle"></i>
+          Ajouter un local
+        </a>
+        {% if organization.places.all %}
+          <div>
+            {% for place in organization.places.all %}
+              <a class="card-link" href="{% url 'location:detail' place.pk place.slug %}">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">{{ place.name }}</h4>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ place.address }}</h6>
+                    <span class="badge badge-secondary">{{ place.category }}</span>
+                    <p class="card-text">{{ place.description }}</p>
+                  </div>
+                  {% if admin %}
+                    <div class="card-footer">
+                      <a class="card-link btn btn-primary"
+                         href="{% url 'location:edit' place.id %}">
+                        <i class="fa fa-pencil-alt"></i>
+                        Editer ce lieu
+                      </a>
+                      <a class="card-link btn btn-danger"
+                         href="{% url 'location:delete' place.id %}">
+                        <i class="fa fa-trash-alt"></i>
+                        Supprimer ce lieu
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div>Il n'y a pas de local associé à cette association.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <br />
+
+    <div class="row justify-content-md-center">
+      <div class="col-md-10">
+        <h3>Membres actif.ve.s</h3>
+        <div class="row justify-content-md-center">
+
+          <div class="col-sm">
+            {% if organization.admins.all %}
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Les administrateurs</h4>
+                  <ul class="list-group list-group-flush">
+                    {% for user in organization.admins.all %}
+                      <li class="list-group-item">
+                        <a href="{% url 'user:user_detail' user.pk %}">
+                          {{ user.email }}{% if user.first_name %} - {{ user.first_name }}{% endif %}
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% else %}
+              <div>Il n'y a pas d'administrateur associé à cette association.</div>
+            {% endif %}
+          </div>
+
+          <div class="col-sm">
+            {% if organization.volunteers.all %}
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Les volontaires</h4>
+                  <ul class="list-group list-group-flush">
+                    {% for user in organization.volunteers.all %}
+                      <li class="list-group-item">
+                        <a href="{% url 'user:user_detail' user.pk %}">
+                          {{ user.email }}{% if user.first_name %} - {{ user.first_name }}{% endif %}
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% else %}
+              <div>Il n'y a pas de volontaire associé à cette association.</div>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <br />
+
+    {% if events %}
+      <div class="row justify-content-md-center">
+        <div class="col-md-10">
+          <h3>Prochaines dates</h3>
+          <div class="card">
+            <div class="card-body">
+              <ul class="list-group list-group-flush">
+                {% for event in events %}
+                  <li class="list-group-item">
+                    <h5 class="card-title"><b>{{ event.title }}</b></h5>
+                    <h6 class="card-subtitle">
+                      {% if event.ends_at|date:"d" == event.ends_at|date:"d" %}
+                        {{ event.starts_at|date:"d F Y" }}
+                      {% else %}
+                        de {{ event.starts_at|date:"d F Y" }}
+                        à  {{ event.ends_at|date:"d F Y" }}
+                      {% endif %}
+                    </h6>
+                    <p class="text-muted car-text">
+                      {% if event.ends_at %}
+                        {% if event.ends_at|date:"hi" != event.starts_at|date:"hi" %}
+                          de {{ event.starts_at|date:"H \h i" }}
+                          à {{ event.ends_at|date:"H \h i" }}
+                        {% else %}
+                          à {{ event.starts_at|date:"H \h i" }}
+                        {% endif %}
+                      {% else %}
+                        à {{ event.starts_at|date:"H \h i" }}
+                      {% endif %}
+                      {% if event.ends_at %}
+                      {% endif %}
+                    </p>
+                    <p class="card-text mt-3">
+                      {% if event.remaining_seats %}
+                        Il reste
+                        <span class="badge badge-secondary">
+                        {{ event.remaining_seats }}
+                      </span>
+                        places.
+                      {% else %}
+                        {{ event.title }} est complet.
+                      {% endif %}
+                    </p>
+                    {% if admin %}
+                      <a href="#" class="btn btn-danger">Supprimer</a>
+                    {% else %}
+                      <button class="btn btn-primary" data-toggle="modal" data-target="#reservation{{ event.pk }}">
+                        Réserver
+                      </button>
+                    {% endif %}
+                  </li>
+                  {% include "event/register.html" with event=event user=request.user %}
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if admin %}
+      {% include 'user/organization/organization_manager.html' %}
+    {% endif %}
+  </section>
+
+{% endblock %}

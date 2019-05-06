@@ -1,6 +1,7 @@
 from os.path import dirname, abspath, join
 
 from bootstrap4 import forms
+from django.contrib import messages
 
 PROJECT_DIR = dirname(dirname(abspath(__file__)))
 BASE_DIR = dirname(PROJECT_DIR)
@@ -125,3 +126,8 @@ ASSETS_ROOT = STATICFILES_DIRS[0]
 
 # Add class to field wrapper in django-bootstrap4
 forms.FORM_GROUP_CLASS += " p-2"
+
+# django messages settings
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
