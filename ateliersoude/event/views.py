@@ -2,10 +2,9 @@ import logging
 
 from django.contrib import messages
 from django.core import signing
-from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -19,40 +18,23 @@ from django.views.generic import (
 
 from ateliersoude import utils
 from ateliersoude.event.forms import EventForm, ActivityForm, ConditionForm
+from ateliersoude.event.mixins import PermissionOrganizationMixin
 from ateliersoude.event.models import Activity, Condition, Event
 from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.mixins import RedirectQueryParamView
 from ateliersoude.user.forms import AddUserToEventForm
-from ateliersoude.user.models import CustomUser, Organization
+from ateliersoude.user.models import CustomUser
 
 logger = logging.getLogger(__name__)
 
 
-class ConditionFormView:
+class ConditionFormView(PermissionOrganizationMixin):
     model = Condition
     form_class = ConditionForm
-    orga = None
-
-    def get(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs, request.user)
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs, request.user)
-        return super().post(request, *args, **kwargs)
-
-    def _set_orga_from_kwargs(self, kwargs, user):
-        orga_pk = kwargs.pop("orga_pk")
-        orga = get_object_or_404(Organization, pk=orga_pk)
-        self.orga = orga
-        if user not in orga.volunteers.union(orga.admins.all()):
-            raise PermissionDenied(
-                "Vous ne pouvez pas créer de "
-                "condition pour cette association"
-            )
+    object_kind = "condition"
 
     def form_valid(self, form):
-        form.instance.organization = self.orga
+        form.instance.organization = self.organization
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
 
@@ -96,41 +78,22 @@ class ActivityListView(ListView):
     template_name = "event/activity_list.html"
 
 
-class ActivityFormView:
-    orga = None
-
-    def get(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs, request.user)
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs, request.user)
-        return super().post(request, *args, **kwargs)
-
-    def _set_orga_from_kwargs(self, kwargs, user):
-        orga_pk = kwargs.pop("orga_pk")
-        orga = get_object_or_404(Organization, pk=orga_pk)
-        self.orga = orga
-        if user not in orga.volunteers.union(orga.admins.all()):
-            raise PermissionDenied(
-                "Vous ne pouvez pas créer d'activité pour cette association"
-            )
+class ActivityFormView(PermissionOrganizationMixin):
+    model = Activity
+    form_class = ActivityForm
+    object_kind = "activité"
 
     def form_valid(self, form):
-        form.instance.organization = self.orga
+        form.instance.organization = self.organization
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
 
 
 class ActivityCreateView(RedirectQueryParamView, ActivityFormView, CreateView):
-    model = Activity
-    form_class = ActivityForm
     success_message = "L'activité a bien été créée"
 
 
 class ActivityEditView(RedirectQueryParamView, ActivityFormView, UpdateView):
-    model = Activity
-    form_class = ActivityForm
     success_message = "L'activité a bien été mise à jour"
 
 
@@ -161,33 +124,18 @@ class EventListView(ListView):
         return Event.future_published_events()
 
 
-class EventFormView:
-    orga = None
-
-    def get(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs, request.user)
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self._set_orga_from_kwargs(kwargs, request.user)
-        return super().post(request, *args, **kwargs)
-
-    def _set_orga_from_kwargs(self, kwargs, user):
-        orga_pk = kwargs.pop("orga_pk")
-        orga = get_object_or_404(Organization, pk=orga_pk)
-        self.orga = orga
-        if user not in orga.volunteers.union(orga.admins.all()):
-            raise PermissionDenied(
-                "Vous ne pouvez pas créer d'évènement pour cette association"
-            )
+class EventFormView(PermissionOrganizationMixin):
+    model = Event
+    form_class = EventForm
+    object_kind = "évènement"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs.update({"orga": self.orga})
+        kwargs.update({"orga": self.organization})
         return kwargs
 
     def form_valid(self, form):
-        form.instance.organization = self.orga
+        form.instance.organization = self.organization
         event = form.save()
         event.organizers.add(self.request.user)
         messages.success(self.request, self.success_message)
@@ -195,19 +143,15 @@ class EventFormView:
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["orga"] = self.orga
+        ctx["orga"] = self.organization
         return ctx
 
 
 class EventEditView(RedirectQueryParamView, EventFormView, UpdateView):
-    model = Event
-    form_class = EventForm
     success_message = "L'évènement a bien été modifié"
 
 
 class EventCreateView(RedirectQueryParamView, EventFormView, CreateView):
-    model = Event
-    form_class = EventForm
     success_message = "L'évènement a bien été créé"
 
 

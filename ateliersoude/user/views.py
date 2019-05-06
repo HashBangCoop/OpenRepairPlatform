@@ -48,7 +48,7 @@ class UserCreateView(CreateView):
 class UserCreateAndBookView(CreateView):
     model = CustomUser
     template_name = "user/user_form.html"
-    form_class = UserCreateForm
+    form_class = AddUserToEventForm
 
     def post(self, request, *args, **kwargs):
         existing_user = CustomUser.objects.filter(

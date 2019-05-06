@@ -62,38 +62,33 @@ def test_anonymous_user_create(client, event):
     assert CustomUser.objects.count() == 0
     response = client.post(
         reverse("user:create_and_book") + f"?event={event.pk}",
-        {
-            "email": "test@test.fr",
-            "first_name": "Utilisateur",
-            "last_name": "Anonyme",
-            "street_address": "-",
-            "password1": USER_PASSWORD,
-            "password2": USER_PASSWORD,
-        },
+        {"email": "test@test.fr"},
     )
     anonymous_user = CustomUser.objects.first()
     assert response.status_code == 302
     url_parsed = urlparse(response.url)
     resolved = resolve(url_parsed.path)
     event_from_token, user = _load_token(resolved.kwargs["token"], "book")
-    assert anonymous_user.first_name == "Utilisateur"
-    assert anonymous_user.pk == user.pk
+    assert anonymous_user.first_name == ""
+    assert anonymous_user.password == ""
     assert event.pk == event_from_token.pk
 
 
 def test_anonymous_get_user_create(client, event_factory, organization):
     in_two_hours = timezone.now() + datetime.timedelta(hours=2)
     two_hours_ago = timezone.now() - datetime.timedelta(hours=2)
-    event_factory(organization=organization, starts_at=in_two_hours,
-                  publish_at=two_hours_ago)
-    response = client.get(reverse("user:organization_detail", kwargs={
-        "pk": organization.pk,
-        "slug": organization.slug,
-    }))
+    event_factory(
+        organization=organization,
+        starts_at=in_two_hours,
+        publish_at=two_hours_ago,
+    )
+    response = client.get(
+        reverse(
+            "user:organization_detail",
+            kwargs={"pk": organization.pk, "slug": organization.slug},
+        )
+    )
     assert response.status_code == 200
-    html = response.content.decode()
-    assert "Utilisateur" in html
-    assert "Anonyme" in html
 
 
 def test_user_update(client, custom_user):
