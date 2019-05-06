@@ -83,9 +83,7 @@ def test_event_list_filter_place(
     event2 = published_event_factory(location=place2)
     response = client.get(reverse("event:list") + f"?place={place1.pk}")
     html = response.content.decode()
-    assert event1.activity.name in html
     assert event1.activity.description in html
-    assert event2.activity.name not in html
     assert event2.activity.description not in html
 
 
@@ -98,9 +96,7 @@ def test_event_list_filter_orga(
     event2 = published_event_factory(organization=orga2)
     response = client.get(reverse("event:list") + f"?organization={orga1.pk}")
     html = response.content.decode()
-    assert event1.activity.name in html
     assert event1.activity.description in html
-    assert event2.activity.name not in html
     assert event2.activity.description not in html
 
 
@@ -111,7 +107,7 @@ def test_event_list_filter_activity(
     activity2 = activity_factory(name="world")
     event1 = published_event_factory(activity=activity1)
     event2 = published_event_factory(activity=activity2)
-    response = client.get(reverse("event:list") + "?activity=Hello")
+    response = client.get(reverse("event:list") + f"?activity={activity1.pk}")
     html = response.content.decode()
     assert event1.activity.description in html
     assert event2.activity.description not in html

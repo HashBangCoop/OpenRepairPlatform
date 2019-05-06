@@ -58,7 +58,7 @@ class Activity(models.Model):
         return reverse("event:activity_detail", args=(self.pk, self.slug))
 
     def next_events(self):
-        return get_future_published_events(self.event_set)
+        return get_future_published_events(self.events)
 
 
 class Event(models.Model):
@@ -76,7 +76,7 @@ class Event(models.Model):
         verbose_name=_("Publication date and time"), default=timezone.now
     )
     activity = models.ForeignKey(
-        Activity, on_delete=models.SET_NULL, null=True
+        Activity, on_delete=models.SET_NULL, null=True, related_name="events"
     )
     slug = models.SlugField(blank=True)
     starts_at = models.DateTimeField(
@@ -104,7 +104,9 @@ class Event(models.Model):
         verbose_name=_("Organizers"),
         blank=True,
     )
-    location = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True)
+    location = models.ForeignKey(
+        Place, on_delete=models.SET_NULL, null=True, related_name="events"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

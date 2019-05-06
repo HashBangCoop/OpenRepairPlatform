@@ -56,9 +56,6 @@ class ConditionForm(ModelForm):
 
 
 class EventSearchForm(forms.Form):
-    place = forms.ChoiceField(required=False)
-    organization = forms.ChoiceField(required=False)
-    activity = forms.ChoiceField(required=False)
     starts_before = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
         required=False,
@@ -70,15 +67,16 @@ class EventSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        empty = [("", "---")]
-        places = list(Place.objects.all())
-        orgas = list(Organization.objects.all())
         future_events = Event.future_published_events()
-        activities = {
-            evt.activity.name.lower().title() for evt in future_events
-        }
-        self.fields["place"].choices = empty + [(p.pk, p) for p in places]
-        self.fields["organization"].choices = empty + [
-            (o.pk, o) for o in orgas
-        ]
-        self.fields["activity"].choices = empty + [(a, a) for a in activities]
+        self.fields["place"] = forms.ModelChoiceField(
+            required=False,
+            queryset=Place.objects.filter(events__in=future_events),
+        )
+        self.fields["organization"] = forms.ModelChoiceField(
+            required=False,
+            queryset=Organization.objects.filter(events__in=future_events),
+        )
+        self.fields["activity"] = forms.ModelChoiceField(
+            required=False,
+            queryset=Activity.objects.filter(events__in=future_events),
+        )

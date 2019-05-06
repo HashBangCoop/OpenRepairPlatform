@@ -40,7 +40,7 @@ class Place(models.Model):
         return reverse("location:detail", args=(self.pk, self.slug))
 
     def future_published_events(self):
-        return get_future_published_events(self.event_set)
+        return get_future_published_events(self.events)
 
     def __str__(self):
         return self.name
