@@ -128,6 +128,4 @@ ASSETS_ROOT = STATICFILES_DIRS[0]
 forms.FORM_GROUP_CLASS += " p-2"
 
 # django messages settings
-MESSAGE_TAGS = {
-    messages.ERROR: 'danger',
-}
+MESSAGE_TAGS = {messages.ERROR: "danger"}

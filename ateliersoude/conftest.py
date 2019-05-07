@@ -8,7 +8,8 @@ from ateliersoude.event.factories import (
     ActivityFactory,
     ConditionFactory,
     EventFactory,
-    PublishedEventFactory)
+    PublishedEventFactory,
+)
 
 from ateliersoude.user.factories import (
     USER_PASSWORD,

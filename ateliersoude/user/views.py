@@ -7,7 +7,8 @@ from django.views.generic import (
     ListView,
     UpdateView,
     DeleteView,
-    RedirectView)
+    RedirectView,
+)
 
 from ateliersoude.event.mixins import PermissionAdminOrganizationMixin
 from ateliersoude.event.models import Event
@@ -146,20 +147,26 @@ class OrganizationDeleteView(DeleteView):
 class AddUserToOrganization(PermissionAdminOrganizationMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         email = self.request.POST.get("email", "")
-        user = CustomUser.objects\
-            .filter(email=email).exclude(password="").first()
+        user = (
+            CustomUser.objects.filter(email=email).exclude(password="").first()
+        )
 
         if user:
             self.add_user_to_orga(self.organization, user)
             messages.success(self.request, f"Bienvenue {user.first_name}!")
         else:
-            messages.error(self.request, "L'utilisateur avec l'email "
-                                         f"'{email}' n'existe pas")
+            messages.error(
+                self.request,
+                "L'utilisateur avec l'email " f"'{email}' n'existe pas",
+            )
 
-        return reverse("user:organization_detail", kwargs={
-            "pk": self.organization.pk,
-            "slug": self.organization.slug,
-        })
+        return reverse(
+            "user:organization_detail",
+            kwargs={
+                "pk": self.organization.pk,
+                "slug": self.organization.slug,
+            },
+        )
 
 
 class AddAdminToOrganization(AddUserToOrganization):
@@ -174,19 +181,25 @@ class AddVolunteerToOrganization(AddUserToOrganization):
         orga.volunteers.add(user)
 
 
-class RemoveUserFromOrganization(PermissionAdminOrganizationMixin,
-                                 RedirectView):
+class RemoveUserFromOrganization(
+    PermissionAdminOrganizationMixin, RedirectView
+):
     def get_redirect_url(self, *args, **kwargs):
         user_pk = kwargs["user_pk"]
         user = get_object_or_404(CustomUser, pk=user_pk)
         self.remove_user_from_orga(self.organization, user)
-        messages.success(self.request, f"L'utilisateur {user.first_name} "
-                                       "a bien été retiré !")
+        messages.success(
+            self.request,
+            f"L'utilisateur {user.first_name} " "a bien été retiré !",
+        )
 
-        return reverse("user:organization_detail", kwargs={
-            "pk": self.organization.pk,
-            "slug": self.organization.slug,
-        })
+        return reverse(
+            "user:organization_detail",
+            kwargs={
+                "pk": self.organization.pk,
+                "slug": self.organization.slug,
+            },
+        )
 
 
 class RemoveAdminFromOrganization(RemoveUserFromOrganization):

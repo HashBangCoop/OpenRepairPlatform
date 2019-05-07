@@ -14,7 +14,7 @@ def is_valid_path(path: str) -> bool:
 
 class RedirectQueryParamView:
     def get_success_url(self):
-        redirect = self.request.GET.get('redirect')
+        redirect = self.request.GET.get("redirect")
         default_redirect = super().get_success_url()
         if is_valid_path(redirect):
             return redirect

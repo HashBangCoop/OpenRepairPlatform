@@ -10,8 +10,11 @@ urlpatterns = [
         "update/<int:pk>", views.UserUpdateView.as_view(), name="user_update"
     ),
     path("create/", views.UserCreateView.as_view(), name="user_create"),
-    path("create_and_book/", views.UserCreateAndBookView.as_view(),
-         name="create_and_book"),
+    path(
+        "create_and_book/",
+        views.UserCreateAndBookView.as_view(),
+        name="create_and_book",
+    ),
     path(
         "organizations/",
         views.OrganizationListView.as_view(),
