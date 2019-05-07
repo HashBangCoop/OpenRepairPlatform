@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static bootstrap4 %}
 
 {% block content %}
   <section class="container">
@@ -7,9 +7,11 @@
       <div class="card-body">
         <h5 class="card-title">Filtrer les évènements</h5>
         <div class="card-text">
-          <form action="">
-            <div class="form-group p-2">
-              <button type="submit" class="btn btn-success">
+          <form method="GET" class="form-row">
+            {% bootstrap_form search_form  %}
+            <br>
+            <div class="form-group p-2 col mt-auto">
+              <button type="submit" class="btn btn-success btn-block">
                 <i class="fa fa-search"></i>
                 Lancer la recherche
               </button>

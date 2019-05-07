@@ -45,9 +45,6 @@ def event_data(
     }
 
 
-# TODO: more tests on `event_list` when filter is implemented
-
-
 def test_event_list(client, event_factory, published_event_factory):
     response = client.get(reverse("event:list"))
     assert response.status_code == 200
@@ -64,6 +61,73 @@ def test_event_list(client, event_factory, published_event_factory):
     assert event1.activity.description in html
     assert event2.activity.name in html
     assert event2.activity.description in html
+
+
+def test_event_list_invalid(client, published_event_factory):
+    event1 = published_event_factory()
+    event2 = published_event_factory()
+    response = client.get(reverse("event:list") + "?activity=99")
+    html = response.content.decode()
+    assert event1.activity.name in html
+    assert event1.activity.description in html
+    assert event2.activity.name in html
+    assert event2.activity.description in html
+
+
+def test_event_list_filter_place(
+    client, place_factory, published_event_factory
+):
+    place1 = place_factory()
+    place2 = place_factory()
+    event1 = published_event_factory(location=place1)
+    event2 = published_event_factory(location=place2)
+    response = client.get(reverse("event:list") + f"?place={place1.pk}")
+    html = response.content.decode()
+    assert event1.activity.description in html
+    assert event2.activity.description not in html
+
+
+def test_event_list_filter_orga(
+    client, organization_factory, published_event_factory
+):
+    orga1 = organization_factory()
+    orga2 = organization_factory()
+    event1 = published_event_factory(organization=orga1)
+    event2 = published_event_factory(organization=orga2)
+    response = client.get(reverse("event:list") + f"?organization={orga1.pk}")
+    html = response.content.decode()
+    assert event1.activity.description in html
+    assert event2.activity.description not in html
+
+
+def test_event_list_filter_activity(
+    client, activity_factory, published_event_factory
+):
+    activity1 = activity_factory(name="hello")
+    activity2 = activity_factory(name="world")
+    event1 = published_event_factory(activity=activity1)
+    event2 = published_event_factory(activity=activity2)
+    response = client.get(reverse("event:list") + f"?activity={activity1.pk}")
+    html = response.content.decode()
+    assert event1.activity.description in html
+    assert event2.activity.description not in html
+
+
+def test_event_list_filter_start_time(client, published_event_factory):
+    now = datetime.datetime.strptime("2019-05-03", "%Y-%m-%d")
+    old = now - datetime.timedelta(days=3)
+    future = now + datetime.timedelta(days=3)
+    event1 = published_event_factory(starts_at=now)
+    event2 = published_event_factory(starts_at=old)
+    event3 = published_event_factory(starts_at=future)
+    response = client.get(
+        reverse("event:list") + "?starts_before=2019-05-05"
+        "&starts_after=2019-05-01"
+    )
+    html = response.content.decode()
+    assert event1.activity.description in html
+    assert event2.activity.description not in html
+    assert event3.activity.description not in html
 
 
 def test_event_detail_context(client, event_factory):

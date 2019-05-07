@@ -2,6 +2,8 @@ from django import forms
 from django.forms import ModelForm
 
 from ateliersoude.event.models import Event, Activity, Condition
+from ateliersoude.location.models import Place
+from ateliersoude.user.models import Organization
 
 
 class EventForm(ModelForm):
@@ -51,3 +53,30 @@ class ConditionForm(ModelForm):
     class Meta:
         model = Condition
         exclude = ["slug", "organization"]
+
+
+class EventSearchForm(forms.Form):
+    starts_before = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+        required=False,
+    )
+    starts_after = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        future_events = Event.future_published_events()
+        self.fields["place"] = forms.ModelChoiceField(
+            required=False,
+            queryset=Place.objects.filter(events__in=future_events),
+        )
+        self.fields["organization"] = forms.ModelChoiceField(
+            required=False,
+            queryset=Organization.objects.filter(events__in=future_events),
+        )
+        self.fields["activity"] = forms.ModelChoiceField(
+            required=False,
+            queryset=Activity.objects.filter(events__in=future_events),
+        )

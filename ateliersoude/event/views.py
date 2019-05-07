@@ -17,7 +17,12 @@ from django.views.generic import (
 )
 
 from ateliersoude import utils
-from ateliersoude.event.forms import EventForm, ActivityForm, ConditionForm
+from ateliersoude.event.forms import (
+    EventForm,
+    ActivityForm,
+    ConditionForm,
+    EventSearchForm,
+)
 from ateliersoude.event.mixins import PermissionOrganizationMixin
 from ateliersoude.event.models import Activity, Condition, Event
 from ateliersoude.event.templatetags.app_filters import tokenize
@@ -120,8 +125,35 @@ class EventListView(ListView):
     model = Event
     template_name = "event/event_list.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_form"] = EventSearchForm(self.request.GET)
+        return context
+
     def get_queryset(self):
-        return Event.future_published_events()
+        queryset = Event.future_published_events()
+        form = EventSearchForm(self.request.GET)
+        if not form.is_valid():
+            return queryset
+        if form.cleaned_data["place"]:
+            queryset = queryset.filter(location=form.cleaned_data["place"])
+        if form.cleaned_data["organization"]:
+            queryset = queryset.filter(
+                organization=form.cleaned_data["organization"]
+            )
+        if form.cleaned_data["activity"]:
+            queryset = queryset.filter(
+                activity__name__icontains=form.cleaned_data["activity"]
+            )
+        if form.cleaned_data["starts_before"]:
+            queryset = queryset.filter(
+                starts_at__lte=form.cleaned_data["starts_before"]
+            )
+        if form.cleaned_data["starts_after"]:
+            queryset = queryset.filter(
+                starts_at__gte=form.cleaned_data["starts_after"]
+            )
+        return queryset
 
 
 class EventFormView(PermissionOrganizationMixin):
