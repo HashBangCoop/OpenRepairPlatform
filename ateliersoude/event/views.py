@@ -37,6 +37,7 @@ class ConditionFormView(PermissionOrganizationMixin):
     model = Condition
     form_class = ConditionForm
     object_kind = "condition"
+    template_name = "event/condition/form.html"
 
     def form_valid(self, form):
         form.instance.organization = self.organization
@@ -60,11 +61,12 @@ class ConditionEditView(RedirectQueryParamView, ConditionFormView, UpdateView):
 
 class ConditionListView(ListView):
     model = Condition
-    template_name = "event/condition_index.html"
+    template_name = "event/condition/index.html"
 
 
 class ConditionDeleteView(DeleteView):
     model = Condition
+    template_name = "event/condition/confirm_delete.html"
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "La condition a bien été supprimée")
@@ -76,17 +78,19 @@ class ConditionDeleteView(DeleteView):
 
 class ActivityView(DetailView):
     model = Activity
+    template_name = "event/activity/detail.html"
 
 
 class ActivityListView(ListView):
     model = Activity
-    template_name = "event/activity_list.html"
+    template_name = "event/activity/list.html"
 
 
 class ActivityFormView(PermissionOrganizationMixin):
     model = Activity
     form_class = ActivityForm
     object_kind = "activité"
+    template_name = "event/activity/form.html"
 
     def form_valid(self, form):
         form.instance.organization = self.organization
@@ -105,6 +109,7 @@ class ActivityEditView(RedirectQueryParamView, ActivityFormView, UpdateView):
 class ActivityDeleteView(RedirectQueryParamView, DeleteView):
     model = Activity
     success_url = reverse_lazy("event:activity_list")
+    template_name = "event/activity/confirm_delete.html"
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "L'activité a bien été supprimée")

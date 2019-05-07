@@ -19,53 +19,60 @@
   </div>
   <section class="container">
     <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">
-          {{ event.activity }} du {{ event.starts_at|date:"d M" }}
-          {% if request.user in event.registered.all or request.user in event.presents.all %}
-            <span class="badge badge-success badge-pill">Inscrit</span>
-          {% endif %}
-        </h5>
-        <h6 class="card-subtitle text-muted">
-          {% if event.remaining_seats == 0 %}
-            <span class="badge badge-warning badge-pill">Complet</span>
-          {% else %}
-            Encore
-            <span class="badge badge-info badge-pill">{{ event.remaining_seats }}
+      <div class="row pl-3 pr-3">
+        <div class="card-body col-lg-6">
+
+          <h5 class="card-title">
+            {{ event.activity }} du {{ event.starts_at|date:"d M" }}
+            {% if request.user in event.registered.all or request.user in event.presents.all %}
+              <span class="badge badge-success badge-pill">Inscrit</span>
+            {% endif %}
+          </h5>
+          <h6 class="card-subtitle text-muted">
+            {% if event.remaining_seats == 0 %}
+              <span class="badge badge-warning badge-pill">Complet</span>
+            {% else %}
+              Encore
+              <span class="badge badge-info badge-pill">{{ event.remaining_seats }}
                 </span> places disponibles
-          {% endif %}
-        </h6>
+            {% endif %}
+          </h6>
 
-        <p class="pt-3">
-          {{ event.activity.description }}
-        </p>
-        <p>
-          <i class="fa fa-calendar-alt"></i> Début le <i>{{ event.starts_at|date:"l d M à H\hi" }}</i>
-          <br>
-          <i class="fa fa-calendar-times"></i> Fin le <i>{{ event.ends_at|date:"l d M à H\hi" }}</i>
-        </p>
+          <p class="pt-3">
+            {{ event.activity.description }}
+          </p>
+          <p>
+            <i class="fa fa-calendar-alt"></i> Début le <i>{{ event.starts_at|date:"l d M à H\hi" }}</i>
+            <br>
+            <i class="fa fa-calendar-times"></i> Fin le <i>{{ event.ends_at|date:"l d M à H\hi" }}</i>
+          </p>
 
-        <hr>
+          <hr>
 
-        <b>Condition(s) de venue:</b>
-        <ul class="pt-3">
-          {% for condition in event.conditions.all %}
-            <li>
-              {% if condition.price > 0 %}
-                <span class="badge badge-pill badge-secondary">{{ condition.price }}€</span> -
-              {% endif %}
-              {{ condition.description }}
-            </li>
-            {% empty %}
-            <li>La participation est libre / pas de condition d'accès</li>
-          {% endfor %}
-        </ul>
+          <b>Condition(s) de venue:</b>
+          <ul class="pt-3">
+            {% for condition in event.conditions.all %}
+              <li>
+                {% if condition.price > 0 %}
+                  <span class="badge badge-pill badge-secondary">{{ condition.price }}€</span> -
+                {% endif %}
+                {{ condition.description }}
+              </li>
+              {% empty %}
+              <li>La participation est libre / pas de condition d'accès</li>
+            {% endfor %}
+          </ul>
 
-        <a href="{% url 'event:activity_detail' event.activity.pk event.activity.slug %}" class="btn btn-info">
-          <i class="fa fa-eye"></i>
-          En savoir plus sur l'activité
-        </a>
-        {% include "event/register.html" with user=request.user event=event show_button=True %}
+          <a href="{% url 'event:activity_detail' event.activity.pk event.activity.slug %}" class="btn btn-info">
+            <i class="fa fa-eye"></i>
+            En savoir plus sur l'activité
+          </a>
+          {% include "event/register.html" with user=request.user event=event show_button=True %}
+        </div>
+
+        <div class="card-body col-lg-6 p-0">
+          <div style="height:100%;" id="event_map"></div>
+        </div>
       </div>
 
       <div class="card-footer">
@@ -89,8 +96,6 @@
     </div>
   </section>
 
-  <div style="height:70vh;" id="event_map"></div>
-
   <section class="container">
     <div class="card">
       <div class="card-body">
@@ -102,7 +107,7 @@
         {% endif %}
         <br>
 
-        <h5 class="mt-4">Animateur.trice.s</h5>
+        <h5 class="mt-4">Animateur·trice·s</h5>
         <ul>
           {% for user in event.organizers.all %}
             <li>{{ user }}</li>

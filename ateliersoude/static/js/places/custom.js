@@ -14,7 +14,7 @@ function popup_message(place){
         message += "<img src=\"" + place.picture + "\" class=\"pt-2 pb-2 w-100\">";
     }
     message += htmlEscape(place.name) + "</a> - ";
-    message += htmlEscape(place.place_type);
+    message += htmlEscape(place.category);
     message += "<br> <a href=\"" + place.orga_url + "\">" + htmlEscape(place.orga_name) + "</a> - ";
     message += htmlEscape(place.address);
     return message;

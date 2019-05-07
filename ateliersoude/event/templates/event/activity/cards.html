@@ -1,0 +1,25 @@
+<div class="row m-0">
+  {% for activity in activities %}
+    <div class="col-lg-4 col-md-12 p-0">
+      <div class="card">
+        <a class="card-link" href="{% url 'event:activity_detail' activity.pk activity.slug %}">
+          {% if activity.picture %}
+            <img class="img-fluid img-place" src="{{ activity.picture.url }}" alt="activité illustration">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ activity.name }}</h5>
+            <p class="card-text p-2">{{ activity.description }}</p>
+            <footer class="blockquote-footer">
+              Géré par
+              <a href="{% url 'user:organization_detail' activity.organization.pk activity.organization.slug %}">
+                {{ activity.organization }}
+              </a>
+            </footer>
+          </div>
+        </a>
+      </div>
+    </div>
+    {% empty %}
+    Aucune activité trouvée
+  {% endfor %}
+</div>
