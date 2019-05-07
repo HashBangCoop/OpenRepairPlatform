@@ -1,0 +1,11 @@
+{{ user.first_name }} {{ user.last_name }}, <br>
+
+<p>
+  tu es inscrit·e en tant que volontaire de l'association "{{ orga }}". Cette asociation vient de publier l'évènement "{{ event }}".
+</p>
+
+<p>
+  Tu peux dès à présent communiquer sur l'évènement ainsi que renseigner tes disponibilités sur la page de l'évènement : {{ event_url }}
+</p>
+
+{% include 'event/mail/footer.html' %}
