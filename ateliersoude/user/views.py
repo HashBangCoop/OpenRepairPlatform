@@ -7,8 +7,9 @@ from django.views.generic import (
     ListView,
     UpdateView,
     DeleteView,
-)
+    RedirectView)
 
+from ateliersoude.event.mixins import PermissionAdminOrganizationMixin
 from ateliersoude.event.models import Event
 from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.user.models import CustomUser, Organization
@@ -18,7 +19,7 @@ from .forms import (
     UserUpdateForm,
     UserCreateForm,
     OrganizationForm,
-    AddUserToEventForm,
+    CustomUserEmailForm,
 )
 
 
@@ -48,7 +49,7 @@ class UserCreateView(CreateView):
 class UserCreateAndBookView(CreateView):
     model = CustomUser
     template_name = "user/user_form.html"
-    form_class = AddUserToEventForm
+    form_class = CustomUserEmailForm
 
     def post(self, request, *args, **kwargs):
         existing_user = CustomUser.objects.filter(
@@ -93,7 +94,11 @@ class OrganizationDetailView(DetailView):
             and self.request.user in self.object.admins.all()
             or self.request.user in self.object.volunteers.all()
         )
-        context["form"] = AddUserToEventForm
+        context["register_form"] = CustomUserEmailForm
+        context["add_admin_form"] = CustomUserEmailForm(auto_id="id_admin_%s")
+        context["add_volunteer_form"] = CustomUserEmailForm(
+            auto_id="id_volunteer_%s"
+        )
         return context
 
 
@@ -136,3 +141,61 @@ class OrganizationDeleteView(DeleteView):
         delete = super().delete(request, *args, **kwargs)
         messages.success(request, "L'association a bien été supprimé")
         return delete
+
+
+class AddUserToOrganization(PermissionAdminOrganizationMixin, RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        email = self.request.POST.get("email", "")
+        user = CustomUser.objects\
+            .filter(email=email).exclude(password="").first()
+
+        if user:
+            self.add_user_to_orga(self.organization, user)
+            messages.success(self.request, f"Bienvenue {user.first_name}!")
+        else:
+            messages.error(self.request, "L'utilisateur avec l'email "
+                                         f"'{email}' n'existe pas")
+
+        return reverse("user:organization_detail", kwargs={
+            "pk": self.organization.pk,
+            "slug": self.organization.slug,
+        })
+
+
+class AddAdminToOrganization(AddUserToOrganization):
+    @staticmethod
+    def add_user_to_orga(orga, user):
+        orga.admins.add(user)
+
+
+class AddVolunteerToOrganization(AddUserToOrganization):
+    @staticmethod
+    def add_user_to_orga(orga, user):
+        orga.volunteers.add(user)
+
+
+class RemoveUserFromOrganization(PermissionAdminOrganizationMixin,
+                                 RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        user_pk = kwargs["user_pk"]
+        user = get_object_or_404(CustomUser, pk=user_pk)
+        self.remove_user_from_orga(self.organization, user)
+        messages.success(self.request, f"L'utilisateur {user.first_name} "
+                                       "a bien été retiré !")
+
+        return reverse("user:organization_detail", kwargs={
+            "pk": self.organization.pk,
+            "slug": self.organization.slug,
+        })
+
+
+class RemoveAdminFromOrganization(RemoveUserFromOrganization):
+    @staticmethod
+    def remove_user_from_orga(orga, user):
+        orga.admins.remove(user)
+
+
+class RemoveVolunteerFromOrganization(RemoveUserFromOrganization):
+    @staticmethod
+    def remove_user_from_orga(orga, user):
+        orga.volunteers.remove(user)

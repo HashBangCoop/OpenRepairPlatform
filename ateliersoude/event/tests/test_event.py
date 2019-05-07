@@ -170,14 +170,14 @@ def test_get_event_create_403(client, organization):
     response = client.get(reverse("event:create", args=[organization.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_get_event_create_403_not_in_orga(client_log, organization):
     response = client_log.get(reverse("event:create", args=[organization.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_event_create(client, user_log, event_data):
@@ -249,7 +249,7 @@ def test_get_event_update_403(client, organization, event):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_get_event_update_403_not_in_orga(client_log, organization, event):
@@ -258,7 +258,7 @@ def test_get_event_update_403_not_in_orga(client_log, organization, event):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_cancel_reservation_wrong_token(client):

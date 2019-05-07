@@ -61,7 +61,7 @@ def test_get_condition_create_403(client, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_get_condition_create_403_not_in_orga(client_log, organization):
@@ -70,7 +70,7 @@ def test_get_condition_create_403_not_in_orga(client_log, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_get_condition_create(client, user_log, organization):
@@ -124,7 +124,7 @@ def test_get_condition_update_403(client, organization, condition):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_get_condition_update_403_not_in_orga(
@@ -135,7 +135,7 @@ def test_get_condition_update_403_not_in_orga(
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_get_condition_update(client, user_log, condition, organization):
@@ -167,3 +167,8 @@ def test_condition_update(
     assert response["Location"] == reverse(
         "user:organization_detail", args=[orga.pk, orga.slug]
     )
+
+
+def test_condition_no_price(condition_factory):
+    condition = condition_factory(price=0)
+    assert str(condition) == condition.name

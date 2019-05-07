@@ -64,9 +64,4 @@ urlpatterns = [
     path("book/<token>/", views.BookView.as_view(), name="book"),
     path("present/<token>/", views.PresentView.as_view(), name="user_present"),
     path("absent/<token>/", views.AbsentView.as_view(), name="user_absent"),
-    path(
-        "massevent/book/",
-        views.MassBookingCreateView.as_view(),
-        name="mass_event_book",
-    ),
 ]
