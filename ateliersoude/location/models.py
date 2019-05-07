@@ -10,7 +10,11 @@ from ateliersoude.utils import validate_image, get_future_published_events
 class Place(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
     organization = models.ForeignKey(
-        Organization, on_delete=models.CASCADE, null=True, blank=True
+        Organization,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="places",
     )
     description = models.TextField(
         default="", verbose_name=_("Place description")

@@ -22,38 +22,10 @@
     </div>
 
     <div class="row m-0">
-      {% for event in event_list %}
-        <div class="col-lg-6 col-md-12 p-0">
-          <div class="card">
-            <a href="{% url 'event:detail' event.pk event.slug %}" class="card-link">
-              {% if event.activity.picture %}
-                <img class="card-img-top rounded-0" src="{{ event.activity.picture.url }}" alt="event img">
-              {% endif %}
-              <div class="card-body">
-                <h2 class="card-title">{{ event.activity.name }}</h2>
-                <h6 class="card-subtitle mb-2 text-muted">
-                  <small>
-                    {{ event.date_interval_format }}
-                  </small>
-                </h6>
-                <p class="p-2">
-                  {{ event.activity.description }}
-                  <br>
-                  <button class="btn btn-info position-relative mt-3">
-                    <i class="fa fa-eye"></i>
-                    Voir l'évènement
-                  </button>
-                </p>
-                <footer class="blockquote-footer">
-                  Organisé par '{{ event.organization }}' à '{{ event.location.name }}'
-                </footer>
-              </div>
-            </a>
-          </div>
-        </div>
-        {% empty %}
+      {% include "event/event_cards.html" with event_list=event_list %}
+      {% if not event_list %}
         Aucun évènement trouvé pour vos critères de recherche
-      {% endfor %}
+      {% endif %}
     </div>
 
   </section>

@@ -28,14 +28,16 @@ class EventForm(ModelForm):
 
     class Meta:
         model = Event
-        exclude = [
-            "created_at",
-            "updated_at",
-            "slug",
-            "owner",
-            "registered",
-            "presents",
-            "organization",
+
+        fields = [
+            "activity",
+            "location",
+            "available_seats",
+            "starts_at",
+            "ends_at",
+            "publish_at",
+            "organizers",
+            "conditions",
         ]
 
 

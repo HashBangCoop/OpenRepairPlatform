@@ -29,6 +29,8 @@ class Condition(models.Model):
         )
 
     def __str__(self):
+        if self.price > 0:
+            return f"{self.name} - {self.price}€"
         return self.name
 
 

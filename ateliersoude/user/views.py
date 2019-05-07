@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
 from django.views.generic import (
     CreateView,
     DetailView,
@@ -13,6 +12,7 @@ from django.views.generic import (
 from ateliersoude.event.models import Event
 from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.user.models import CustomUser, Organization
+from ateliersoude.utils import get_future_published_events
 
 from .forms import (
     UserUpdateForm,
@@ -87,9 +87,7 @@ class OrganizationDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["events"] = self.object.events.filter(
-            published=True, starts_at__gt=timezone.now()
-        )
+        context["events"] = get_future_published_events(self.object.events)
         context["admin"] = (
             self.request.user.is_authenticated
             and self.request.user in self.object.admins.all()

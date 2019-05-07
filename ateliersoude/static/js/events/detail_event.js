@@ -10,5 +10,3 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
     reuseTiles: true,
 }).addTo(event_map);
 L.marker([latitude,longitude]).addTo(event_map);
-
-event_map.scrollWheelZoom.disable();
