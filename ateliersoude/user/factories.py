@@ -10,7 +10,7 @@ from faker import Factory
 from ateliersoude.user.models import Organization, CustomUser
 
 faker = Factory.create()
-USER_PASSWORD = "hackme"
+USER_PASSWORD = "hackmeplease2048"
 
 
 class OrganizationFactory(DjangoModelFactory):

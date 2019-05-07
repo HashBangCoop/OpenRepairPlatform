@@ -10,7 +10,7 @@ pytestmark = pytest.mark.django_db
 
 def test_command_notify_next_day_events(published_event_factory, user_log):
     event1 = published_event_factory(
-        starts_at=timezone.now() + datetime.timedelta(days=1),
+        starts_at=timezone.now() + datetime.timedelta(days=1)
     )
     event1.registered.add(user_log)
     call_command("notify_next_day_events", "https://example.com")
@@ -20,7 +20,7 @@ def test_command_notify_next_day_events(published_event_factory, user_log):
 def test_command_publish_events(event_factory, custom_user_factory):
     event1 = event_factory(
         published=False,
-        publish_at=timezone.now() - timezone.timedelta(hours=1)
+        publish_at=timezone.now() - timezone.timedelta(hours=1),
     )
     event1.organization.admins.add(custom_user_factory())
     event1.organization.volunteers.add(custom_user_factory())

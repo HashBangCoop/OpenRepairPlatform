@@ -17,30 +17,36 @@ class Command(BaseCommand):
     help = "Send email to all registered users the day before the event"
 
     def add_arguments(self, parser):
-        parser.add_argument('website_url', help='ex: https://atelier-soude.fr')
+        parser.add_argument("website_url", help="ex: https://atelier-soude.fr")
 
     def handle(self, *args, **options):
-        base_url = options['website_url']
+        base_url = options["website_url"]
         now = timezone.now()
         tomorrow = now + datetime.timedelta(days=1)
         tomorrow_23h59 = tomorrow.replace(hour=23, minute=59, second=59)
         tomorrow_00h00 = tomorrow.replace(hour=0, minute=0, second=0)
-        events_next_day = Event.objects.filter(published=True)\
-            .filter(publish_at__lte=now)\
-            .filter(ends_at__gte=now)\
-            .filter(starts_at__lte=tomorrow_23h59)\
+        events_next_day = (
+            Event.objects.filter(published=True)
+            .filter(publish_at__lte=now)
+            .filter(ends_at__gte=now)
+            .filter(starts_at__lte=tomorrow_23h59)
             .filter(starts_at__gte=tomorrow_00h00)
+        )
         for event in events_next_day:
             for user in event.registered.all():
                 unbook_token = tokenize(user, event, "cancel")
-                cancel_url = base_url + reverse("event:cancel_reservation",
-                                                args=[unbook_token])
-                event_url = base_url + reverse("event:detail",
-                                               args=[event.id, event.slug])
-                msg_plain = render_to_string("event/mail/event_incoming.txt",
-                                             context=locals())
-                msg_html = render_to_string("event/mail/event_incoming.html",
-                                            context=locals())
+                cancel_url = base_url + reverse(
+                    "event:cancel_reservation", args=[unbook_token]
+                )
+                event_url = base_url + reverse(
+                    "event:detail", args=[event.id, event.slug]
+                )
+                msg_plain = render_to_string(
+                    "event/mail/event_incoming.txt", context=locals()
+                )
+                msg_html = render_to_string(
+                    "event/mail/event_incoming.html", context=locals()
+                )
 
                 send_mail(
                     f"C'est demain - {event.activity.name}",

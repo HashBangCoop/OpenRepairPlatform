@@ -8,11 +8,10 @@ from django.urls import reverse, resolve
 from django.utils import timezone
 
 from ateliersoude.event.views import _load_token
+from ateliersoude.user.factories import USER_PASSWORD
 from ateliersoude.user.models import CustomUser
 
 pytestmark = pytest.mark.django_db
-
-USER_PASSWORD = "hackmeplease2048"
 
 
 def test_command_superuser():
@@ -71,6 +70,22 @@ def test_anonymous_user_create(client, event):
     event_from_token, user = _load_token(resolved.kwargs["token"], "book")
     assert anonymous_user.first_name == ""
     assert anonymous_user.password == ""
+    assert event.pk == event_from_token.pk
+
+
+def test_anonymous_user_create_already_exists(client, event, custom_user):
+    response = client.post(
+        reverse("user:create_and_book") + f"?event={event.pk}",
+        {"email": custom_user.email},
+    )
+    user = CustomUser.objects.first()
+    assert response.status_code == 302
+    assert user.pk == custom_user.pk
+    url_parsed = urlparse(response.url)
+    resolved = resolve(url_parsed.path)
+    event_from_token, user = _load_token(resolved.kwargs["token"], "book")
+    assert custom_user.first_name == user.first_name
+    assert custom_user.password == user.password
     assert event.pk == event_from_token.pk
 
 

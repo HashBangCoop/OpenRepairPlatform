@@ -3,8 +3,7 @@ import logging
 from django.contrib import messages
 from django.core import signing
 from django.core.mail import send_mail
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -23,20 +22,19 @@ from ateliersoude.event.forms import (
     ConditionForm,
     EventSearchForm,
 )
-from ateliersoude.event.mixins import PermissionOrganizationMixin
+from ateliersoude.event.mixins import PermissionVolunteerOrganizationMixin
 from ateliersoude.event.models import Activity, Condition, Event
 from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.mixins import RedirectQueryParamView
-from ateliersoude.user.forms import AddUserToEventForm
+from ateliersoude.user.forms import CustomUserEmailForm
 from ateliersoude.user.models import CustomUser
 
 logger = logging.getLogger(__name__)
 
 
-class ConditionFormView(PermissionOrganizationMixin):
+class ConditionFormView(PermissionVolunteerOrganizationMixin):
     model = Condition
     form_class = ConditionForm
-    object_kind = "condition"
     template_name = "event/condition/form.html"
 
     def form_valid(self, form):
@@ -86,10 +84,9 @@ class ActivityListView(ListView):
     template_name = "event/activity/list.html"
 
 
-class ActivityFormView(PermissionOrganizationMixin):
+class ActivityFormView(PermissionVolunteerOrganizationMixin):
     model = Activity
     form_class = ActivityForm
-    object_kind = "activité"
     template_name = "event/activity/form.html"
 
     def form_valid(self, form):
@@ -122,7 +119,7 @@ class EventView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["form"] = AddUserToEventForm
+        ctx["register_form"] = CustomUserEmailForm
         return ctx
 
 
@@ -133,6 +130,7 @@ class EventListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["search_form"] = EventSearchForm(self.request.GET)
+        context["register_form"] = CustomUserEmailForm
         return context
 
     def get_queryset(self):
@@ -161,10 +159,9 @@ class EventListView(ListView):
         return queryset
 
 
-class EventFormView(PermissionOrganizationMixin):
+class EventFormView(PermissionVolunteerOrganizationMixin):
     model = Event
     form_class = EventForm
-    object_kind = "évènement"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -220,7 +217,6 @@ class PresentView(RedirectView):
             )
             return reverse("event:list")
 
-        event.registered.remove(user)
         event.presents.add(user)
 
         next_url = self.request.GET.get("redirect")
@@ -242,7 +238,6 @@ class AbsentView(RedirectView):
             return reverse("event:list")
 
         event.presents.remove(user)
-        event.registered.add(user)
 
         next_url = self.request.GET.get("redirect")
         if utils.is_valid_path(next_url):
@@ -263,7 +258,6 @@ class CancelReservationView(RedirectView):
             return reverse("event:list")
 
         event.registered.remove(user)
-        event.save()
 
         book_token = tokenize(user, event, "book")
         book_url = reverse("event:book", args=[book_token])
@@ -344,46 +338,3 @@ class BookView(RedirectView):
         if utils.is_valid_path(next_url):
             return next_url
         return reverse("event:detail", args=[event.id, event.slug])
-
-
-# Following lines not used for now
-
-
-class MassBookingCreateView(CreateView):
-    template_name = "plateformeweb/mass_event_book.html"
-    model = Event
-    fields = []
-
-    def post(self, request, *args, **kwargs):
-        try:
-            import simplejson as json
-        except (ImportError,):
-            import json
-
-        json_data = request.POST["dates"]
-        events_pk = json.loads(json_data)
-        events_pk = list(map(int, events_pk))
-        events = Event.objects.filter(pk__in=events_pk)
-        # TODO: bulk insert somehow?
-        for event in events:
-            event.attendees.add(request.user)
-        return HttpResponse("OK!")
-
-    def get_form(self, form_class=None, **kwargs):
-        if form_class is None:
-            form_class = self.get_form_class()
-        form = super().get_form(form_class)
-
-        return form
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        return context
-
-    def get_success_url(self):
-        return render(
-            self.request,
-            "plateformeweb/event_list.html",
-            message="c'est tout bon",
-        )

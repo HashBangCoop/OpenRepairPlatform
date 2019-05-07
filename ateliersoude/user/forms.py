@@ -41,7 +41,7 @@ class UserUpdateForm(forms.ModelForm):
         }
 
 
-class AddUserToEventForm(forms.ModelForm):
+class CustomUserEmailForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ["email"]

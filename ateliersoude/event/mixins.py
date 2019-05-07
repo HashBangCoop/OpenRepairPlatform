@@ -16,11 +16,22 @@ class PermissionOrganizationMixin:
         return super().post(request, *args, **kwargs)
 
     def _set_orga_from_kwargs(self, kwargs, user):
-        orga_pk = kwargs.pop("orga_pk")
+        orga_pk = kwargs["orga_pk"]
         orga = get_object_or_404(Organization, pk=orga_pk)
         self.organization = orga
-        if user not in orga.volunteers.union(orga.admins.all()):
+        if user not in self.get_authorized_users():
             raise PermissionDenied(
-                "Vous ne pouvez pas créer de "
-                f"`{self.object_kind}` pour cette association"
+                "Vous n'avez pas les droits pour gérer cette association"
             )
+
+
+class PermissionAdminOrganizationMixin(PermissionOrganizationMixin):
+    def get_authorized_users(self):
+        return self.organization.admins.all()
+
+
+class PermissionVolunteerOrganizationMixin(PermissionOrganizationMixin):
+    def get_authorized_users(self):
+        return self.organization.volunteers.union(
+            self.organization.admins.all()
+        )

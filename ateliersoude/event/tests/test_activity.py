@@ -77,7 +77,7 @@ def test_get_activity_create_403(client, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_get_activity_create_403_not_in_orga(client_log, organization):
@@ -86,7 +86,7 @@ def test_get_activity_create_403_not_in_orga(client_log, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_activity_create(client, user_log, organization, activity_data):
@@ -127,7 +127,7 @@ def test_get_activity_update_403(client, organization, activity):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_get_activity_update_403_not_in_orga(
@@ -138,7 +138,7 @@ def test_get_activity_update_403_not_in_orga(
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "Vous ne pouvez pas créer" in html
+    assert "avez pas les droits pour gérer" in html
 
 
 def test_get_activity_update(user_log, client, activity, organization):

@@ -23,29 +23,23 @@ def get_image_file(size=100):
 
 
 def test_validate_image():
-    img_valid = get_image_file(size=utils.MAX_SIZE_MB*1024*1024)
+    img_valid = get_image_file(size=utils.MAX_SIZE_MB * 1024 * 1024)
     utils.validate_image(img_valid)
 
-    img_invalid = get_image_file(size=utils.MAX_SIZE_MB*1024*1024 + 1)
+    img_invalid = get_image_file(size=utils.MAX_SIZE_MB * 1024 * 1024 + 1)
     with pytest.raises(ValidationError):
         utils.validate_image(img_invalid)
 
 
 def test_get_referer_resolver_noreferer():
     req = HttpRequest()
-    req.META = {
-        "HTTP_REFERER": None,
-        "HTTP_HOST": "monhost",
-    }
+    req.META = {"HTTP_REFERER": None, "HTTP_HOST": "monhost"}
     assert utils.get_referer_resolver(req) is None
 
 
 def test_get_referer_resolver_wrong_netloc():
     req = HttpRequest()
-    req.META = {
-        "HTTP_REFERER": "http://monhost2/test",
-        "HTTP_HOST": "monhost",
-    }
+    req.META = {"HTTP_REFERER": "http://monhost2/test", "HTTP_HOST": "monhost"}
     settings.ALLOWED_HOSTS.append("monhost")
     assert utils.get_referer_resolver(req) is None
 
