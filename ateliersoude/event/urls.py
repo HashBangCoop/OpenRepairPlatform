@@ -50,6 +50,11 @@ urlpatterns = [
         "create/<int:orga_pk>/", views.EventCreateView.as_view(), name="create"
     ),
     path(
+        "recurrent/create/<int:orga_pk>/",
+        views.RecurrentEventCreateView.as_view(),
+        name="recurrent_create",
+    ),
+    path(
         "<int:pk>/edit/<int:orga_pk>/",
         views.EventEditView.as_view(),
         name="edit",

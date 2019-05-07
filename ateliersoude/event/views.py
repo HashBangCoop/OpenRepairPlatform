@@ -13,6 +13,7 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
     RedirectView,
+    FormView,
 )
 
 from ateliersoude import utils
@@ -21,6 +22,7 @@ from ateliersoude.event.forms import (
     ActivityForm,
     ConditionForm,
     EventSearchForm,
+    RecurrentEventForm,
 )
 from ateliersoude.event.mixins import PermissionAdminOrganizationMixin
 from ateliersoude.event.models import Activity, Condition, Event
@@ -201,6 +203,17 @@ class EventDeleteView(RedirectQueryParamView, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(request, "L'évènement a bien été supprimé")
         return super().delete(request, *args, **kwargs)
+
+
+class RecurrentEventCreateView(PermissionOrganizationMixin, FormView):
+    form_class = RecurrentEventForm
+    success_url = reverse_lazy("event:list")
+    template_name = "event/recurrent_event_form.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["orga"] = self.organization
+        return ctx
 
 
 def _load_token(token, salt):

@@ -41,6 +41,66 @@ class EventForm(ModelForm):
         ]
 
 
+class RecurrentEventForm(forms.ModelForm):
+    starts_at = forms.TimeField()
+    ends_at = forms.TimeField()
+    recurrent_type = forms.ChoiceField(
+        choices=[("week", "Par semaine"), ("month", "Par mois")],
+        label="Type de récurrence",
+    )
+    publish_date = forms.ChoiceField(
+        choices=[
+            ("1d", "1 jour avant"),
+            ("2d", "2 jours avant"),
+            ("1w", "Une semaine avant"),
+            ("2w", "Deux semaine avant"),
+        ],
+        label="Publication",
+    )
+    days = forms.MultipleChoiceField(
+        choices=Event.DAYS,
+        widget=forms.CheckboxSelectMultiple(),
+        label="Jour(s) de récurrence",
+    )
+    hour = forms.TimeField(
+        widget=forms.TimeInput(attrs={"type": "time"}),
+        label="Heure de récurrence",
+    )
+    weeks = forms.MultipleChoiceField(
+        choices=Event.WEEKS,
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "for-month"}),
+        label="La ou les semaines de récurrence",
+        required=False,
+    )
+    end_date = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+        label="La date de fin de la récurrence",
+    )
+
+    def clean_weeks(self):
+        recurrent_type = self.cleaned_data["recurrent_type"]
+        error_message = (
+            "Vous devez renseigner au moins une semaine de récurrence."
+        )
+        if recurrent_type == "month":
+            if not self.cleaned_data["weeks"]:
+                self.add_error("weeks", error_message)
+
+    # def save(self, commit=False):
+
+    class Meta:
+        model = Event
+        exclude = [
+            "created_at",
+            "updated_at",
+            "slug",
+            "owner",
+            "registered",
+            "presents",
+            "organization",
+        ]
+
+
 class ActivityForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

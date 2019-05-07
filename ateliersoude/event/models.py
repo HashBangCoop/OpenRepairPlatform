@@ -64,6 +64,22 @@ class Activity(models.Model):
 
 
 class Event(models.Model):
+    WEEKS = [
+        ("s1", "Semaine 1"),
+        ("s2", "Semaine 2"),
+        ("s3", "Semaine 3"),
+        ("s4", "Semaine 4"),
+    ]
+    DAYS = [
+        ("lu", "Lundi"),
+        ("ma", "Mardi"),
+        ("me", "Mercredi"),
+        ("je", "Jeudi"),
+        ("ve", "Vendredi"),
+        ("sa", "Samedi"),
+        ("di", "Dimanche"),
+    ]
+
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="events"
     )
