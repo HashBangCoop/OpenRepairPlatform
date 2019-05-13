@@ -117,7 +117,7 @@ class OrganizationCreateView(CreateView):
         res = super().form_valid(form)
         # TODO : restriction user staff
         form.instance.admins.add(self.request.user)
-        messages.success(self.request, "L'association a bien été créé.")
+        messages.success(self.request, "L'organisation a bien été créé.")
         return res
 
 
@@ -129,7 +129,8 @@ class OrganizationUpdateView(UpdateView):
     def form_valid(self, form):
         res = super().form_valid(form)
         # TODO : restriction user staff
-        messages.success(self.request, "L'association a bien été mise à jour.")
+        messages.success(self.request, "L'organisation "
+                                       "a bien été mise à jour.")
         return res
 
 
@@ -140,7 +141,7 @@ class OrganizationDeleteView(DeleteView):
 
     def delete(self, request, *args, **kwargs):
         delete = super().delete(request, *args, **kwargs)
-        messages.success(request, "L'association a bien été supprimé")
+        messages.success(request, "L'organisation a bien été supprimé")
         return delete
 
 

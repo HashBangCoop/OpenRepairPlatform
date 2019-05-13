@@ -12,9 +12,9 @@
 
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
-      <h1>Associations</h1>
+      <h1>Organisations</h1>
       <a class="btn btn-success" href="{% url 'user:organization_create' %}">
-        <i class="fa fa-pencil-alt mr-1"></i>Créer une association
+        <i class="fa fa-pencil-alt mr-1"></i>Créer une organisation
       </a>
     </div>
   </div>
@@ -35,7 +35,7 @@
               </a>
             </div>
             {% empty %}
-            <div>Aucune association n'est inscrite sur le site pour le moment</div>
+            <div>Aucune organisation n'est inscrite sur le site pour le moment</div>
           {% endfor %}
         </div>
       </div>
