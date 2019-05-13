@@ -21,6 +21,7 @@ class PlaceSerializer(serializers.ModelSerializer):
             "orga_url",
             "orga_name",
             "name",
+            "description",
             "address",
             "latitude",
             "longitude",
