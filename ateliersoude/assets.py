@@ -72,8 +72,16 @@ js_places = Bundle(
 js_create_edit_place = Bundle(
     "js/lib/auto-complete.js",
     "js/places/create_edit.js",
+    "js/lib/gov_addresses.js",
     filters="jsmin",
-    output="js/places/create-edit.min.js",
+    output="js/places/create_edit.min.js",
+)
+js_create_edit_user = Bundle(
+    "js/lib/auto-complete.js",
+    "js/user/create_edit.js",
+    "js/lib/gov_addresses.js",
+    filters="jsmin",
+    output="js/user/create_edit.min.js",
 )
 js_detail_place = Bundle(
     "js/lib/leaflet.js",
@@ -104,6 +112,7 @@ register("css_create_edit_event", css_create_edit_event)
 
 register("js_places", js_places)
 register("js_create_edit_place", js_create_edit_place)
+register("js_create_edit_user", js_create_edit_user)
 register("js_detail_place", js_detail_place)
 register("js_detail_event", js_detail_event)
 register("js_create_edit_event", js_create_edit_event)
