@@ -150,17 +150,7 @@ class AddUserToOrganization(PermissionAdminOrganizationMixin, RedirectView):
         user = (
             CustomUser.objects.filter(email=email).exclude(password="").first()
         )
-
-        if user:
-            self.add_user_to_orga(self.organization, user)
-            messages.success(self.request, f"Bienvenue {user.first_name}!")
-        else:
-            messages.error(
-                self.request,
-                "L'utilisateur avec l'email " f"'{email}' n'existe pas",
-            )
-
-        return reverse(
+        redirect_url = reverse(
             "user:organization_detail",
             kwargs={
                 "pk": self.organization.pk,
@@ -168,10 +158,30 @@ class AddUserToOrganization(PermissionAdminOrganizationMixin, RedirectView):
             },
         )
 
+        if not user:
+            messages.error(
+                self.request,
+                "L'utilisateur avec l'email " f"'{email}' n'existe pas",
+            )
+            return redirect_url
+
+        if user in self.organization.admins.all():
+            messages.warning(
+                self.request,
+                "Action impossible: l'utilisateur fait déjà partie des admins "
+                "de l'association"
+            )
+            return redirect_url
+
+        self.add_user_to_orga(self.organization, user)
+        messages.success(self.request, f"Bienvenue {user.first_name}!")
+        return redirect_url
+
 
 class AddAdminToOrganization(AddUserToOrganization):
     @staticmethod
     def add_user_to_orga(orga, user):
+        orga.volunteers.remove(user)
         orga.admins.add(user)
 
 
