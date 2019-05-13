@@ -10,7 +10,13 @@
 {% block content %}
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
-      <h1 class="display-4">{{ event.activity.name|title }}</h1>
+      <h1 class="display-4">{{ event }}</h1>
+      <p class="lead">
+        - Organisé par
+        <a href="{% url 'user:organization_detail' event.organization.id event.organization.slug %}">
+          {{ event.organization.name }}
+        </a>
+      </p>
       <p class="lead">
         <a href="{% url 'event:edit' event.pk event.organization.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
         <a href="{% url 'event:delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
@@ -22,12 +28,6 @@
       <div class="row pl-3 pr-3">
         <div class="card-body col-lg-6">
 
-          <h5 class="card-title">
-            {{ event.activity }} du {{ event.starts_at|date:"d M" }}
-            {% if request.user in event.registered.all or request.user in event.presents.all %}
-              <span class="badge badge-success badge-pill">Inscrit</span>
-            {% endif %}
-          </h5>
           <h6 class="card-subtitle text-muted">
             {% if event.remaining_seats == 0 %}
               <span class="badge badge-warning badge-pill">Complet</span>
@@ -35,6 +35,9 @@
               Encore
               <span class="badge badge-info badge-pill">{{ event.remaining_seats }}
                 </span> places disponibles
+            {% endif %}
+            {% if request.user in event.registered.all or request.user in event.presents.all %}
+              <span class="badge badge-success badge-pill">Inscrit</span>
             {% endif %}
           </h6>
 
