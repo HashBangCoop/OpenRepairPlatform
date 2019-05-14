@@ -29,6 +29,34 @@ def test_organization_detail(client, organization):
     assert response.status_code == 200
 
 
+def test_organization_detail_admin(client, user_log, organization,
+                                   event_factory, published_event_factory):
+    unpublished_event = event_factory(organization=organization)
+    published_event = published_event_factory(organization=organization)
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.get(
+        reverse(
+            "user:organization_detail",
+            kwargs={"pk": organization.pk, "slug": organization.slug},
+        )
+    )
+    html = response.content.decode()
+    assert html.count("Organisé par") == 1
+    assert published_event.get_absolute_url() in html
+    assert unpublished_event.get_absolute_url() not in html
+    organization.admins.add(user_log)
+    response = client.get(
+        reverse(
+            "user:organization_detail",
+            kwargs={"pk": organization.pk, "slug": organization.slug},
+        )
+    )
+    html = response.content.decode()
+    assert html.count("Organisé par") == 2
+    assert published_event.get_absolute_url() in html
+    assert unpublished_event.get_absolute_url() in html
+
+
 def test_organization_create(client_log, organization):
     assert Organization.objects.count() == 1
     image_file = File(open(join(FILES_DIR, "test.png"), "rb"))
