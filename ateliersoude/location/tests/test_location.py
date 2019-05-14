@@ -44,6 +44,7 @@ def test_location_api_list(client, place_factory):
         "orga_url",
         "orga_name",
         "name",
+        "description",
         "address",
         "latitude",
         "longitude",
