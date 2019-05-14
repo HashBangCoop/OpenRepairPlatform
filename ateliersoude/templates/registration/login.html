@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 
-{% load static %}
 {% load bootstrap4 %}
 
 {% block content %}
+  {% include "breadcrumb.html" with current="Connexion" %}
+
 <div class="jumbotron jumbotron-fluid">
   <div class="container">
     <h1>Se connecter</h1>

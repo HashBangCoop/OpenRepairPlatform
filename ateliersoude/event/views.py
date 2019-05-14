@@ -22,7 +22,7 @@ from ateliersoude.event.forms import (
     ConditionForm,
     EventSearchForm,
 )
-from ateliersoude.event.mixins import PermissionVolunteerOrganizationMixin
+from ateliersoude.event.mixins import PermissionAdminOrganizationMixin
 from ateliersoude.event.models import Activity, Condition, Event
 from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.mixins import RedirectQueryParamView
@@ -32,7 +32,7 @@ from ateliersoude.user.models import CustomUser
 logger = logging.getLogger(__name__)
 
 
-class ConditionFormView(PermissionVolunteerOrganizationMixin):
+class ConditionFormView(PermissionAdminOrganizationMixin):
     model = Condition
     form_class = ConditionForm
     template_name = "event/condition/form.html"
@@ -45,6 +45,11 @@ class ConditionFormView(PermissionVolunteerOrganizationMixin):
     def get_success_url(self):
         orga = self.object.organization
         return reverse("user:organization_detail", args=[orga.pk, orga.slug])
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["organization"] = self.organization
+        return ctx
 
 
 class ConditionCreateView(
@@ -84,7 +89,7 @@ class ActivityListView(ListView):
     template_name = "event/activity/list.html"
 
 
-class ActivityFormView(PermissionVolunteerOrganizationMixin):
+class ActivityFormView(PermissionAdminOrganizationMixin):
     model = Activity
     form_class = ActivityForm
     template_name = "event/activity/form.html"
@@ -159,7 +164,7 @@ class EventListView(ListView):
         return queryset
 
 
-class EventFormView(PermissionVolunteerOrganizationMixin):
+class EventFormView(PermissionAdminOrganizationMixin):
     model = Event
     form_class = EventForm
 

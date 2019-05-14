@@ -15,7 +15,6 @@ ALLOWED_HOSTS = []
 SITE_ID = 1
 
 INSTALLED_APPS = [
-    "ateliersoude.api",
     "ateliersoude.event",
     "ateliersoude.user",
     "ateliersoude.location",

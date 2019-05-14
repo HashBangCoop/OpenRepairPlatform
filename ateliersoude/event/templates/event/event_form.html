@@ -9,6 +9,13 @@
 {% endblock %}
 
 {% block content %}
+  {% url "event:list" as event_list_url %}
+  {% if event %}
+    {% url "event:detail" event.pk event.slug as event_detail_url %}
+    {% include "breadcrumb.html" with current="Mise à jour" second_parent_url=event_list_url second_parent_text="Évènements" first_parent_url=event_detail_url first_parent_text=event %}
+  {% else %}
+    {% include "breadcrumb.html" with current="Création" first_parent_url=event_list_url first_parent_text="Évènements" %}
+  {% endif %}
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <h1 class="display-4">

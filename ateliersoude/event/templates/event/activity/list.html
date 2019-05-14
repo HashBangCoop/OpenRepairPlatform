@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  {% include "breadcrumb.html" with current="Activités" %}
   <section class="container pt-3">
     {% include "event/activity/cards.html" with activities=activity_list.all %}
   </section>

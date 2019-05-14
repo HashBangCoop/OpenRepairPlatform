@@ -282,26 +282,11 @@ h1, h2, h3 {
 * breadcrumb (chemin navigation)*
 *********************************/
 .breadcrumb{
-  font-size: 12px;
-  line-height: 20px;
-  padding-left: 10px !important;
-  margin-bottom: 0px !important;
+  font-size: .8em;
+  margin-bottom: 0;
+  border-width: 0;
+  background-color: white;
 }
-.breadcrumb{
-  border-style: none !important;
-  border-width: 0px !important;
-  background-color: #fff !important;
-}
-
-.breadcrumb a{
-  color: #083342;
-}
-
-.breadcrumb .breadcrumb-item:not(:first-child)::before{
-  content:"\f04b" !important;
-  font-size: 8px;
-}
-
 
 /* map */
 .easy-map-googlemap{

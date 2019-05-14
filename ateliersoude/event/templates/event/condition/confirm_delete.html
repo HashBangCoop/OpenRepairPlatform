@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  {% url "user:organization_detail" condition.organization.pk condition.organization.slug  as organization_url %}
+  {% include "breadcrumb.html" with current=condition.name|add:" - Suppression" first_parent_url=organization_url first_parent_text=condition.organization %}
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <h1 class="display-4">

@@ -9,6 +9,13 @@
 {% endblock %}
 
 {% block content %}
+  {% url "location:list" as location_list_url %}
+  {% if place %}
+    {% url "location:detail" place.pk place.slug as location_detail_url %}
+    {% include "breadcrumb.html" with current="Mise à jour" second_parent_url=location_list_url second_parent_text="Lieux" first_parent_url=location_detail_url first_parent_text=place %}
+  {% else %}
+    {% include "breadcrumb.html" with current="Création" first_parent_url=location_list_url first_parent_text="Lieux" %}
+  {% endif %}
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <h1 class="display-4">
