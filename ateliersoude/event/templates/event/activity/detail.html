@@ -24,7 +24,7 @@
         <img class="img-responsive w-100" src="{{ activity.picture.url }}" alt="image activité">
       {% endif %}
       <div class="card-body">
-        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">
+        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom">
           {{ activity.name }} -
           <i class="fa fa-users"></i>
           <a href="{% url 'user:organization_detail' activity.organization.pk activity.organization.slug %}">
@@ -37,7 +37,7 @@
 
     <div class="card">
       <div class="card-body">
-        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">Prochaines planifications de cette activité</h5>
+        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom">Prochaines planifications de cette activité</h5>
         <ul>
           {% for event in activity.next_events %}
             <li><a href="{% url 'event:detail' event.pk event.slug %}">{{ event }}</a></li>
