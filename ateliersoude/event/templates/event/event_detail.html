@@ -71,7 +71,7 @@
         </div>
 
         <div class="card-body col-lg-6 p-0">
-          <div style="height:100%;" id="event_map"></div>
+          <div style="height:100%; min-height: 250px" id="event_map"></div>
         </div>
       </div>
 
@@ -97,49 +97,74 @@
   </section>
 
   <section class="container">
-    <div class="card">
-      <div class="card-body">
-        {% if event.has_started %}
-          <a href="#" class="btn btn-success btn-sm" onclick="alert('not implemented')"><i class="fa fa-plus"></i> Un membre est présent</a>
-        {% endif %}
-        {% if not event.has_ended %}
-          <a href="#" class="btn btn-success btn-sm" onclick="alert('not implemented')"><i class="fa fa-plus"></i> Inscrire un membre</a>
-        {% endif %}
-        <br>
+    <h5 class="mt-4">Animateur·trice·s</h5>
+    <hr>
 
-        <h5 class="mt-4">Animateur·trice·s</h5>
-        <ul>
-          {% for user in event.organizers.all %}
-            <li>{{ user }}</li>
-          {% endfor %}
-        </ul>
-
-        <hr>
-
-        <h5>Participant·e·s</h5>
-        {# TODO: display only if request.user > volunteer #}
-        <ul>
-          {% for user in event.registered.all %}
-            <li class="m-2">
-              {{ user }}
-              {% if event.has_started %}
-                {% tokenize user=user event=event action='present' as tok %}
-                <a href="{% url 'event:user_present' tok %}" class="btn btn-success btn-sm"><i class="fa fa-plus"></i> Ce membre est présent</a>
-              {% endif %}
-              {% tokenize user=user event=event action='cancel' as tok %}
-              <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-danger btn-sm"><i class="fa fa-minus"></i> Désinscrire ce membre</a>
-            </li>
-          {% endfor %}
-          {% for user in event.presents.all %}
-            <li class="m-2">
-              {{ user }}
-              {% tokenize user=user event=event action='absent' as tok %}
-              <a href="{% url 'event:user_absent' tok %}" class="btn btn-danger btn-sm"><i class="fa fa-minus"></i> Ce membre est absent</a>
-            </li>
-          {% endfor %}
-        </ul>
+    <div class="row">
+    {% for user in event.organizers.all %}
+      <div class="card col-3 p-0">
+        <a href="{% url "user:user_detail" user.pk %}" class="card-link">
+          <div class="card-body text-center p-4">
+            <i class="fa fa-user fa-4x"></i><br>
+            {{ user }}
+          </div>
+        </a>
       </div>
+    {% endfor %}
     </div>
+
+    <h5>Participant·e·s</h5>
+    <hr>
+    {# TODO: display only if request.user > volunteer #}
+
+    {% if event.has_started %}
+      <a href="#" class="btn btn-success btn-sm" onclick="alert('not implemented')"><i class="fa fa-plus"></i> Un membre est présent</a>
+    {% endif %}
+    {% if not event.has_ended %}
+      <a href="#" class="btn btn-success btn-sm" onclick="alert('not implemented')"><i class="fa fa-plus"></i> Inscrire un membre</a>
+    {% endif %}
+
+    <div class="row">
+      {% for user in event.registered.all %}
+        <div class="card col-3 p-0">
+          <div class="card-body text-center p-4">
+            <a href="{% url "user:user_detail" user.pk %}" class="card-link">
+              <i class="fa fa-user fa-4x"></i><br>
+              {{ user }}<br>
+            </a>
+            {% if event.has_started %}
+              {% tokenize user=user event=event action='present' as tok %}
+              <a href="{% url 'event:user_present' tok %}" class="btn btn-success btn-sm">
+                <i class="fa fa-plus"></i>
+                Présent
+              </a>
+            {% endif %}
+            {% tokenize user=user event=event action='cancel' as tok %}
+            <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-danger btn-sm">
+              <i class="fa fa-minus"></i>
+              Désinscrire
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+
+      {% for user in event.presents.all %}
+        <div class="card col-3 p-0">
+          <div class="card-body text-center p-4">
+            <a href="{% url "user:user_detail" user.pk %}" class="card-link">
+              <i class="fa fa-user fa-4x"></i><br>
+              {{ user }}<br>
+            </a>
+            {% tokenize user=user event=event action='absent' as tok %}
+            <a href="{% url 'event:user_absent' tok %}" class="btn btn-danger btn-sm">
+              <i class="fa fa-minus"></i>
+              Absent
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
   </section>
 
 {% endblock %}
