@@ -21,7 +21,7 @@ class PermissionOrganizationMixin:
         self.organization = orga
         if user not in self.get_authorized_users():
             raise PermissionDenied(
-                "Vous n'avez pas les droits pour gérer cette association"
+                "Vous n'avez pas les droits pour gérer cette organisation"
             )
 
 
