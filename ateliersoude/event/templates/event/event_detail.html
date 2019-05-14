@@ -47,9 +47,8 @@
             {{ event.activity.description }}
           </p>
           <p>
-            <i class="fa fa-calendar-alt"></i> Début le <i>{{ event.starts_at|date:"l d M à H\hi" }}</i>
-            <br>
-            <i class="fa fa-calendar-times"></i> Fin le <i>{{ event.ends_at|date:"l d M à H\hi" }}</i>
+            <i class="fa fa-calendar-alt"></i> 
+            Début le {{ event.date_interval_format }} 
           </p>
 
           <hr>

@@ -12,6 +12,7 @@ cffi==1.12.2              # via cairocffi, weasyprint
 coverage==4.5.3           # via pytest-cov
 cssmin==0.2.0
 cssselect2==0.2.1         # via cairosvg, weasyprint
+datedelta==1.2
 defusedxml==0.5.0         # via cairosvg
 diff-cover==2.0.0
 django-assets==0.12

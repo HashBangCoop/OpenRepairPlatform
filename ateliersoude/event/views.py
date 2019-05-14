@@ -210,6 +210,19 @@ class RecurrentEventCreateView(PermissionOrganizationMixin, FormView):
     success_url = reverse_lazy("event:list")
     template_name = "event/recurrent_event_form.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"orga": self.organization})
+        return kwargs
+
+    def form_valid(self, form):
+        res = super().form_valid(form)
+        count = form.save()
+        messages.success(
+            self.request, f"Vous avez créé {count} événements récurrents"
+        )
+        return res
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["orga"] = self.organization

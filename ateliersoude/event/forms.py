@@ -1,3 +1,6 @@
+from datetime import timedelta, date as dt
+from dateutil import rrule, relativedelta
+
 from django import forms
 from django.forms import ModelForm
 
@@ -28,7 +31,6 @@ class EventForm(ModelForm):
 
     class Meta:
         model = Event
-
         fields = [
             "activity",
             "location",
@@ -42,29 +44,14 @@ class EventForm(ModelForm):
 
 
 class RecurrentEventForm(forms.ModelForm):
-    starts_at = forms.TimeField()
-    ends_at = forms.TimeField()
     recurrent_type = forms.ChoiceField(
-        choices=[("week", "Par semaine"), ("month", "Par mois")],
+        choices=[("WEEKLY", "Par semaine"), ("MONTHLY", "Par mois")],
         label="Type de récurrence",
-    )
-    publish_date = forms.ChoiceField(
-        choices=[
-            ("1d", "1 jour avant"),
-            ("2d", "2 jours avant"),
-            ("1w", "Une semaine avant"),
-            ("2w", "Deux semaine avant"),
-        ],
-        label="Publication",
     )
     days = forms.MultipleChoiceField(
         choices=Event.DAYS,
         widget=forms.CheckboxSelectMultiple(),
         label="Jour(s) de récurrence",
-    )
-    hour = forms.TimeField(
-        widget=forms.TimeInput(attrs={"type": "time"}),
-        label="Heure de récurrence",
     )
     weeks = forms.MultipleChoiceField(
         choices=Event.WEEKS,
@@ -72,32 +59,121 @@ class RecurrentEventForm(forms.ModelForm):
         label="La ou les semaines de récurrence",
         required=False,
     )
+    starts_at = forms.TimeField(
+        label="De", widget=forms.TimeInput(attrs={"type": "time"})
+    )
+    ends_at = forms.TimeField(
+        label="À", widget=forms.TimeInput(attrs={"type": "time"})
+    )
+    date = forms.DateField(
+        initial=dt.today(),
+        widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+        label="La date de début de la récurrence",
+    )
     end_date = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
         label="La date de fin de la récurrence",
     )
+    publish_date = forms.ChoiceField(
+        choices=[
+            (1, "1 jour avant"),
+            (2, "2 jours avant"),
+            (7, "Une semaine avant"),
+            (14, "Deux semaine avant"),
+        ],
+        label="Publication",
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.orga = kwargs.pop("orga")
+        super().__init__(*args, **kwargs)
+        self.fields["organizers"] = forms.ModelMultipleChoiceField(
+            queryset=(
+                self.orga.volunteers.all() | self.orga.admins.all()
+            ).distinct(),
+            widget=forms.CheckboxSelectMultiple,
+            required=False,
+        )
+        self.fields["conditions"] = forms.ModelMultipleChoiceField(
+            queryset=self.orga.conditions,
+            widget=forms.CheckboxSelectMultiple,
+            required=False,
+        )
 
     def clean_weeks(self):
         recurrent_type = self.cleaned_data["recurrent_type"]
         error_message = (
             "Vous devez renseigner au moins une semaine de récurrence."
         )
-        if recurrent_type == "month":
+        if recurrent_type == "MONTHLY":
             if not self.cleaned_data["weeks"]:
                 self.add_error("weeks", error_message)
+        return self.cleaned_data["weeks"]
 
-    # def save(self, commit=False):
+    def manage_recurrence(self, dates):
+        objects = []
+        for date in dates:
+            params = {
+                "date": date.date(),
+                "starts_at": self.cleaned_data["starts_at"],
+                "ends_at": self.cleaned_data["ends_at"],
+                "organization": self.orga,
+                "location": self.cleaned_data["location"],
+                "publish_at": (
+                    date
+                    - timedelta(days=int(self.cleaned_data["publish_date"]))
+                ),
+                "activity": self.cleaned_data["activity"],
+                "available_seats": self.cleaned_data["available_seats"],
+            }
+            event = Event.objects.create(**params)
+            event.organizers.add(*list(self.cleaned_data["organizers"]))
+            event.conditions.add(*list(self.cleaned_data["conditions"]))
+            objects.append(event)
+        return objects
+
+    def get_rule_list(self):
+        if self.cleaned_data["weeks"]:
+            weekdays = [
+                getattr(relativedelta, day)(int(week))
+                for week in self.cleaned_data["weeks"]
+                for day in self.cleaned_data["days"]
+            ]
+        else:
+            weekdays = [
+                getattr(rrule, day) for day in self.cleaned_data["days"]
+            ]
+        rule = list(
+            rrule.rrule(
+                getattr(rrule, self.cleaned_data["recurrent_type"]),
+                byweekday=weekdays,
+                dtstart=self.cleaned_data["date"],
+                until=self.cleaned_data["end_date"],
+            )
+        )
+        return rule
+
+    def save(self, commit=False):
+        dates = self.get_rule_list()
+        objects = self.manage_recurrence(dates)
+        return len(objects)
 
     class Meta:
         model = Event
-        exclude = [
-            "created_at",
-            "updated_at",
-            "slug",
-            "owner",
-            "registered",
-            "presents",
-            "organization",
+        fields = [
+            "activity",
+            "available_seats",
+            "organizers",
+            "conditions",
+            "location",
+            "recurrent_type",
+            "date",
+            "days",
+            "weeks",
+            "starts_at",
+            "ends_at",
+            "end_date",
+            "publish_date",
         ]
 
 
