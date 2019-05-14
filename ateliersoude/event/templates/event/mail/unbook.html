@@ -6,7 +6,9 @@
 </p>
 
 <p>
+  {% if book_url %}
   Pour vous réinscrire, veuillez suivre ce lien : {{ book_url }}. <br>
+  {% endif %}
   L'évènement en question est accessible ici :
   <a href="{{ event_url }}">
     {{ event_url }}

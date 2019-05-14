@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.core import signing
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -222,6 +223,7 @@ class PresentView(RedirectView):
             )
             return reverse("event:list")
 
+        event.registered.remove(user)
         event.presents.add(user)
 
         next_url = self.request.GET.get("redirect")
@@ -264,12 +266,17 @@ class CancelReservationView(RedirectView):
 
         event.registered.remove(user)
 
-        book_token = tokenize(user, event, "book")
-        book_url = reverse("event:book", args=[book_token])
-        book_url = self.request.build_absolute_uri(book_url)
-
         event_url = reverse("event:detail", args=[event.id, event.slug])
         event_url = self.request.build_absolute_uri(event_url)
+
+        if user.password == "":
+            # This is a temporary user created only for this event, we can
+            # delete it
+            user.delete()
+        else:
+            book_token = tokenize(user, event, "book")
+            book_url = reverse("event:book", args=[book_token])
+            book_url = self.request.build_absolute_uri(book_url)
 
         msg_plain = render_to_string("event/mail/unbook.txt", context=locals())
         msg_html = render_to_string("event/mail/unbook.html", context=locals())
@@ -342,4 +349,23 @@ class BookView(RedirectView):
         next_url = self.request.GET.get("redirect")
         if utils.is_valid_path(next_url):
             return next_url
+        return reverse("event:detail", args=[event.id, event.slug])
+
+
+class CloseEventView(RedirectView):
+    http_method_names = ["post"]
+
+    def get_redirect_url(self, *args, **kwargs):
+        event_pk = kwargs["pk"]
+        event = get_object_or_404(Event, pk=event_pk)
+        for temp_user in event.registered.filter(password=""):
+            temp_user.delete()
+        for present in event.presents.all():
+            if present.password == "":
+                event.organization.visitors.add(present)
+            else:
+                event.organization.members.add(present)
+
+        messages.success(self.request, "L'évènement a été clôturé avec succès")
+
         return reverse("event:detail", args=[event.id, event.slug])

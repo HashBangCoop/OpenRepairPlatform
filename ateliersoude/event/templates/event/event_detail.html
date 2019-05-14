@@ -19,10 +19,17 @@
           {{ event.organization.name }}
         </a>
       </p>
-      <p class="lead">
+      <div class="lead">
         <a href="{% url 'event:edit' event.pk event.organization.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
         <a href="{% url 'event:delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
-      </p>
+        <form action="{% url 'event:close' event.pk %}" method="post" class="d-inline">
+          {% csrf_token %}
+          <button class="btn btn-sm btn-info" type="submit" onclick="return confirm('Êtes-vous sûrs de vouloir clôturer l\'évènement?')">
+            <i class="fa fa-calendar-check"></i>
+            Clôturer
+          </button>
+        </form>
+      </div>
     </div>
   </div>
   <section class="container">

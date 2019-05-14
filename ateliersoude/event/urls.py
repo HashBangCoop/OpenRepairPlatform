@@ -55,6 +55,7 @@ urlpatterns = [
         name="edit",
     ),
     path("<int:pk>/delete/", views.EventDeleteView.as_view(), name="delete"),
+    path("<int:pk>/close/", views.CloseEventView.as_view(), name="close"),
     path("<int:pk>/<slug>/", views.EventView.as_view(), name="detail"),
     path(
         "cancel_reservation/<token>/",
