@@ -1,6 +1,9 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.views.generic import (
     CreateView,
     DetailView,
@@ -89,12 +92,20 @@ class OrganizationDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["events"] = get_future_published_events(self.object.events)
-        context["admin"] = (
+        is_admin = (
             self.request.user.is_authenticated
             and self.request.user in self.object.admins.all()
             or self.request.user in self.object.volunteers.all()
         )
+        context["admin"] = is_admin
+        if is_admin:
+            context["events"] = (
+                self.object.events
+                    .filter(ends_at__gte=timezone.now() - timedelta(weeks=1))
+                    .order_by("starts_at")
+            )
+        else:
+            context["events"] = get_future_published_events(self.object.events)
         context["register_form"] = CustomUserEmailForm
         context["add_admin_form"] = CustomUserEmailForm(auto_id="id_admin_%s")
         context["add_volunteer_form"] = CustomUserEmailForm(

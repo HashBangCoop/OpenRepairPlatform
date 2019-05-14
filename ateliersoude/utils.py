@@ -23,6 +23,7 @@ def get_future_published_events(events_objects):
         events_objects.filter(published=True)
         .filter(publish_at__lte=timezone.now())
         .filter(ends_at__gte=timezone.now())
+        .order_by("starts_at")
     )
 
 
