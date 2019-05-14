@@ -11,6 +11,8 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
+from ateliersoude.utils import validate_image
+
 logger = logging.getLogger(__name__)
 
 
@@ -110,8 +112,7 @@ class Organization(models.Model):
     picture = models.ImageField(
         verbose_name=_("Image"),
         upload_to="organizations/",
-        null=True,
-        blank=True,
+        validators=[validate_image],
     )
     slug = models.SlugField(default="")
     visitors = models.ManyToManyField(

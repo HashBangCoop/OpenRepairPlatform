@@ -33,9 +33,10 @@
           </a>
           {% include "event/register.html" with event=event %}
         </p>
-        <footer class="blockquote-footer">
-          Organisé par '{{ event.organization }}' à '{{ event.location.name }}'
-        </footer>
+      <footer class="text-muted">
+        <img src="{{ event.organization.picture.url }}" alt="orga picture" class="img-fluid rounded-circle square-2">
+        Organisé par '{{ event.organization }}' à '{{ event.location.name }}'
+      </footer>
       </div>
     </div>
   </div>
