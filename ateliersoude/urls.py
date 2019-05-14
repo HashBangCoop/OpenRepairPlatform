@@ -19,7 +19,6 @@ urlpatterns = [
         "api/location/",
         include("ateliersoude.location.api_urls", namespace="api_location"),
     ),
-    path("api/", include("ateliersoude.api.urls")),
 ]
 
 if settings.DEBUG:

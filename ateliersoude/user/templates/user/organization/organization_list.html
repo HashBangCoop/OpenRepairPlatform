@@ -1,14 +1,7 @@
 {% extends 'base.html' %}
 
-{% load static %}
-
-{% block breadcrumbs %}
-  {% with type="organizations" view="organization_list" %}
-    {{ block.super }}
-  {% endwith %}
-{% endblock %}
-
 {% block content %}
+  {% include "breadcrumb.html" with current="Organisations" %}
 
   <div class="jumbotron jumbotron-fluid">
     <div class="container">

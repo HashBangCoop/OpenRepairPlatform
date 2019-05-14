@@ -58,11 +58,11 @@ class ConditionForm(ModelForm):
 
 
 class EventSearchForm(forms.Form):
-    starts_before = forms.DateField(
+    starts_after = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
         required=False,
     )
-    starts_after = forms.DateField(
+    starts_before = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
         required=False,
     )

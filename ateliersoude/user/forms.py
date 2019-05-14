@@ -48,6 +48,10 @@ class CustomUserEmailForm(forms.ModelForm):
 
 
 class OrganizationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["picture"].widget.attrs.update({"class": "form-control"})
+
     class Meta:
         model = Organization
         exclude = ["visitors", "members", "volunteers", "admins", "slug"]

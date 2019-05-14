@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
-{% load static bootstrap4 %}
+{% load bootstrap4 %}
 
 {% block content %}
+  {% include "breadcrumb.html" with current="Évènements" %}
+
   <section class="container">
     <div class="card">
       <div class="card-body">

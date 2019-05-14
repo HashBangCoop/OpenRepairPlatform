@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  {% url "event:activity_list" as activity_list_url %}
+  {% url "event:activity_detail" activity.pk activity.slug as activity_detail_url %}
+  {% include "breadcrumb.html" with current="Suppression" second_parent_url=activity_list_url second_parent_text="Activités" first_parent_url=activity_detail_url first_parent_text=activity %}
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <h1 class="display-4">

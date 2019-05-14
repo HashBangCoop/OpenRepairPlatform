@@ -99,6 +99,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return reverse("user:user_detail", kwargs={"pk": self.pk})
 
     def __str__(self):
+        if self.first_name:
+            return f"{self.first_name} {self.last_name}"
         return self.email
 
 
