@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
+{% load bootstrap4 assets %}
 
-{% load static %}
-{% load bootstrap4 %}
-
+{% block extra_css %}
+  {% assets "css_autocomplete" %}
+    <link type="text/css" href="{{ ASSET_URL }}" rel="stylesheet"/>
+  {% endassets %}
+{% endblock %}
 
 {% block content %}
   <div class="container">
@@ -19,4 +22,10 @@
       </form>
     </div>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+  {% assets "js_create_edit_user" %}
+    <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
 {% endblock %}
