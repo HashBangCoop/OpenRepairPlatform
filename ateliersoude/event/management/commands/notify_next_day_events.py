@@ -28,9 +28,9 @@ class Command(BaseCommand):
         events_next_day = (
             Event.objects.filter(published=True)
             .filter(publish_at__lte=now)
-            .filter(ends_at__gte=now)
-            .filter(starts_at__lte=tomorrow_23h59)
-            .filter(starts_at__gte=tomorrow_00h00)
+            .filter(date__gte=now.date(), ends_at__gte=now.time())
+            .filter(starts_at__lte=tomorrow_23h59.time())
+            .filter(starts_at__gte=tomorrow_00h00.time())
         )
         for event in events_next_day:
             for user in event.registered.all():

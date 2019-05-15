@@ -10,8 +10,12 @@ from ateliersoude.user.models import Organization
 
 
 class EventForm(ModelForm):
-    starts_at = forms.DateTimeField()
-    ends_at = forms.DateTimeField()
+    date = forms.DateField(
+        initial=dt.today(),
+        widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+    )
+    starts_at = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time"}))
+    ends_at = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time"}))
 
     def __init__(self, *args, **kwargs):
         self.orga = kwargs.pop("orga")
@@ -45,18 +49,17 @@ class EventForm(ModelForm):
 
 class RecurrentEventForm(forms.ModelForm):
     recurrent_type = forms.ChoiceField(
-        choices=[("WEEKLY", "Par semaine"), ("MONTHLY", "Par mois")],
-        label="Type de récurrence",
+        choices=[("WEEKLY", "semaine"), ("MONTHLY", "mois")], label="Par"
     )
     days = forms.MultipleChoiceField(
         choices=Event.DAYS,
         widget=forms.CheckboxSelectMultiple(),
-        label="Jour(s) de récurrence",
+        label="Jour(s)",
     )
     weeks = forms.MultipleChoiceField(
         choices=Event.WEEKS,
         widget=forms.CheckboxSelectMultiple(attrs={"class": "for-month"}),
-        label="La ou les semaines de récurrence",
+        label="La ou les semaines",
         required=False,
     )
     starts_at = forms.TimeField(
@@ -68,11 +71,11 @@ class RecurrentEventForm(forms.ModelForm):
     date = forms.DateField(
         initial=dt.today(),
         widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
-        label="La date de début de la récurrence",
+        label="La date de début",
     )
     end_date = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
-        label="La date de fin de la récurrence",
+        label="La date de fin",
     )
     publish_date = forms.ChoiceField(
         choices=[
@@ -108,6 +111,7 @@ class RecurrentEventForm(forms.ModelForm):
         if recurrent_type == "MONTHLY":
             if not self.cleaned_data["weeks"]:
                 self.add_error("weeks", error_message)
+                raise forms.ValidationError(error_message)
         return self.cleaned_data["weeks"]
 
     def manage_recurrence(self, dates):

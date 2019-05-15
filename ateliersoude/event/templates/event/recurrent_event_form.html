@@ -37,11 +37,11 @@ var weeks = document.querySelectorAll('.for-month')
 function checkRecurrentType () {
   if (recurrentType.value == 'MONTHLY') {
     weeks.forEach(function(elm){
-      elm.classList.add("show")
+      elm.disabled = false
     })
   } else {
     weeks.forEach(function(elm){
-      elm.classList.remove("show")
+      elm.disabled = true
     })
   }
 }

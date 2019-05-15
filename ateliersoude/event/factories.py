@@ -37,13 +37,10 @@ class EventFactory(DjangoModelFactory):
     location = factory.SubFactory(PlaceFactory)
     activity = factory.SubFactory(ActivityFactory)
     available_seats = random.randrange(100, 1000)
-    starts_at = faker.date_time_between_dates(
-        datetime_start=None, datetime_end=None
-    )
-    ends_at = faker.date_time_between_dates(
-        datetime_start=None, datetime_end=None
-    )
-    published = True
+    date = faker.date_this_year(before_today=False, after_today=True)
+    starts_at = faker.time(pattern="%H:%M", end_datetime=None)
+    ends_at = faker.time(pattern="%H:%M", end_datetime=None)
+    published = False
     publish_at = faker.date_time_between_dates(
         datetime_start=None, datetime_end=None
     )
@@ -57,10 +54,9 @@ def _in_hours(nb_hours):
 
 
 class PublishedEventFactory(EventFactory):
+    date = faker.date_this_year(before_today=False, after_today=True)
     published = True
     publish_at = faker.date_time_between_dates(
         datetime_start=_in_hours(-5), datetime_end=_in_hours(-2)
     )
-    ends_at = faker.date_time_between_dates(
-        datetime_start=_in_hours(6), datetime_end=_in_hours(10)
-    )
+    ends_at = datetime.time(hour=23, minute=59)

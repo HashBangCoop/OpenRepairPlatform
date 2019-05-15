@@ -23,7 +23,8 @@ def get_future_published_events(events_objects):
     return (
         events_objects.filter(published=True)
         .filter(publish_at__lte=timezone.now())
-        .exclude(date__lte=date.today(), ends_at__lte=timezone.now())
+        .exclude(date__lt=date.today())
+        .exclude(date=date.today(), ends_at__lte=timezone.now().time())
     )
 
 
