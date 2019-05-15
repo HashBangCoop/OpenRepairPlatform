@@ -30,44 +30,44 @@
       </ul>
     </div>
     <div class="navbar navbar-expand-lg d-flex justify-content-end">
-      {% if user.is_authenticated %}
+      {% if not user.is_authenticated %}
+
+        <div class="navbar-brand" >
+        <a class="nav-link mr-3" href="{% url "login" %}">
+          <i class="fa fa-user"></i>
+        </a>
+      </div>
+
+      {% else %}
 
       <div class="navbar-brand avatar">
         <a class="nav-link mr-3" href="{{ user.get_absolute_url }}"> {{ user.first_name }}
           <i class="fa fa-user"></i>
         </a>
       </div>
-      {% else %}
-      <div class="navbar-brand" >
-        <a class="nav-link mr-3" href="{% url "login" %}">
-          <i class="fa fa-user"></i>
-        </a>
-      </div>
-      {% endif %}
-      {% if user.is_authenticated %}
 
       <!-- Menu dropdown -->
-      {% if user.admin_organizations.all %}
       <div class="navbar-brand arrow-login">
         <a class="nav-link mr-3 dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <i class=""></i>
         </a>
         <div class="dropdown-menu " aria-labelledby="navbarDropdownMenuLink">
           <a class="dropdown-item" href="{{ user.get_absolute_url }}"> voir profil </a>
+          {% if user.admin_organizations.all %}
           <div class="dropdown-divider"></div>
           {% for organization in user.admin_organizations.all %}
-            {% if user in organization.admin_organizations.all %}
-              <a class="dropdown-item" href="{% url "user:organization_manager" organization.pk %}">
-                Gérer {{ organization.name }}
-              </a>
-            {% endif %}
+            <a class="dropdown-item" href="{% url "user:organization_detail" organization.pk organization.slug %}">
+              Gérer {{ organization.name }}
+            </a>
           {% endfor %}
+          {% endif %}
 
           <div class="dropdown-divider"></div>
-          <a class="nav-link" href="{% url 'logout' %}" title="Logout">Déconnexion</a>
+          <a class="nav-link dropdown-item" href="{% url 'logout' %}" title="Logout">
+            Déconnexion
+          </a>
         </div>
       </div>
-      {% endif %}
       {% endif %}
     </div>
   </nav>

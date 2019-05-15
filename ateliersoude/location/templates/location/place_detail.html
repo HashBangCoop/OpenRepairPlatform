@@ -32,7 +32,7 @@
         <img class="img-responsive w-100" src="{{ place.picture.url }}" alt="image_lieu">
       {% endif %}
       <div class="card-body">
-        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">
+        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom">
           {{ place.category }} -
           <small>
             <i class="fa fa-map-marker"></i>
@@ -45,7 +45,7 @@
 
     <div class="card">
       <div class="card-body">
-        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom border-gray clear">Prochains évènements en ce lieu</h5>
+        <h5 class="card-subtitle pb-3 mb-2 mt-2 text-muted border-bottom">Prochains évènements en ce lieu</h5>
         <ul>
           {% for event in place.future_published_events %}
             <li><a href="{% url 'event:detail' event.pk event.slug %}">{{ event }}</a></li>

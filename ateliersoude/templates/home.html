@@ -4,9 +4,6 @@
 
 <div class="secondary-background">
 
-    <!-- Change home when user is logged -->
-    <section class="col-lg">
-
     {% if user.is_authenticated %}
    
     {% else %}
@@ -54,7 +51,6 @@
 
     {% endif %}
 
-</section>
 
 </div>
 {% endblock %}
