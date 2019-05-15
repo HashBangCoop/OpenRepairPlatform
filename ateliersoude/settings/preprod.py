@@ -8,6 +8,7 @@ ALLOWED_HOSTS = ["ateliersoude.hashbang.fr"]
 
 INSTALLED_APPS += ["raven.contrib.django.raven_compat"]  # noqa
 
+STATICFILES_DIRS = []
 STATIC_ROOT = "/srv/app/ateliersoude/static/"
 MEDIA_ROOT = "/srv/app/ateliersoude/media/"
 ASSETS_ROOT = STATIC_ROOT

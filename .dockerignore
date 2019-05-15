@@ -1,0 +1,5 @@
+node_modules/
+tmp/
+media/
+.pytest_cache
+ateliersoude.egg-info
