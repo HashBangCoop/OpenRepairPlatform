@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from ateliersoude.event.models import Event
 from ateliersoude.user.factories import USER_PASSWORD
+from ateliersoude.user.models import CustomUser
 
 pytestmark = pytest.mark.django_db
 
@@ -130,8 +131,7 @@ def test_event_list_filter_start_time(client, published_event_factory):
     assert event3.activity.description not in html
 
 
-def test_event_detail_context(client, event_factory):
-    event = event_factory()
+def test_event_detail_context(client, event):
     response = client.get(reverse("event:detail", args=[event.pk, event.slug]))
     assert response.status_code == 200
     assert isinstance(response.context_data["event"], Event)
@@ -139,8 +139,7 @@ def test_event_detail_context(client, event_factory):
     assert event.activity.name in str(response.context_data["event"])
 
 
-def test_get_event_delete(client, event_factory):
-    event = event_factory()
+def test_get_event_delete(client, event):
     response = client.get(reverse("event:delete", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 200
@@ -148,8 +147,7 @@ def test_get_event_delete(client, event_factory):
     assert event.organization.name in html
 
 
-def test_event_delete(client, event_factory):
-    event = event_factory()
+def test_event_delete(client, event):
     assert Event.objects.count() == 1
     response = client.post(reverse("event:delete", args=[event.pk]))
     assert Event.objects.count() == 0
@@ -212,10 +210,9 @@ def test_event_create_invalid(client, user_log, event_data):
     assert "Ce champ est obligatoire." in html
 
 
-def test_get_event_update(client, user_log, event_factory, organization):
+def test_get_event_update(client, user_log, event, organization):
     client.login(email=user_log.email, password=USER_PASSWORD)
     organization.admins.add(user_log)
-    event = event_factory()
     response = client.get(
         reverse("event:edit", args=[event.pk, organization.pk])
     )
@@ -225,11 +222,10 @@ def test_get_event_update(client, user_log, event_factory, organization):
     assert event.activity.name in html
 
 
-def test_event_update(client, user_log, event_factory, event_data):
+def test_event_update(client, user_log, event, event_data):
     organization = event_data.pop("organization")
     client.login(email=user_log.email, password=USER_PASSWORD)
     organization.admins.add(user_log)
-    event = event_factory()
     event_data["available_seats"] = 10
     response = client.post(
         reverse("event:edit", args=[event.pk, organization.pk]), event_data
@@ -268,14 +264,12 @@ def test_cancel_reservation_wrong_token(client):
     assert resp["Location"] == reverse("event:list")
 
 
-def test_cancel_reservation(client, event_factory, custom_user_factory):
-    user = custom_user_factory()
-    event = event_factory()
-    event.registered.add(user)
+def test_cancel_reservation(client, event, custom_user):
+    event.registered.add(custom_user)
     nb_registered = Event.objects.first().registered.count()
     assert nb_registered == 1
     token = signing.dumps(
-        {"user_id": user.id, "event_id": event.id}, salt="cancel"
+        {"user_id": custom_user.id, "event_id": event.id}, salt="cancel"
     )
     resp = client.get(reverse("event:cancel_reservation", args=[token]))
     assert resp.status_code == 302
@@ -286,14 +280,28 @@ def test_cancel_reservation(client, event_factory, custom_user_factory):
     assert nb_registered == 0
 
 
-def test_cancel_reservation_redirect(
-    client, event_factory, custom_user_factory
-):
-    user = custom_user_factory()
-    event = event_factory()
-    event.registered.add(user)
+def test_cancel_reservation_temp_user(client, event, custom_user):
+    custom_user.password = ""
+    custom_user.save()
+    event.registered.add(custom_user)
+    assert Event.objects.first().registered.count() == 1
+    assert CustomUser.objects.count() == 1
     token = signing.dumps(
-        {"user_id": user.id, "event_id": event.id}, salt="cancel"
+        {"user_id": custom_user.id, "event_id": event.id}, salt="cancel"
+    )
+    resp = client.get(reverse("event:cancel_reservation", args=[token]))
+    assert resp.status_code == 302
+    assert resp["Location"] == reverse(
+        "event:detail", args=[event.id, event.slug]
+    )
+    assert Event.objects.first().registered.count() == 0
+    assert CustomUser.objects.count() == 0
+
+
+def test_cancel_reservation_redirect(client, event, custom_user):
+    event.registered.add(custom_user)
+    token = signing.dumps(
+        {"user_id": custom_user.id, "event_id": event.id}, salt="cancel"
     )
     query_params = "?redirect=/location/"
     resp = client.get(
@@ -310,13 +318,11 @@ def test_book_wrong_token(client):
     assert resp["Location"] == reverse("event:list")
 
 
-def test_book(client, event_factory, custom_user_factory):
-    user = custom_user_factory()
-    event = event_factory()
+def test_book(client, event, custom_user):
     nb_registered = Event.objects.first().registered.count()
     assert nb_registered == 0
     token = signing.dumps(
-        {"user_id": user.id, "event_id": event.id}, salt="book"
+        {"user_id": custom_user.id, "event_id": event.id}, salt="book"
     )
     resp = client.get(reverse("event:book", args=[token]))
     assert resp.status_code == 302
@@ -327,11 +333,9 @@ def test_book(client, event_factory, custom_user_factory):
     assert nb_registered == 1
 
 
-def test_book_redirect(client, event_factory, custom_user_factory):
-    user = custom_user_factory()
-    event = event_factory()
+def test_book_redirect(client, event, custom_user):
     token = signing.dumps(
-        {"user_id": user.id, "event_id": event.id}, salt="book"
+        {"user_id": custom_user.id, "event_id": event.id}, salt="book"
     )
     query_params = "?redirect=/location/"
     resp = client.get(reverse("event:book", args=[token]) + query_params)
@@ -346,13 +350,11 @@ def test_user_present_wrong_token(client):
     assert resp["Location"] == reverse("event:list")
 
 
-def test_user_present(client, event_factory, custom_user_factory):
-    user = custom_user_factory()
-    event = event_factory()
+def test_user_present(client, event, custom_user):
     nb_presents = Event.objects.first().presents.count()
     assert nb_presents == 0
     token = signing.dumps(
-        {"user_id": user.id, "event_id": event.id}, salt="present"
+        {"user_id": custom_user.id, "event_id": event.id}, salt="present"
     )
     resp = client.get(reverse("event:user_present", args=[token]))
     assert resp.status_code == 302
@@ -363,11 +365,9 @@ def test_user_present(client, event_factory, custom_user_factory):
     assert nb_presents == 1
 
 
-def test_user_present_redirect(client, event_factory, custom_user_factory):
-    user = custom_user_factory()
-    event = event_factory()
+def test_user_present_redirect(client, event, custom_user):
     token = signing.dumps(
-        {"user_id": user.id, "event_id": event.id}, salt="present"
+        {"user_id": custom_user.id, "event_id": event.id}, salt="present"
     )
     query_params = "?redirect=/location/"
     resp = client.get(
@@ -384,14 +384,12 @@ def test_user_absent_wrong_token(client):
     assert resp["Location"] == reverse("event:list")
 
 
-def test_user_absent(client, event_factory, custom_user_factory):
-    user = custom_user_factory()
-    event = event_factory()
-    event.presents.add(user)
+def test_user_absent(client, event, custom_user):
+    event.presents.add(custom_user)
     nb_presents = Event.objects.first().presents.count()
     assert nb_presents == 1
     token = signing.dumps(
-        {"user_id": user.id, "event_id": event.id}, salt="absent"
+        {"user_id": custom_user.id, "event_id": event.id}, salt="absent"
     )
     resp = client.get(reverse("event:user_absent", args=[token]))
     assert resp.status_code == 302
@@ -402,11 +400,9 @@ def test_user_absent(client, event_factory, custom_user_factory):
     assert nb_presents == 0
 
 
-def test_user_absent_redirect(client, event_factory, custom_user_factory):
-    user = custom_user_factory()
-    event = event_factory()
+def test_user_absent_redirect(client, event, custom_user):
     token = signing.dumps(
-        {"user_id": user.id, "event_id": event.id}, salt="absent"
+        {"user_id": custom_user.id, "event_id": event.id}, salt="absent"
     )
     query_params = "?redirect=/location/"
     resp = client.get(
@@ -414,3 +410,29 @@ def test_user_absent_redirect(client, event_factory, custom_user_factory):
     )
     assert resp.status_code == 302
     assert resp["Location"] == reverse("location:list")
+
+
+def test_close_event(client, organization, event_factory, custom_user_factory):
+    event = event_factory(organization=organization)
+    member = custom_user_factory()
+    visitor_present = custom_user_factory()
+    visitor_absent = custom_user_factory()
+    visitor_present.password = ""
+    visitor_absent.password = ""
+    visitor_present.save()
+    visitor_absent.save()
+    event.registered.add(visitor_absent)
+    event.presents.add(visitor_present)
+    event.presents.add(member)
+    assert organization.members.count() == 0
+    assert organization.visitors.count() == 0
+    assert CustomUser.objects.count() == 3
+    resp = client.post(reverse("event:close", args=[event.pk]))
+    assert resp.status_code == 302
+    assert resp["Location"] == reverse(
+        "event:detail", args=[event.id, event.slug]
+    )
+    organization.refresh_from_db()
+    assert organization.members.count() == 1
+    assert organization.visitors.count() == 1
+    assert CustomUser.objects.count() == 2
