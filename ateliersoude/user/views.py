@@ -154,7 +154,9 @@ class AddUserToOrganization(PermissionAdminOrganizationMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         email = self.request.POST.get("email", "")
         user = (
-            CustomUser.objects.filter(email=email).exclude(password="").first()
+            CustomUser.objects.filter(email=email)
+            .exclude(first_name="")
+            .first()
         )
         redirect_url = reverse(
             "user:organization_detail",

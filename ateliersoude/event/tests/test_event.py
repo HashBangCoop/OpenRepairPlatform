@@ -290,7 +290,7 @@ def test_cancel_reservation(client, event, custom_user):
 
 
 def test_cancel_reservation_temp_user(client, event, custom_user):
-    custom_user.password = ""
+    custom_user.first_name = ""
     custom_user.save()
     event.registered.add(custom_user)
     assert Event.objects.first().registered.count() == 1
@@ -426,8 +426,8 @@ def test_close_event(client, organization, event_factory, custom_user_factory):
     member = custom_user_factory()
     visitor_present = custom_user_factory()
     visitor_absent = custom_user_factory()
-    visitor_present.password = ""
-    visitor_absent.password = ""
+    visitor_present.first_name = ""
+    visitor_absent.first_name = ""
     visitor_present.save()
     visitor_absent.save()
     event.registered.add(visitor_absent)
