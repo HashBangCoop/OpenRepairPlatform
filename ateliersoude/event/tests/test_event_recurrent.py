@@ -52,7 +52,7 @@ def event_recurrent_data(
             .date()
             .strftime("%Y-%m-%d")
         ),
-        "publish_date": 2,
+        "period_before_publish": 2,
     }
 
 

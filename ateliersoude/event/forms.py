@@ -77,7 +77,7 @@ class RecurrentEventForm(forms.ModelForm):
         widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
         label="La date de fin",
     )
-    publish_date = forms.ChoiceField(
+    period_before_publish = forms.ChoiceField(
         choices=[
             (1, "1 jour avant"),
             (2, "2 jours avant"),
@@ -125,7 +125,9 @@ class RecurrentEventForm(forms.ModelForm):
                 "location": self.cleaned_data["location"],
                 "publish_at": (
                     date
-                    - timedelta(days=int(self.cleaned_data["publish_date"]))
+                    - timedelta(
+                        days=int(self.cleaned_data["period_before_publish"])
+                    )
                 ),
                 "activity": self.cleaned_data["activity"],
                 "available_seats": self.cleaned_data["available_seats"],
@@ -151,7 +153,7 @@ class RecurrentEventForm(forms.ModelForm):
             rrule.rrule(
                 getattr(rrule, self.cleaned_data["recurrent_type"]),
                 byweekday=weekdays,
-                dtstart=self.cleaned_data["date"],
+                dtstart=max(self.cleaned_data["date"], dt.today()),
                 until=self.cleaned_data["end_date"],
             )
         )
@@ -177,7 +179,7 @@ class RecurrentEventForm(forms.ModelForm):
             "starts_at",
             "ends_at",
             "end_date",
-            "publish_date",
+            "period_before_publish",
         ]
 
 

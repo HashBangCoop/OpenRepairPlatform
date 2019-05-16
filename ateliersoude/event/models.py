@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from django.db import models
 from django.urls import reverse
@@ -99,9 +99,9 @@ class Event(models.Model):
     slug = models.SlugField(blank=True)
     date = models.DateField(verbose_name=_("Event day"), default=date.today)
     starts_at = models.TimeField(
-        verbose_name=_("Start date and time"), default=timezone.now
+        verbose_name=_("Start time"), default=timezone.now
     )
-    ends_at = models.TimeField(verbose_name=_("End date and time"))
+    ends_at = models.TimeField(verbose_name=_("End time"))
     available_seats = models.IntegerField(
         verbose_name=_("Available seats"), default=0
     )
@@ -150,11 +150,17 @@ class Event(models.Model):
 
     @property
     def has_ended(self):
-        return self.ends_at.hour + 4 < timezone.now().hour
+        ends = datetime.combine(
+            self.date, self.ends_at, tzinfo=timezone.now().tzinfo
+        ) + timedelta(hours=4)
+        return ends < timezone.now()
 
     @property
     def has_started(self):
-        return self.starts_at.hour - 2 < timezone.now().hour
+        starts = datetime.combine(
+            self.date, self.starts_at, tzinfo=timezone.now().tzinfo
+        ) - timedelta(hours=2)
+        return starts < timezone.now()
 
     @classmethod
     def future_published_events(cls):

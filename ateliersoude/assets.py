@@ -102,6 +102,12 @@ js_create_edit_event = Bundle(
     filters="jsmin",
     output="js/events/create_edit_event.min.js",
 )
+js_recurrent_event = Bundle(
+    "js/events/recurrent_event.js",
+    filters="jsmin",
+    output="js/events/recurrent_event.min.js",
+)
+
 
 register("css_ateliersoude", css_atelier_soude)
 register("css_places", css_places)
@@ -116,3 +122,4 @@ register("js_create_edit_user", js_create_edit_user)
 register("js_detail_place", js_detail_place)
 register("js_detail_event", js_detail_event)
 register("js_create_edit_event", js_create_edit_event)
+register("js_recurrent_event", js_recurrent_event)

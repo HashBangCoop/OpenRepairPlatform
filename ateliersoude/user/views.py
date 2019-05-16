@@ -101,7 +101,7 @@ class OrganizationDetailView(DetailView):
         if is_admin:
             context["events"] = self.object.events.filter(
                 date__gte=timezone.now() - timedelta(weeks=1)
-            ).order_by("starts_at")
+            ).order_by("date")
         else:
             context["events"] = get_future_published_events(self.object.events)
         context["register_form"] = CustomUserEmailForm
@@ -139,7 +139,7 @@ class OrganizationUpdateView(UpdateView):
         res = super().form_valid(form)
         # TODO : restriction user staff
         messages.success(
-            self.request, "L'organisation " "a bien été mise à jour."
+            self.request, "L'organisation a bien été mise à jour."
         )
         return res
 

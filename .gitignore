@@ -148,3 +148,6 @@ tmp
 *.min.js
 *.min.css
 ateliersoude/static/css
+
+# cpdb
+cpdb.sh
