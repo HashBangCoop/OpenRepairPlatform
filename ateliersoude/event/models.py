@@ -1,4 +1,4 @@
-import datetime
+from datetime import date, datetime, timedelta
 
 from django.db import models
 from django.urls import reverse
@@ -64,6 +64,22 @@ class Activity(models.Model):
 
 
 class Event(models.Model):
+    WEEKS = [
+        (1, "Semaine 1"),
+        (2, "Semaine 2"),
+        (3, "Semaine 3"),
+        (4, "Semaine 4"),
+    ]
+    DAYS = [
+        ("MO", "Lundi"),
+        ("TU", "Mardi"),
+        ("WE", "Mercredi"),
+        ("TH", "Jeudi"),
+        ("FR", "Vendredi"),
+        ("SA", "Samedi"),
+        ("SU", "Dimanche"),
+    ]
+
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="events"
     )
@@ -81,10 +97,11 @@ class Event(models.Model):
         Activity, on_delete=models.SET_NULL, null=True, related_name="events"
     )
     slug = models.SlugField(blank=True)
-    starts_at = models.DateTimeField(
-        verbose_name=_("Start date and time"), default=timezone.now
+    date = models.DateField(verbose_name=_("Event day"), default=date.today)
+    starts_at = models.TimeField(
+        verbose_name=_("Start time"), default=timezone.now
     )
-    ends_at = models.DateTimeField(verbose_name=_("End date and time"))
+    ends_at = models.TimeField(verbose_name=_("End time"))
     available_seats = models.IntegerField(
         verbose_name=_("Available seats"), default=0
     )
@@ -121,23 +138,29 @@ class Event(models.Model):
         return self.available_seats - self.registered.count()
 
     def date_interval_format(self):
-        starts_at_date = self.starts_at.date().strftime("%A %d %B")
-        starts_at_time = self.starts_at.time().strftime("%H:%M")
-        ends_at_time = self.ends_at.time().strftime("%H:%M")
+        date = self.date.strftime("%A %d %B")
+        starts_at_time = self.starts_at.strftime("%H:%M")
+        ends_at_time = self.ends_at.strftime("%H:%M")
 
         # ex Lundi 01 Janvier 2018 de 20:01:12 à 22:01:12
-        return f"{starts_at_date} de {starts_at_time} à {ends_at_time}"
+        return f"{date} de {starts_at_time} à {ends_at_time}"
 
     def get_absolute_url(self):
         return reverse("event:detail", args=(self.pk, self.slug))
 
     @property
     def has_ended(self):
-        return self.ends_at + datetime.timedelta(hours=4) < timezone.now()
+        ends = datetime.combine(
+            self.date, self.ends_at, tzinfo=timezone.now().tzinfo
+        ) + timedelta(hours=4)
+        return ends < timezone.now()
 
     @property
     def has_started(self):
-        return self.starts_at - datetime.timedelta(hours=2) < timezone.now()
+        starts = datetime.combine(
+            self.date, self.starts_at, tzinfo=timezone.now().tzinfo
+        ) - timedelta(hours=2)
+        return starts < timezone.now()
 
     @classmethod
     def future_published_events(cls):
@@ -146,6 +169,6 @@ class Event(models.Model):
     def __str__(self):
         full_title = "%s du %s" % (
             self.activity.name,
-            self.starts_at.date().strftime("%d %B"),
+            self.date.strftime("%d %B"),
         )
         return full_title

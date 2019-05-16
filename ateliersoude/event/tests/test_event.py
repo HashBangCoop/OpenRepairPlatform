@@ -34,10 +34,13 @@ def event_data(
         "published": False,
         "publish_at": _django_date(timezone.now()),
         "activity": activity.pk,
-        "starts_at": _django_date(
-            timezone.now() + datetime.timedelta(hours=4)
+        "starts_at": timezone.now().time().strftime("%H:%M"),
+        "ends_at": (
+            (timezone.now() + datetime.timedelta(hours=4))
+            .time()
+            .strftime("%H:%M")
         ),
-        "ends_at": _django_date(timezone.now() + datetime.timedelta(hours=7)),
+        "date": timezone.now().date().strftime("%Y-%m-%d"),
         "available_seats": 12,
         "registered": [user1.pk, user2.pk, user3.pk],
         "presents": [user1.pk, user2.pk],
@@ -115,18 +118,24 @@ def test_event_list_filter_activity(
 
 
 def test_event_list_filter_start_time(client, published_event_factory):
-    now = datetime.datetime.strptime("2019-05-03", "%Y-%m-%d")
+    now = timezone.now()
     old = now - datetime.timedelta(days=3)
     future = now + datetime.timedelta(days=3)
-    event1 = published_event_factory(starts_at=now)
-    event2 = published_event_factory(starts_at=old)
-    event3 = published_event_factory(starts_at=future)
+    starts_before = (
+        (now + datetime.timedelta(days=1)).date().strftime("%Y-%m-%d")
+    )
+    starts_after = (
+        (now - datetime.timedelta(days=1)).date().strftime("%Y-%m-%d")
+    )
+    event1 = published_event_factory(date=now.date())
+    event2 = published_event_factory(date=old.date())
+    event3 = published_event_factory(date=future.date())
     response = client.get(
-        reverse("event:list") + "?starts_before=2019-05-05"
-        "&starts_after=2019-05-01"
+        reverse("event:list") + f"?starts_before={starts_before}"
+        f"&starts_after={starts_after}"
     )
     html = response.content.decode()
-    assert event1.activity.description in html
+    assert event1 in response.context_data["object_list"]
     assert event2.activity.description not in html
     assert event3.activity.description not in html
 

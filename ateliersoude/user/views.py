@@ -99,11 +99,9 @@ class OrganizationDetailView(DetailView):
         )
         context["admin"] = is_admin
         if is_admin:
-            context["events"] = (
-                self.object.events
-                    .filter(ends_at__gte=timezone.now() - timedelta(weeks=1))
-                    .order_by("starts_at")
-            )
+            context["events"] = self.object.events.filter(
+                date__gte=timezone.now() - timedelta(weeks=1)
+            ).order_by("date")
         else:
             context["events"] = get_future_published_events(self.object.events)
         context["register_form"] = CustomUserEmailForm
@@ -140,8 +138,9 @@ class OrganizationUpdateView(UpdateView):
     def form_valid(self, form):
         res = super().form_valid(form)
         # TODO : restriction user staff
-        messages.success(self.request, "L'organisation "
-                                       "a bien été mise à jour.")
+        messages.success(
+            self.request, "L'organisation a bien été mise à jour."
+        )
         return res
 
 
@@ -181,7 +180,7 @@ class AddUserToOrganization(PermissionAdminOrganizationMixin, RedirectView):
             messages.warning(
                 self.request,
                 "Action impossible: l'utilisateur fait déjà partie des admins "
-                "de l'association"
+                "de l'association",
             )
             return redirect_url
 

@@ -14,6 +14,7 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
     RedirectView,
+    FormView,
 )
 
 from ateliersoude import utils
@@ -22,6 +23,7 @@ from ateliersoude.event.forms import (
     ActivityForm,
     ConditionForm,
     EventSearchForm,
+    RecurrentEventForm,
 )
 from ateliersoude.event.mixins import PermissionAdminOrganizationMixin
 from ateliersoude.event.models import Activity, Condition, Event
@@ -156,11 +158,11 @@ class EventListView(ListView):
             )
         if form.cleaned_data["starts_before"]:
             queryset = queryset.filter(
-                starts_at__lte=form.cleaned_data["starts_before"]
+                date__lte=form.cleaned_data["starts_before"]
             )
         if form.cleaned_data["starts_after"]:
             queryset = queryset.filter(
-                starts_at__gte=form.cleaned_data["starts_after"]
+                date__gte=form.cleaned_data["starts_after"]
             )
         return queryset
 
@@ -202,6 +204,30 @@ class EventDeleteView(RedirectQueryParamView, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(request, "L'évènement a bien été supprimé")
         return super().delete(request, *args, **kwargs)
+
+
+class RecurrentEventCreateView(PermissionAdminOrganizationMixin, FormView):
+    form_class = RecurrentEventForm
+    success_url = reverse_lazy("event:list")
+    template_name = "event/recurrent_event_form.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"orga": self.organization})
+        return kwargs
+
+    def form_valid(self, form):
+        res = super().form_valid(form)
+        count = form.save()
+        messages.success(
+            self.request, f"Vous avez créé {count} événements récurrents"
+        )
+        return res
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["orga"] = self.organization
+        return ctx
 
 
 def _load_token(token, salt):
@@ -281,7 +307,7 @@ class CancelReservationView(RedirectView):
         msg_plain = render_to_string("event/mail/unbook.txt", context=locals())
         msg_html = render_to_string("event/mail/unbook.html", context=locals())
 
-        date = event.starts_at.date().strftime("%d %B")
+        date = event.date.strftime("%d %B")
         subject = (
             f"Confirmation d'annulation pour le "
             f"{date} à {event.location.name}"
@@ -331,7 +357,7 @@ class BookView(RedirectView):
         msg_plain = render_to_string("event/mail/book.txt", context=locals())
         msg_html = render_to_string("event/mail/book.html", context=locals())
 
-        date = event.starts_at.date().strftime("%d %B")
+        date = event.date.strftime("%d %B")
         subject = f"Votre réservation du {date} à {event.location.name}"
 
         send_mail(
