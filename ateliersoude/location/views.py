@@ -12,9 +12,10 @@ from django.views.generic import (
 from ateliersoude.location.forms import PlaceForm
 from ateliersoude.location.models import Place
 from ateliersoude.mixins import RedirectQueryParamView
+from ateliersoude.user.mixins import IsAdminMixin
 
 
-class PlaceView(DetailView):
+class PlaceView(IsAdminMixin, DetailView):
     model = Place
 
 

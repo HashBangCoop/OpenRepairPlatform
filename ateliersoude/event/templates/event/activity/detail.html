@@ -6,6 +6,7 @@
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <h1 class="display-4">{{ activity.name|title }}</h1>
+      {% if is_admin %}
       <p class="lead">
         <a class="btn btn-primary" href="{% url 'event:activity_edit' activity.pk activity.organization.pk %}">
           <i class="fa fa-pencil-alt"></i>
@@ -16,6 +17,7 @@
           Supprimer
         </a>
       </p>
+      {% endif %}
     </div>
   </div>
   <section class="container">
