@@ -43,6 +43,6 @@ class PermissionMixin(PermissionRequiredMixin):
         return orga.admins.all()
 
     def has_permission(self):
-        if self.request.user not in self.get_organization():
+        if self.request.user not in self.get_organization_admins():
             return False
         return True

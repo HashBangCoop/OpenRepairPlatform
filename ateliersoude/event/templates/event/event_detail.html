@@ -21,7 +21,7 @@
       </p>
       <div class="lead">
       {% if is_admin %}
-        <a href="{% url 'event:edit' event.pk event.organization.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
+        <a href="{% url 'event:edit' event.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
         <a href="{% url 'event:delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
       {% endif %}
       {% if is_volunteer %}

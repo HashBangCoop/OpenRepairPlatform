@@ -34,9 +34,9 @@ class PlaceMapView(TemplateView):
 
 class PlaceFormView(PermissionMixin):
     def form_valid(self, form):
-        validated = super().form_valid(form)
+        form.instance.organization = self.organization
         messages.success(self.request, self.success_message)
-        return validated
+        return super().form_valid(form)
 
 
 class PlaceCreateView(RedirectQueryParamView, PlaceFormView, CreateView):

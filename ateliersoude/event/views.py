@@ -192,7 +192,7 @@ class EventCreateView(RedirectQueryParamView, EventFormView, CreateView):
     success_message = "L'évènement a bien été créé"
 
 
-class EventDeleteView(RedirectQueryParamView, DeleteView):
+class EventDeleteView(PermissionMixin, RedirectQueryParamView, DeleteView):
     model = Event
     success_url = reverse_lazy("event:list")
 
@@ -201,7 +201,7 @@ class EventDeleteView(RedirectQueryParamView, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class RecurrentEventCreateView(PermissionAdminOrganizationMixin, FormView):
+class RecurrentEventCreateView(PermissionMixin, FormView):
     form_class = RecurrentEventForm
     success_url = reverse_lazy("event:list")
     template_name = "event/recurrent_event_form.html"

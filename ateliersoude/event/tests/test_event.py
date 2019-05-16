@@ -148,7 +148,15 @@ def test_event_detail_context(client, event):
     assert event.activity.name in str(response.context_data["event"])
 
 
-def test_get_event_delete(client, event):
+def test_get_event_delete(client, user_log, event):
+    response = client.get(reverse("event:delete", args=[event.pk]))
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.get(reverse("event:delete", args=[event.pk]))
+    assert response.status_code == 403
+    current_user = get_user(client)
+    event.organization.admins.add(current_user)
+    assert current_user in event.organization.admins.all()
     response = client.get(reverse("event:delete", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 200
@@ -156,8 +164,16 @@ def test_get_event_delete(client, event):
     assert event.organization.name in html
 
 
-def test_event_delete(client, event):
+def test_event_delete(client, user_log, event):
     assert Event.objects.count() == 1
+    response = client.post(reverse("event:delete", args=[event.pk]))
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.post(reverse("event:delete", args=[event.pk]))
+    assert response.status_code == 403
+    current_user = get_user(client)
+    event.organization.admins.add(current_user)
+    assert current_user in event.organization.admins.all()
     response = client.post(reverse("event:delete", args=[event.pk]))
     assert Event.objects.count() == 0
     assert response.status_code == 302
@@ -173,18 +189,21 @@ def test_get_event_create(client, user_log, organization):
     assert "Création d'un nouvel évènement" in html
 
 
-def test_get_event_create_403(client, organization):
+def test_get_event_create_403(client, user_log, organization):
+    response = client.get(reverse("event:create", args=[organization.pk]))
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
     response = client.get(reverse("event:create", args=[organization.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    assert "pas administrateur" in html
 
 
 def test_get_event_create_403_not_in_orga(client_log, organization):
     response = client_log.get(reverse("event:create", args=[organization.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    assert "pas administrateur" in html
 
 
 def test_event_create(client, user_log, event_data):
@@ -222,9 +241,7 @@ def test_event_create_invalid(client, user_log, event_data):
 def test_get_event_update(client, user_log, event, organization):
     client.login(email=user_log.email, password=USER_PASSWORD)
     organization.admins.add(user_log)
-    response = client.get(
-        reverse("event:edit", args=[event.pk, organization.pk])
-    )
+    response = client.get(reverse("event:edit", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 200
     assert f"Mise à jour de '" in html
@@ -236,9 +253,7 @@ def test_event_update(client, user_log, event, event_data):
     client.login(email=user_log.email, password=USER_PASSWORD)
     organization.admins.add(user_log)
     event_data["available_seats"] = 10
-    response = client.post(
-        reverse("event:edit", args=[event.pk, organization.pk]), event_data
-    )
+    response = client.post(reverse("event:edit", args=[event.pk]), event_data)
     events = Event.objects.all()
     assert response.status_code == 302
     assert len(events) == 1
@@ -248,22 +263,21 @@ def test_event_update(client, user_log, event, event_data):
     )
 
 
-def test_get_event_update_403(client, organization, event):
-    response = client.get(
-        reverse("event:edit", args=[event.pk, organization.pk])
-    )
+def test_get_event_update_403(client, user_log, organization, event):
+    response = client.get(reverse("event:edit", args=[event.pk]))
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.get(reverse("event:edit", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    assert "pas administrateur" in html
 
 
 def test_get_event_update_403_not_in_orga(client_log, organization, event):
-    response = client_log.get(
-        reverse("event:edit", args=[event.pk, organization.pk])
-    )
+    response = client_log.get(reverse("event:edit", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    assert "pas administrateur" in html
 
 
 def test_cancel_reservation_wrong_token(client):

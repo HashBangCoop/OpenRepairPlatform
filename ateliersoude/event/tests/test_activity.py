@@ -40,19 +40,34 @@ def test_activity_detail_context(client, activity_factory):
     assert activity.name == str(response.context_data["activity"])
 
 
-def test_get_activity_delete(client, activity_factory):
+def test_get_activity_delete(client_log, activity_factory):
+    current_user = get_user(client_log)
     activity = activity_factory()
-    response = client.get(reverse("event:activity_delete", args=[activity.pk]))
+    response = client_log.get(
+        reverse("event:activity_delete", args=[activity.pk])
+    )
+    assert response.status_code == 403
+    activity.organization.admins.add(current_user)
+    assert current_user in activity.organization.admins.all()
+    response = client_log.get(
+        reverse("event:activity_delete", args=[activity.pk])
+    )
     html = response.content.decode()
-    assert response.status_code == 200
     assert activity.name in html
     assert activity.organization.name in html
 
 
-def test_activity_delete(client, activity_factory):
+def test_activity_delete(client_log, activity_factory):
+    current_user = get_user(client_log)
     activity = activity_factory()
     assert Activity.objects.count() == 1
-    response = client.post(
+    response = client_log.post(
+        reverse("event:activity_delete", args=[activity.pk])
+    )
+    assert response.status_code == 403
+    activity.organization.admins.add(current_user)
+    assert current_user in activity.organization.admins.all()
+    response = client_log.post(
         reverse("event:activity_delete", args=[activity.pk])
     )
     assert Activity.objects.count() == 0
@@ -71,13 +86,18 @@ def test_get_activity_create(client, user_log, organization):
     assert "Création d'une nouvelle activité" in html
 
 
-def test_get_activity_create_403(client, organization):
+def test_get_activity_create_403(client, user_log, organization):
     response = client.get(
         reverse("event:activity_create", args=[organization.pk])
     )
-    html = response.content.decode()
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.get(
+        reverse("event:activity_create", args=[organization.pk])
+    )
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    html = response.content.decode()
+    assert "pas administrateur" in html
 
 
 def test_get_activity_create_403_not_in_orga(client_log, organization):
@@ -86,7 +106,7 @@ def test_get_activity_create_403_not_in_orga(client_log, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    assert "pas administrateur" in html
 
 
 def test_activity_create(client, user_log, organization, activity_data):
@@ -121,32 +141,31 @@ def test_activity_create_invalid(
     assert "Ce champ est obligatoire." in html
 
 
-def test_get_activity_update_403(client, organization, activity):
-    response = client.get(
-        reverse("event:activity_edit", args=[activity.pk, organization.pk])
-    )
-    html = response.content.decode()
+def test_get_activity_update_403(user_log, client, organization, activity):
+    response = client.get(reverse("event:activity_edit", args=[activity.pk]))
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.get(reverse("event:activity_edit", args=[activity.pk]))
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    html = response.content.decode()
+    assert "pas administrateur" in html
 
 
 def test_get_activity_update_403_not_in_orga(
     client_log, organization, activity
 ):
     response = client_log.get(
-        reverse("event:activity_edit", args=[activity.pk, organization.pk])
+        reverse("event:activity_edit", args=[activity.pk])
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    assert "pas administrateur" in html
 
 
 def test_get_activity_update(user_log, client, activity, organization):
     client.login(email=user_log.email, password=USER_PASSWORD)
     organization.admins.add(user_log)
-    response = client.get(
-        reverse("event:activity_edit", args=[activity.pk, organization.pk])
-    )
+    response = client.get(reverse("event:activity_edit", args=[activity.pk]))
     html = response.content.decode()
     assert response.status_code == 200
     assert f"Mise à jour de '{activity.name}'" in html
@@ -159,8 +178,7 @@ def test_activity_update(
     organization.admins.add(user_log)
     activity_data["name"] = "activity_name2"
     response = client.post(
-        reverse("event:activity_edit", args=[activity.pk, organization.pk]),
-        activity_data,
+        reverse("event:activity_edit", args=[activity.pk]), activity_data
     )
     activities = Activity.objects.all()
     assert response.status_code == 302
