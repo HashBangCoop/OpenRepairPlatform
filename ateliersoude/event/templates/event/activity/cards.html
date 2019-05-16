@@ -1,6 +1,6 @@
 <div class="row m-0">
   {% for activity in activities %}
-    <div class="col-lg-4 col-md-12 p-0">
+    <div class="col-lg-4 col-md-12 p-2">
       <div class="card">
         <a class="card-link" href="{% url 'event:activity_detail' activity.pk activity.slug %}">
           {% if activity.picture %}

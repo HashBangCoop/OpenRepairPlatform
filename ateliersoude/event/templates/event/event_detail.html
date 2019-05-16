@@ -20,8 +20,11 @@
         </a>
       </p>
       <div class="lead">
+      {% if is_admin %}
         <a href="{% url 'event:edit' event.pk event.organization.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
         <a href="{% url 'event:delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
+      {% endif %}
+      {% if is_volunteer %}
         <form action="{% url 'event:close' event.pk %}" method="post" class="d-inline">
           {% csrf_token %}
           <button class="btn btn-sm btn-info" type="submit" onclick="return confirm('Êtes-vous sûrs de vouloir clôturer l\'évènement?')">
@@ -29,6 +32,7 @@
             Clôturer
           </button>
         </form>
+      {% endif %}
       </div>
     </div>
   </div>
@@ -124,9 +128,9 @@
     {% endfor %}
     </div>
 
+    {% if is_volunteer %}
     <h5>Participant·e·s</h5>
     <hr>
-    {# TODO: display only if request.user > volunteer #}
 
     {% if event.has_started %}
       <a href="#" class="btn btn-success btn-sm" onclick="alert('not implemented')"><i class="fa fa-plus"></i> Un membre est présent</a>
@@ -175,6 +179,7 @@
         </div>
       {% endfor %}
     </div>
+    {% endif %}
 
   </section>
 

@@ -30,6 +30,7 @@ from ateliersoude.event.models import Activity, Condition, Event
 from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.mixins import RedirectQueryParamView
 from ateliersoude.user.forms import CustomUserEmailForm
+from ateliersoude.user.mixins import IsAdminMixin
 from ateliersoude.user.models import CustomUser
 
 logger = logging.getLogger(__name__)
@@ -82,7 +83,7 @@ class ConditionDeleteView(DeleteView):
         return self.object.get_absolute_url()
 
 
-class ActivityView(DetailView):
+class ActivityView(IsAdminMixin, DetailView):
     model = Activity
     template_name = "event/activity/detail.html"
 
@@ -121,7 +122,7 @@ class ActivityDeleteView(RedirectQueryParamView, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class EventView(DetailView):
+class EventView(IsAdminMixin, DetailView):
     model = Event
     template_name = "event/event_detail.html"
 

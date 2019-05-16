@@ -6,9 +6,11 @@
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <h1>Organisations</h1>
+      {% if user.is_staff %}
       <a class="btn btn-success" href="{% url 'user:organization_create' %}">
         <i class="fa fa-pencil-alt mr-1"></i>Créer une organisation
       </a>
+      {% endif %}
     </div>
   </div>
 

@@ -16,6 +16,7 @@ from django.views.generic import (
 from ateliersoude.event.mixins import PermissionAdminOrganizationMixin
 from ateliersoude.event.models import Event
 from ateliersoude.event.templatetags.app_filters import tokenize
+from ateliersoude.user.mixins import IsAdminMixin
 from ateliersoude.user.models import CustomUser, Organization
 from ateliersoude.utils import get_future_published_events
 
@@ -86,19 +87,13 @@ class UserListView(ListView):
     queryset = CustomUser.objects.filter(is_superuser=False)
 
 
-class OrganizationDetailView(DetailView):
+class OrganizationDetailView(IsAdminMixin, DetailView):
     model = Organization
     template_name = "user/organization/organization_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        is_admin = (
-            self.request.user.is_authenticated
-            and self.request.user in self.object.admins.all()
-            or self.request.user in self.object.volunteers.all()
-        )
-        context["admin"] = is_admin
-        if is_admin:
+        if context["is_admin"]:
             context["events"] = self.object.events.filter(
                 date__gte=timezone.now() - timedelta(weeks=1)
             ).order_by("date")

@@ -9,7 +9,7 @@
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <h1>{{ organization.name }}</h1>
-      {% if admin %}
+      {% if is_admin %}
         <a class="btn btn-success" href="{% url 'user:organization_update' organization.id %}">
           <i class="fa fa-pencil-alt"></i> Editer
         </a>
@@ -58,7 +58,7 @@
               <span class="badge badge-secondary">{{ place.category }}</span>
               <p class="card-text">{{ place.description }}</p>
             </div>
-            {% if admin %}
+            {% if is_admin %}
               <div class="card-footer">
                 <a class="btn btn-primary"
                    href="{% url 'location:edit' place.id %}">
@@ -81,7 +81,7 @@
 
 
     <h3 class="mt-4">Membres actif·ve·s</h3>
-    <div class="row no-gutters">
+    <div class="row">
 
       <div class="col-sm">
         <div class="card">
@@ -93,7 +93,7 @@
                   <a href="{% url 'user:user_detail' user.pk %}">
                     {{ user.email }}{% if user.first_name %} - {{ user.first_name }}{% endif %}
                   </a>
-                  {% if admin %}
+                  {% if is_admin %}
                     <form action="{% url 'user:remove_from_admins' organization.pk user.pk %}" class="d-inline">
                       {% csrf_token %}
                       <button type="submit" class="btn badge badge-pill badge-danger" onclick="return confirm('Êtes-vous sûr ?')">&times;</button>
@@ -106,7 +106,7 @@
                 </li>
               {% endfor %}
             </ul>
-            {% if admin %}
+            {% if is_admin %}
               <form class="mt-2" action="{% url 'user:organization_add_admin' organization.pk %}" method="post">
                 {% csrf_token %}
                 {% bootstrap_form add_admin_form %}
@@ -132,7 +132,7 @@
                   <a href="{% url 'user:user_detail' user.pk %}">
                     {{ user.email }}{% if user.first_name %} - {{ user.first_name }}{% endif %}
                   </a>
-                  {% if admin %}
+                  {% if is_admin %}
                     <form action="{% url 'user:remove_from_volunteers' organization.pk user.pk %}" class="d-inline">
                       {% csrf_token %}
                       <button type="submit" class="btn badge badge-pill badge-danger" onclick="return confirm('Êtes-vous sûr ?')">&times;</button>
@@ -145,7 +145,7 @@
                 </li>
               {% endfor %}
             </ul>
-            {% if admin %}
+            {% if is_admin %}
               <form class="mt-2" action="{% url 'user:organization_add_volunteer' organization.pk %}" method="post">
                 {% csrf_token %}
                 {% bootstrap_form add_volunteer_form %}
@@ -170,7 +170,7 @@
     <h3 class="mt-4">Activités</h3>
     {% include "event/activity/cards.html" with activities=organization.activities.all %}
 
-    {% if admin %}
+    {% if is_admin %}
       <div class="dropdown-divider mb-4"></div>
       <div class="row m-4">
         <h4>Conditions d'accès</h4>
