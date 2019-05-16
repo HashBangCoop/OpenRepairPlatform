@@ -2,6 +2,7 @@ import datetime
 from urllib.parse import urlparse
 
 import pytest
+from django.contrib.auth import get_user
 from django.core.management.base import CommandError
 from django.core.management import call_command
 from django.urls import reverse, resolve
@@ -26,14 +27,61 @@ def test_command_superuser_without_mail():
         call_command("createsuperuser", email="", interactive=False)
 
 
-def test_user_list(client, custom_user):
+def test_user_list_not_visible(client, custom_user):
+    response = client.get(reverse("user:user_list"))
+    assert response.status_code == 200
+    assert response.context_data["object_list"].count() == 0
+
+
+def test_user_list_visible(client, custom_user):
+    custom_user.is_visible = True
+    custom_user.save()
     response = client.get(reverse("user:user_list"))
     assert response.status_code == 200
     assert response.context_data["object_list"].count() == 1
 
 
-def test_user_detail(client, custom_user):
+def test_user_detail_not_visible(client, custom_user):
     response = client.get(
+        reverse("user:user_detail", kwargs={"pk": custom_user.pk})
+    )
+    assert response.status_code == 404
+
+
+def test_user_detail_visible(client, custom_user):
+    custom_user.is_visible = True
+    custom_user.save()
+    response = client.get(
+        reverse("user:user_detail", kwargs={"pk": custom_user.pk})
+    )
+    assert response.status_code == 200
+
+
+def test_user_detail_not_visible_but_staff(client_log, custom_user):
+    user = get_user(client_log)
+    user.is_staff = True
+    user.save()
+    response = client_log.get(
+        reverse("user:user_detail", kwargs={"pk": custom_user.pk})
+    )
+    assert response.status_code == 200
+
+
+def test_user_detail_not_visible_but_same(client, custom_user):
+    client.login(email=custom_user.email, password=USER_PASSWORD)
+    response = client.get(
+        reverse("user:user_detail", kwargs={"pk": custom_user.pk})
+    )
+    assert response.status_code == 200
+
+
+def test_user_detail_not_visible_but_volunteer(client_log, custom_user,
+                                               event_factory, organization):
+    user = get_user(client_log)
+    organization.volunteers.add(user)
+    event = event_factory(organization=organization)
+    event.registered.add(custom_user)
+    response = client_log.get(
         reverse("user:user_detail", kwargs={"pk": custom_user.pk})
     )
     assert response.status_code == 200
