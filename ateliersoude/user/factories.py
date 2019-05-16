@@ -27,6 +27,9 @@ class OrganizationFactory(DjangoModelFactory):
 
 
 class CustomUserFactory(DjangoModelFactory):
+    first_name = faker.word()
+    last_name = faker.word()
+
     class Meta:
         model = CustomUser
 

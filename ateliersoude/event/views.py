@@ -295,7 +295,7 @@ class CancelReservationView(RedirectView):
         event_url = reverse("event:detail", args=[event.id, event.slug])
         event_url = self.request.build_absolute_uri(event_url)
 
-        if user.password == "":
+        if user.first_name == "":
             # This is a temporary user created only for this event, we can
             # delete it
             user.delete()
@@ -384,10 +384,10 @@ class CloseEventView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         event_pk = kwargs["pk"]
         event = get_object_or_404(Event, pk=event_pk)
-        for temp_user in event.registered.filter(password=""):
+        for temp_user in event.registered.filter(first_name=""):
             temp_user.delete()
         for present in event.presents.all():
-            if present.password == "":
+            if present.first_name == "":
                 event.organization.visitors.add(present)
             else:
                 event.organization.members.add(present)
