@@ -32,7 +32,7 @@
         <a class="btn btn-primary{% if not organization.activities.all %} disabled{% endif %}" href="{% url 'event:recurrent_create' organization.id %}">
           <i class="fa fa-plus-circle"></i> Créer un évènement récurrent
         </a>
-        <a href="{% url 'location:create' %}" class="btn btn-info">
+        <a href="{% url 'location:create' organization.pk %}" class="btn btn-info">
           <i class="fa fa-plus-circle"></i> Ajouter un local
         </a>
       {% endif %}

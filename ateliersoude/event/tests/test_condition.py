@@ -19,19 +19,20 @@ def condition_data(organization_factory):
     }
 
 
-def test_condition_list(client, condition_factory):
-    response = client.get(reverse("event:condition_list"))
-    assert response.status_code == 200
-    assert get_user(client).is_anonymous
-    assert "Aucune condition trouvée" in response.content.decode()
+def test_get_condition_delete(client, user_log, condition_factory):
     condition = condition_factory()
-    response = client.get(reverse("event:condition_list"))
-    assert condition.name in response.content.decode()
-    assert condition.description in response.content.decode()
-
-
-def test_get_condition_delete(client, condition_factory):
-    condition = condition_factory()
+    response = client.get(
+        reverse("event:condition_delete", args=[condition.pk])
+    )
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.get(
+        reverse("event:condition_delete", args=[condition.pk])
+    )
+    assert response.status_code == 403
+    current_user = get_user(client)
+    condition.organization.admins.add(current_user)
+    assert current_user in condition.organization.admins.all()
     response = client.get(
         reverse("event:condition_delete", args=[condition.pk])
     )
@@ -41,9 +42,21 @@ def test_get_condition_delete(client, condition_factory):
     assert condition.organization.name in html
 
 
-def test_condition_delete(client, condition_factory):
+def test_condition_delete(client, user_log, condition_factory):
     condition = condition_factory()
     assert Condition.objects.count() == 1
+    response = client.post(
+        reverse("event:condition_delete", args=[condition.pk])
+    )
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.post(
+        reverse("event:condition_delete", args=[condition.pk])
+    )
+    assert response.status_code == 403
+    current_user = get_user(client)
+    condition.organization.admins.add(current_user)
+    assert current_user in condition.organization.admins.all()
     response = client.post(
         reverse("event:condition_delete", args=[condition.pk])
     )
@@ -55,13 +68,18 @@ def test_condition_delete(client, condition_factory):
     )
 
 
-def test_get_condition_create_403(client, organization):
+def test_get_condition_create_403(client, user_log, organization):
     response = client.get(
         reverse("event:condition_create", args=[organization.pk])
     )
-    html = response.content.decode()
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.get(
+        reverse("event:condition_create", args=[organization.pk])
+    )
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    html = response.content.decode()
+    assert "pas administrateur" in html
 
 
 def test_get_condition_create_403_not_in_orga(client_log, organization):
@@ -70,7 +88,7 @@ def test_get_condition_create_403_not_in_orga(client_log, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    assert "pas administrateur" in html
 
 
 def test_get_condition_create(client, user_log, organization):
@@ -118,32 +136,31 @@ def test_condition_create_invalid(
     assert "Ce champ est obligatoire." in html
 
 
-def test_get_condition_update_403(client, organization, condition):
-    response = client.get(
-        reverse("event:condition_edit", args=[condition.pk, organization.pk])
-    )
-    html = response.content.decode()
+def test_get_condition_update_403(client, user_log, organization, condition):
+    response = client.get(reverse("event:condition_edit", args=[condition.pk]))
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.get(reverse("event:condition_edit", args=[condition.pk]))
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    html = response.content.decode()
+    assert "pas administrateur" in html
 
 
 def test_get_condition_update_403_not_in_orga(
     client_log, organization, condition
 ):
     response = client_log.get(
-        reverse("event:condition_edit", args=[condition.pk, organization.pk])
+        reverse("event:condition_edit", args=[condition.pk])
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    assert "pas administrateur" in html
 
 
 def test_get_condition_update(client, user_log, condition, organization):
     organization.admins.add(user_log)
     client.login(email=user_log.email, password=USER_PASSWORD)
-    response = client.get(
-        reverse("event:condition_edit", args=[condition.pk, organization.pk])
-    )
+    response = client.get(reverse("event:condition_edit", args=[condition.pk]))
     html = response.content.decode()
     assert response.status_code == 200
     assert f"Mise à jour de '{condition.name}'" in html
@@ -156,8 +173,7 @@ def test_condition_update(
     client.login(email=user_log.email, password=USER_PASSWORD)
     condition_data["name"] = "cond_name2"
     response = client.post(
-        reverse("event:condition_edit", args=[condition.pk, organization.pk]),
-        condition_data,
+        reverse("event:condition_edit", args=[condition.pk]), condition_data
     )
     conditions = Condition.objects.all()
     assert response.status_code == 302

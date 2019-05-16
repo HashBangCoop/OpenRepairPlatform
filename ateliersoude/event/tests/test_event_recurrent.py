@@ -67,13 +67,18 @@ def test_get_event_recurrent_create(client, user_log, organization):
     assert "Création d'un nouvel évènement" in html
 
 
-def test_get_event_recurrent_create_403(client, organization):
+def test_get_event_recurrent_create_403(client, user_log, organization):
+    response = client.get(
+        reverse("event:recurrent_create", args=[organization.pk])
+    )
+    assert response.status_code == 302
+    client.login(email=user_log.email, password=USER_PASSWORD)
     response = client.get(
         reverse("event:recurrent_create", args=[organization.pk])
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    assert "pas administrateur" in html
 
 
 def test_get_event_recurrent_create_403_not_in_orga(client_log, organization):
@@ -82,7 +87,7 @@ def test_get_event_recurrent_create_403_not_in_orga(client_log, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "avez pas les droits pour gérer" in html
+    assert "pas administrateur" in html
 
 
 def test_event_create(client, user_log, event_recurrent_data):

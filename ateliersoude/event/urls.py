@@ -12,12 +12,9 @@ urlpatterns = [
         name="condition_create",
     ),
     path(
-        "condition/<int:pk>/edit/<int:orga_pk>/",
+        "condition/<int:pk>/edit/",
         views.ConditionEditView.as_view(),
         name="condition_edit",
-    ),
-    path(
-        "condition/", views.ConditionListView.as_view(), name="condition_list"
     ),
     path(
         "condition/<int:pk>/delete/",
@@ -31,7 +28,7 @@ urlpatterns = [
         name="activity_create",
     ),
     path(
-        "activity/<int:pk>/edit/<int:orga_pk>/",
+        "activity/<int:pk>/edit/",
         views.ActivityEditView.as_view(),
         name="activity_edit",
     ),
@@ -54,11 +51,7 @@ urlpatterns = [
         views.RecurrentEventCreateView.as_view(),
         name="recurrent_create",
     ),
-    path(
-        "<int:pk>/edit/<int:orga_pk>/",
-        views.EventEditView.as_view(),
-        name="edit",
-    ),
+    path("<int:pk>/edit/", views.EventEditView.as_view(), name="edit"),
     path("<int:pk>/delete/", views.EventDeleteView.as_view(), name="delete"),
     path("<int:pk>/close/", views.CloseEventView.as_view(), name="close"),
     path("<int:pk>/<slug>/", views.EventView.as_view(), name="detail"),
