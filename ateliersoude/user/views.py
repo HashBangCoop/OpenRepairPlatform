@@ -1,6 +1,8 @@
 from datetime import timedelta
 
 from django.contrib import messages
+from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -79,11 +81,38 @@ class UserDetailView(DetailView):
     model = CustomUser
     template_name = "user/user_detail.html"
 
+    def get_object(self, queryset=None):
+        custom_user = super().get_object(queryset=queryset)
+        user = self.request.user
+
+        if custom_user.is_visible:
+            return custom_user
+
+        if user.is_staff:
+            return custom_user
+
+        if user.is_authenticated:
+            if user.pk == custom_user.pk:
+                return custom_user
+
+            organizations = user.volunteer_organizations.all().union(
+                user.admin_organizations.all()
+            )
+            can_see_users = CustomUser.objects.filter(
+                Q(registered_events__organization__in=list(organizations)) |
+                Q(presents_events__organization__in=list(organizations))
+            )
+
+            if custom_user in can_see_users:
+                return custom_user
+
+        raise Http404("Utilisateur introuvable")
+
 
 class UserListView(ListView):
     model = CustomUser
     template_name = "user/user_list.html"
-    queryset = CustomUser.objects.filter(is_superuser=False)
+    queryset = CustomUser.objects.filter(is_superuser=False, is_visible=True)
 
 
 class OrganizationDetailView(DetailView):

@@ -33,6 +33,7 @@ class UserUpdateForm(forms.ModelForm):
             "birth_date",
             "gender",
             "bio",
+            "is_visible",
         ]
         widgets = {
             "birth_date": forms.DateInput(

@@ -80,12 +80,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ),
     )
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
+    is_visible = models.BooleanField(
+        _("Profile visible"),
+        default=False,
+        help_text=_(
+            "Should people be able to see your profile?"
+        )
+    )
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
 
-    @property
     def get_organizations(self):
         member_orgas, visitor_orgas, volunteer_orgas, admin_orgas = (
             self.member_organizations.all(),
