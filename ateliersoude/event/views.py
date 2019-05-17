@@ -149,7 +149,7 @@ class EventListView(ListView):
             )
         if form.cleaned_data["activity"]:
             queryset = queryset.filter(
-                activity__name__icontains=form.cleaned_data["activity"]
+                activity=form.cleaned_data["activity"]
             )
         if form.cleaned_data["starts_before"]:
             queryset = queryset.filter(

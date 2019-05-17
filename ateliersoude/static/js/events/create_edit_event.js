@@ -63,6 +63,4 @@ let dateTimeOpts = {
     time_24hr: true,
 };
 
-flatpickr("#id_starts_at", dateTimeOpts);
-flatpickr("#id_ends_at", dateTimeOpts);
 flatpickr("#id_publish_at", dateTimeOpts);
