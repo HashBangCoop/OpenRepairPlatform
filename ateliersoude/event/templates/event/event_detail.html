@@ -151,11 +151,16 @@
                 {{ user }}<br>
               </a>
               {% if event.has_started %}
+              {% if user.first_name %}
                 {% tokenize user=user event=event action='present' as tok %}
                 <a href="{% url 'event:user_present' tok %}" class="btn btn-success btn-sm">
                   <i class="fa fa-plus"></i>
                   Présent
                 </a>
+              {% else %}
+                {# user has registered using only its email address, we need to ask you some more information #}
+                {% include "event/modal_more_info.html" with event=event user=user %}
+              {% endif %}
               {% endif %}
               {% tokenize user=user event=event action='cancel' as tok %}
               <a href="{% url 'event:cancel_reservation' tok %}" class="btn btn-danger btn-sm">

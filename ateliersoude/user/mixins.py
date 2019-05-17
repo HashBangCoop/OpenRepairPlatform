@@ -9,7 +9,6 @@ class IsAdminMixin:
         context["is_admin"] = (
             user.is_authenticated
             and user in organization.admins.all()
-            or user.is_staff
         )
         context["is_volunteer"] = (
             user.is_authenticated

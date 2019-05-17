@@ -27,7 +27,7 @@ from .forms import (
     UserCreateForm,
     OrganizationForm,
     CustomUserEmailForm,
-)
+    MoreInfoCustomUserForm)
 
 
 class UserUpdateView(UpdateView):
@@ -55,7 +55,6 @@ class UserCreateView(CreateView):
 
 class UserCreateAndBookView(CreateView):
     model = CustomUser
-    template_name = "user/user_form.html"
     form_class = CustomUserEmailForm
 
     def post(self, request, *args, **kwargs):
@@ -74,6 +73,22 @@ class UserCreateAndBookView(CreateView):
         token = tokenize(self.object, event, "book")
         return (
             reverse("event:book", kwargs={"token": token})
+            + f"?redirect={redirect_url}"
+        )
+
+
+class PresentMoreInfoView(UpdateView):
+    model = CustomUser
+    form_class = MoreInfoCustomUserForm
+    http_methods = ["post"]
+
+    def get_success_url(self, *args, **kwargs):
+        params = self.request.GET
+        event = get_object_or_404(Event, pk=params.get("event"))
+        redirect_url = params.get("redirect")
+        token = tokenize(self.object, event, "present")
+        return (
+            reverse("event:user_present", kwargs={"token": token})
             + f"?redirect={redirect_url}"
         )
 

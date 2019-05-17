@@ -1,0 +1,34 @@
+{% load bootstrap4 %}
+
+<button class="btn btn-success btn-sm" data-toggle="modal" data-target="#more-info-{{ user.pk }}">
+  <i class="fa fa-plus"></i>
+  Présent
+</button>
+<div class="modal" id="more-info-{{ user.pk }}" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Compléter les info de {{ user }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Nous devons garder une trace des personnes présentes aux atelier, veuillez compléter ces info svp
+        <form
+            action="{% url 'user:present_with_more_info' user.pk %}?redirect={% url 'event:detail' event.pk event.slug %}&event={{ event.pk }}"
+            method="post"
+            class="text-left"
+        >
+          <div class="modal-body">
+            {% csrf_token %}
+            {% bootstrap_form form=present_form %}
+          </div>
+          <div class="modal-footer">
+            <input type="submit" value="Enregistrer" class="btn btn-primary">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

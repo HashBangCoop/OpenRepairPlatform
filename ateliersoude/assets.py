@@ -23,7 +23,10 @@ scss_auto_complete = Bundle(
     output="css/auto-complete.css",
 )
 scss_detail_event = Bundle(
-    "scss/lib/leaflet.scss", filters="scss", output="css/detail_event.css"
+    "scss/lib/auto-complete.scss",
+    "scss/lib/leaflet.scss",
+    filters="scss",
+    output="css/detail_event.css"
 )
 sss_create_edit_event = Bundle(
     "scss/lib/flatpickr.scss",
@@ -93,6 +96,9 @@ js_detail_place = Bundle(
 js_detail_event = Bundle(
     "js/lib/leaflet.js",
     "js/events/detail_event.js",
+    "js/lib/auto-complete.js",
+    "js/user/create_edit.js",
+    "js/lib/gov_addresses.js",
     filters="jsmin",
     output="js/events/detail_event.min.js",
 )
