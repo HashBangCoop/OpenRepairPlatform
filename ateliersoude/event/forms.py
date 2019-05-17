@@ -214,13 +214,17 @@ class EventSearchForm(forms.Form):
         future_events = Event.future_published_events()
         self.fields["place"] = forms.ModelChoiceField(
             required=False,
-            queryset=Place.objects.filter(events__in=future_events),
+            queryset=Place.objects.filter(events__in=future_events).distinct(),
         )
         self.fields["organization"] = forms.ModelChoiceField(
             required=False,
-            queryset=Organization.objects.filter(events__in=future_events),
+            queryset=Organization.objects.filter(
+                events__in=future_events
+            ).distinct(),
         )
         self.fields["activity"] = forms.ModelChoiceField(
             required=False,
-            queryset=Activity.objects.filter(events__in=future_events),
+            queryset=Activity.objects.filter(
+                events__in=future_events
+            ).distinct(),
         )
