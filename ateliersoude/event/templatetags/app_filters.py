@@ -8,3 +8,8 @@ register = template.Library()
 def tokenize(user, event, action):
     data = {"user_id": user.id, "event_id": event.id}
     return signing.dumps(data, salt=action)
+
+
+@register.filter
+def lookup(hashtable, target):
+    return hashtable.get(target)

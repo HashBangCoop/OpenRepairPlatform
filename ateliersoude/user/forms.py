@@ -51,7 +51,7 @@ class CustomUserEmailForm(forms.ModelForm):
 class MoreInfoCustomUserForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ["first_name", "last_name", "street_address"]
+        fields = ["email", "first_name", "last_name", "street_address"]
 
 
 class OrganizationForm(forms.ModelForm):

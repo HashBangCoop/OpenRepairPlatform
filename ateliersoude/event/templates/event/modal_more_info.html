@@ -1,14 +1,24 @@
-{% load bootstrap4 %}
+{% load bootstrap4 app_filters %}
 
-<button class="btn btn-success btn-sm" data-toggle="modal" data-target="#more-info-{{ user.pk }}">
+<button class="btn btn-success btn-sm" data-toggle="modal" data-target="#more-info-{{ anonymous_user.pk }}">
   <i class="fa fa-plus"></i>
-  Présent
+  {% if text %}
+  {{ text }}
+  {% else %}
+  Marquer en présent
+  {% endif %}
 </button>
-<div class="modal" id="more-info-{{ user.pk }}" tabindex="-1" role="dialog">
+<div class="modal" id="more-info-{{ anonymous_user.pk }}" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Compléter les info de {{ user }}</h5>
+        <h5 class="modal-title">
+        {% if anonymous_user %}
+        Compléter les info de {{ anonymous_user }}
+        {% else %}
+        Marquer quelqu'un en "présent" pour l'évènement
+        {% endif %}
+        </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -16,13 +26,17 @@
       <div class="modal-body">
         Nous devons garder une trace des personnes présentes aux atelier, veuillez compléter ces info svp
         <form
-            action="{% url 'user:present_with_more_info' user.pk %}?redirect={% url 'event:detail' event.pk event.slug %}&event={{ event.pk }}"
+            {% if anonymous_user %}
+            action="{% url 'user:present_with_more_info' anonymous_user.pk %}?event={{ event.pk }}"
+            {% else %}
+            action="{% url 'user:present_with_more_info' %}?event={{ event.pk }}"
+            {% endif %}
             method="post"
             class="text-left"
         >
           <div class="modal-body">
             {% csrf_token %}
-            {% bootstrap_form form=present_form %}
+            {% bootstrap_form form=form %}
           </div>
           <div class="modal-footer">
             <input type="submit" value="Enregistrer" class="btn btn-primary">

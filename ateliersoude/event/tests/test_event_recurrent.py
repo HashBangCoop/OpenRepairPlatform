@@ -11,7 +11,6 @@ pytestmark = pytest.mark.django_db
 
 
 def _django_date(datetime):
-    breakpoint()
     return str(datetime).split(".")[0]
 
 
