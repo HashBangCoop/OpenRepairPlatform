@@ -60,4 +60,8 @@ urlpatterns = [
         views.RemoveAdminFromOrganization.as_view(),
         name="remove_from_admins",
     ),
+    path(
+        "present/<int:pk>/", views.PresentMoreInfoView.as_view(),
+        name="present_with_more_info"
+    ),
 ]

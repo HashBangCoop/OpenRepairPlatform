@@ -48,6 +48,12 @@ class CustomUserEmailForm(forms.ModelForm):
         fields = ["email"]
 
 
+class MoreInfoCustomUserForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ["first_name", "last_name", "street_address"]
+
+
 class OrganizationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

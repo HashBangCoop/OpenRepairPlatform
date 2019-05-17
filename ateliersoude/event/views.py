@@ -28,8 +28,8 @@ from ateliersoude.event.forms import (
 from ateliersoude.event.models import Activity, Condition, Event
 from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.mixins import RedirectQueryParamView, PermissionMixin
-from ateliersoude.user.forms import CustomUserEmailForm
 from ateliersoude.user.mixins import IsAdminMixin
+from ateliersoude.user.forms import CustomUserEmailForm, MoreInfoCustomUserForm
 from ateliersoude.user.models import CustomUser
 
 logger = logging.getLogger(__name__)
@@ -123,6 +123,7 @@ class EventView(IsAdminMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["register_form"] = CustomUserEmailForm
+        ctx["present_form"] = MoreInfoCustomUserForm
         return ctx
 
 
@@ -246,6 +247,7 @@ class PresentView(RedirectView):
 
         event.registered.remove(user)
         event.presents.add(user)
+        messages.success(self.request, f"{user} est présent !")
 
         next_url = self.request.GET.get("redirect")
         if utils.is_valid_path(next_url):
@@ -266,6 +268,7 @@ class AbsentView(RedirectView):
             return reverse("event:list")
 
         event.presents.remove(user)
+        messages.success(self.request, f"{user} a été marqué comme absent !")
 
         next_url = self.request.GET.get("redirect")
         if utils.is_valid_path(next_url):
