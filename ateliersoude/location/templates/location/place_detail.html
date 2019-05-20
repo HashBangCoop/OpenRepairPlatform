@@ -16,11 +16,11 @@
       <h1 class="display-4">{{ place.name|title }}</h1>
       {% if is_admin %}
       <p class="lead">
-        <a class="btn btn-primary" href="{% url 'location:edit' place.id %}">
+        <a class="btn btn-primary btn-sm" href="{% url 'location:edit' place.id %}">
           <i class="fa fa-pencil-alt"></i>
           Editer ce lieu
         </a>
-        <a class="btn btn-danger" href="{% url 'location:delete' place.id %}">
+        <a class="btn btn-danger btn-sm" href="{% url 'location:delete' place.id %}">
           <i class="fa fa-trash-alt"></i>
           Supprimer ce lieu
         </a>
