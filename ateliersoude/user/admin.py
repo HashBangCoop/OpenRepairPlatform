@@ -21,6 +21,8 @@ class CustomUserAdmin(UserAdmin):
                     "street_address",
                     "birth_date",
                     "bio",
+                    "is_visible",
+                    "avatar_img",
                 )
             },
         ),

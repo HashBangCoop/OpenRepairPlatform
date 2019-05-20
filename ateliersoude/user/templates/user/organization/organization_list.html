@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+
 {% block content %}
   {% include "breadcrumb.html" with current="Organisations" %}
 
@@ -7,7 +8,7 @@
     <div class="container">
       <h1>Organisations</h1>
       {% if user.is_staff %}
-      <a class="btn btn-success" href="{% url 'user:organization_create' %}">
+      <a class="btn btn-success btn-sm" href="{% url 'user:organization_create' %}">
         <i class="fa fa-pencil-alt mr-1"></i>Créer une organisation
       </a>
       {% endif %}
@@ -15,24 +16,9 @@
   </div>
 
   <section class="container">
-    <div class="row justify-content-md-center">
-      <div class="col-md-10">
-        <div class="row">
-          {% for organization in object_list %}
-            <div class="card">
-              <a class="card-link" href="{% url 'user:organization_detail' organization.id organization.slug %}">
-                {% if organization.picture %}
-                  <img class="card-img-top" src="{{ organization.picture.url }}">
-                {% endif %}
-                <div class="card-body">
-                  <h5 class="card-title">{{ organization.name }}</h5>
-                </div>
-              </a>
-            </div>
-            {% empty %}
-            <div>Aucune organisation n'est inscrite sur le site pour le moment</div>
-          {% endfor %}
-        </div>
+    <div class="row col-md-12">
+      <div class="card-columns">
+        {% include 'user/organization/organization_card.html' with organizations=object_list %}
       </div>
     </div>
   </section>

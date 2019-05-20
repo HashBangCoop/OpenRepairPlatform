@@ -1,45 +1,49 @@
-<div class="row m-0">
-{% for event in event_list %}
-  <div class="col-lg-6 col-md-12 p-2">
-    <div class="card">
-      {% if event.activity.picture %}
-        <img class="card-img-top rounded-0" src="{{ event.activity.picture.url }}" alt="event img">
-      {% endif %}
-      <div class="card-body">
-        <h2 class="card-title">{{ event.activity.name }}</h2>
-        <h6 class="card-subtitle text-muted mb-2">
-          <small>
-            {{ event.date_interval_format }}
-          </small>
-        </h6>
-        <h6 class="card-subtitle text-muted mb-2">
-          <small>
-            {% if event.remaining_seats == 0 %}
-              <span class="badge badge-warning badge-pill">Complet</span>
-            {% else %}
-              Encore
-              <span class="badge badge-info badge-pill">{{ event.remaining_seats }}
-              </span> places disponibles
-            {% endif %}
-          </small>
-        </h6>
+{% load thumbnail %}
 
-        <p class="p-2">
-          {{ event.activity.description }}
-        </p>
-        <p>
-          <a class="btn btn-info" href="{% url 'event:detail' event.pk event.slug %}">
-            <i class="fa fa-eye"></i>
-            Voir l'évènement
-          </a>
-          {% include "event/register.html" with event=event %}
-        </p>
+{% for event in event_list %}
+  <div class="card">
+    {% if event.activity.picture %}
+      {% thumbnail event.activity.picture "400" format="PNG" as im %}
+        <img class="card-img-top rounded-0" src="{{ im.url }}"/>
+      {% endthumbnail %}
+    {% endif %}
+    <div class="card-body">
+      <h2 class="card-title">{{ event.activity.name }}</h2>
+      <h6 class="card-subtitle text-muted mb-2">
+        <small>
+          {{ event.date_interval_format }}
+        </small>
+      </h6>
+      <h6 class="card-subtitle text-muted mb-2">
+        <small>
+          {% if event.remaining_seats == 0 %}
+          <span class="badge badge-warning badge-pill">Complet</span>
+          {% else %}
+          Encore
+          <span class="badge badge-info badge-pill">{{ event.remaining_seats }}
+          </span> places disponibles
+          {% endif %}
+        </small>
+      </h6>
+  
+      <p class="p-2">
+      {{ event.activity.description }}
+      </p>
+      <p>
+      <a class="btn btn-info" href="{% url 'event:detail' event.pk event.slug %}">
+        <i class="fa fa-eye"></i>
+        Voir l'évènement
+      </a>
+      {% include "event/register.html" with event=event %}
+      </p>
       <footer class="text-muted">
-        <img src="{{ event.organization.picture.url }}" alt="orga picture" class="img-fluid rounded-circle square-2">
+        {% if event.organization.picture %}
+        {% thumbnail event.organization.picture "30x30" crop="left" format="PNG" as im %}
+          <img class="img-fluid rounded-circle square-2" src="{{ im.url }}"/>
+        {% endthumbnail %}
+        {% endif %}
         Organisé par '{{ event.organization }}' à '{{ event.location.name }}'
       </footer>
-      </div>
     </div>
   </div>
 {% endfor %}
-</div>

@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "fontawesome",
     "django_assets",
     "bootstrap4",
+    "sorl.thumbnail",
 ]
 
 

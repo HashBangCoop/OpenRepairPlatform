@@ -28,6 +28,7 @@ class UserUpdateForm(forms.ModelForm):
             "email",
             "first_name",
             "last_name",
+            "avatar_img",
             "phone_number",
             "street_address",
             "birth_date",

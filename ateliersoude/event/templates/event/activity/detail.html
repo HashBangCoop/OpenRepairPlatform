@@ -8,11 +8,11 @@
       <h1 class="display-4">{{ activity.name|title }}</h1>
       {% if is_admin %}
       <p class="lead">
-        <a class="btn btn-primary" href="{% url 'event:activity_edit' activity.pk %}">
+        <a class="btn btn-primary btn-sm" href="{% url 'event:activity_edit' activity.pk %}">
           <i class="fa fa-pencil-alt"></i>
           Editer
         </a>
-        <a class="btn btn-danger" href="{% url 'event:activity_delete' activity.pk %}">
+        <a class="btn btn-danger btn-sm" href="{% url 'event:activity_delete' activity.pk %}">
           <i class="fa fa-trash-alt"></i>
           Supprimer
         </a>

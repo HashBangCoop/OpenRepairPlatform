@@ -27,7 +27,7 @@
       {% if is_volunteer %}
         <form action="{% url 'event:close' event.pk %}" method="post" class="d-inline">
           {% csrf_token %}
-          <button class="btn btn-sm btn-info" type="submit" onclick="return confirm('Êtes-vous sûrs de vouloir clôturer l\'évènement?')">
+          <button class="btn btn-sm btn-info btn-sm" type="submit" onclick="return confirm('Êtes-vous sûrs de vouloir clôturer l\'évènement?')">
             <i class="fa fa-calendar-check"></i>
             Clôturer
           </button>
