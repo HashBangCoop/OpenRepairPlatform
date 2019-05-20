@@ -152,7 +152,7 @@
                 </a>
               {% else %}
                 {# user has registered using only its email address, we need to ask you some more information #}
-                {% include "event/modal_more_info.html" with anonymous_user=user form=present_forms|lookup:user.pk %}
+                {% include "event/modal_more_info.html" with anonymous_user=user form=present_form|initial:user %}
               {% endif %}
               {% endif %}
             </div>

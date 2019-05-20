@@ -11,5 +11,6 @@ def tokenize(user, event, action):
 
 
 @register.filter
-def lookup(hashtable, target):
-    return hashtable.get(target)
+def initial(form, user):
+    form.fields["email"].initial = user.email
+    return form

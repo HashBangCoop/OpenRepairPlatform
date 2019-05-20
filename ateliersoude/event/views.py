@@ -124,11 +124,6 @@ class EventView(IsAdminMixin, DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx["register_form"] = CustomUserEmailForm
         ctx["present_form"] = MoreInfoCustomUserForm
-        ctx["present_forms"] = {}
-        for anonymous_user in self.object.registered.filter(first_name=""):
-            ctx["present_forms"][anonymous_user.pk] = (
-                MoreInfoCustomUserForm(instance=anonymous_user)
-            )
         return ctx
 
 
@@ -154,9 +149,7 @@ class EventListView(ListView):
                 organization=form.cleaned_data["organization"]
             )
         if form.cleaned_data["activity"]:
-            queryset = queryset.filter(
-                activity=form.cleaned_data["activity"]
-            )
+            queryset = queryset.filter(activity=form.cleaned_data["activity"])
         if form.cleaned_data["starts_before"]:
             queryset = queryset.filter(
                 date__lte=form.cleaned_data["starts_before"]

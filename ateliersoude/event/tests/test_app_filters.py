@@ -2,7 +2,8 @@ import pytest
 from django.core import signing
 
 from ateliersoude import settings
-from ateliersoude.event.templatetags.app_filters import tokenize, lookup
+from ateliersoude.event.templatetags.app_filters import tokenize, initial
+from ateliersoude.user.forms import MoreInfoCustomUserForm
 
 pytestmark = pytest.mark.django_db
 
@@ -20,9 +21,8 @@ def test_token():
     assert signing.loads(signed, key=settings.SECRET_KEY, salt="book") == data
 
 
-def test_lookup():
-    hashtable = {
-        "a": 1,
-        "b": 2,
-    }
-    assert lookup(hashtable, "a") == 1
+def test_initial(custom_user):
+    form = MoreInfoCustomUserForm()
+    assert form.fields["email"].initial is None
+    form = initial(form, custom_user)
+    assert form.fields["email"].initial == custom_user.email
