@@ -41,22 +41,22 @@ urlpatterns = [
         name="organization_delete",
     ),
     path(
-        "organization/<int:orga_pk>/add-admin",
+        "organization/<int:pk>/add-admin",
         views.AddAdminToOrganization.as_view(),
         name="organization_add_admin",
     ),
     path(
-        "organization/<int:orga_pk>/add-volunteer",
+        "organization/<int:pk>/add-volunteer",
         views.AddVolunteerToOrganization.as_view(),
         name="organization_add_volunteer",
     ),
     path(
-        "organization/<int:orga_pk>/<int:user_pk>/remove-from-volunteers",
+        "organization/<int:pk>/<int:user_pk>/remove-from-volunteers",
         views.RemoveVolunteerFromOrganization.as_view(),
         name="remove_from_volunteers",
     ),
     path(
-        "organization/<int:orga_pk>/<int:user_pk>/remove-from-admins",
+        "organization/<int:pk>/<int:user_pk>/remove-from-admins",
         views.RemoveAdminFromOrganization.as_view(),
         name="remove_from_admins",
     ),

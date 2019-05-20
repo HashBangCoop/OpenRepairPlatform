@@ -149,5 +149,11 @@ class Organization(models.Model):
             kwargs={"pk": self.pk, "slug": self.slug},
         )
 
+    @property
+    def volunteers_or_more(self):
+        return self.volunteers.union(
+            self.admins.all()
+        )
+
     def __str__(self):
         return self.name

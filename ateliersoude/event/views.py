@@ -27,15 +27,19 @@ from ateliersoude.event.forms import (
 )
 from ateliersoude.event.models import Activity, Condition, Event
 from ateliersoude.event.templatetags.app_filters import tokenize
-from ateliersoude.mixins import RedirectQueryParamView, PermissionMixin
-from ateliersoude.user.mixins import IsAdminMixin
+from ateliersoude.mixins import (
+    RedirectQueryParamView,
+    HasAdminPermissionMixin,
+    HasVolunteerPermissionMixin,
+)
+from ateliersoude.user.mixins import PermissionOrgaContextMixin
 from ateliersoude.user.forms import CustomUserEmailForm, MoreInfoCustomUserForm
 from ateliersoude.user.models import CustomUser
 
 logger = logging.getLogger(__name__)
 
 
-class ConditionFormView(PermissionMixin):
+class ConditionFormView(HasAdminPermissionMixin):
     model = Condition
     form_class = ConditionForm
     template_name = "event/condition/form.html"
@@ -65,7 +69,7 @@ class ConditionEditView(RedirectQueryParamView, ConditionFormView, UpdateView):
     success_message = "La Condition a bien été mise à jour"
 
 
-class ConditionDeleteView(PermissionMixin, DeleteView):
+class ConditionDeleteView(HasAdminPermissionMixin, DeleteView):
     model = Condition
     template_name = "event/condition/confirm_delete.html"
 
@@ -77,7 +81,7 @@ class ConditionDeleteView(PermissionMixin, DeleteView):
         return self.object.get_absolute_url()
 
 
-class ActivityView(IsAdminMixin, DetailView):
+class ActivityView(PermissionOrgaContextMixin, DetailView):
     model = Activity
     template_name = "event/activity/detail.html"
 
@@ -87,7 +91,7 @@ class ActivityListView(ListView):
     template_name = "event/activity/list.html"
 
 
-class ActivityFormView(PermissionMixin):
+class ActivityFormView(HasAdminPermissionMixin):
     model = Activity
     form_class = ActivityForm
     template_name = "event/activity/form.html"
@@ -106,7 +110,9 @@ class ActivityEditView(RedirectQueryParamView, ActivityFormView, UpdateView):
     success_message = "L'activité a bien été mise à jour"
 
 
-class ActivityDeleteView(PermissionMixin, RedirectQueryParamView, DeleteView):
+class ActivityDeleteView(
+    HasAdminPermissionMixin, RedirectQueryParamView, DeleteView
+):
     model = Activity
     success_url = reverse_lazy("event:activity_list")
     template_name = "event/activity/confirm_delete.html"
@@ -116,7 +122,7 @@ class ActivityDeleteView(PermissionMixin, RedirectQueryParamView, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class EventView(IsAdminMixin, DetailView):
+class EventView(PermissionOrgaContextMixin, DetailView):
     model = Event
     template_name = "event/event_detail.html"
 
@@ -161,7 +167,7 @@ class EventListView(ListView):
         return queryset
 
 
-class EventFormView(PermissionMixin):
+class EventFormView(HasAdminPermissionMixin):
     model = Event
     form_class = EventForm
 
@@ -191,7 +197,9 @@ class EventCreateView(RedirectQueryParamView, EventFormView, CreateView):
     success_message = "L'évènement a bien été créé"
 
 
-class EventDeleteView(PermissionMixin, RedirectQueryParamView, DeleteView):
+class EventDeleteView(
+    HasAdminPermissionMixin, RedirectQueryParamView, DeleteView
+):
     model = Event
     success_url = reverse_lazy("event:list")
 
@@ -200,7 +208,7 @@ class EventDeleteView(PermissionMixin, RedirectQueryParamView, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class RecurrentEventCreateView(PermissionMixin, FormView):
+class RecurrentEventCreateView(HasAdminPermissionMixin, FormView):
     form_class = RecurrentEventForm
     success_url = reverse_lazy("event:list")
     template_name = "event/recurrent_event_form.html"
@@ -375,8 +383,9 @@ class BookView(RedirectView):
         return reverse("event:detail", args=[event.id, event.slug])
 
 
-class CloseEventView(RedirectView):
+class CloseEventView(HasVolunteerPermissionMixin, RedirectView):
     http_method_names = ["post"]
+    model = Event
 
     def get_redirect_url(self, *args, **kwargs):
         event_pk = kwargs["pk"]

@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import Resolver404, resolve
 from django.shortcuts import get_object_or_404
 from ateliersoude.user.models import Organization
@@ -25,24 +25,41 @@ class RedirectQueryParamView:
             return default_redirect
 
 
-class PermissionMixin(PermissionRequiredMixin):
+class HasOrganizationPermission(UserPassesTestMixin):
     organization = None
-    permission_denied_message = (
-        "Vous n'êtes pas administrateur de l'organisation."
-    )
 
-    def get_organization_admins(self):
+    def set_organization(self):
         orga_pk = self.kwargs.get("orga_pk")
         if orga_pk:
             orga = get_object_or_404(Organization, pk=orga_pk)
+        elif self.model == Organization:
+            orga = get_object_or_404(
+                Organization, pk=self.kwargs.get("pk")
+            )
         else:
             orga = get_object_or_404(
                 self.model, pk=self.kwargs.get("pk")
             ).organization
         self.organization = orga
-        return orga.admins.all()
 
-    def has_permission(self):
-        if self.request.user not in self.get_organization_admins():
-            return False
-        return True
+    def test_func(self):
+        self.set_organization()
+        return self.request.user in self.get_authorized_users()
+
+
+class HasAdminPermissionMixin(HasOrganizationPermission):
+    permission_denied_message = (
+        "Vous n'êtes pas administrateur de l'organisation."
+    )
+
+    def get_authorized_users(self):
+        return self.organization.admins.all()
+
+
+class HasVolunteerPermissionMixin(HasOrganizationPermission):
+    permission_denied_message = (
+        "Vous n'êtes pas volontaire de l'organisation."
+    )
+
+    def get_authorized_users(self):
+        return self.organization.volunteers_or_more

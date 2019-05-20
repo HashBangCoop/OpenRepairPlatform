@@ -11,15 +11,17 @@ from django.views.generic import (
 
 from ateliersoude.location.forms import PlaceForm
 from ateliersoude.location.models import Place
-from ateliersoude.user.mixins import IsAdminMixin
-from ateliersoude.mixins import RedirectQueryParamView, PermissionMixin
+from ateliersoude.user.mixins import PermissionOrgaContextMixin
+from ateliersoude.mixins import RedirectQueryParamView, HasAdminPermissionMixin
 
 
-class PlaceView(IsAdminMixin, DetailView):
+class PlaceView(PermissionOrgaContextMixin, DetailView):
     model = Place
 
 
-class PlaceDeleteView(PermissionMixin, RedirectQueryParamView, DeleteView):
+class PlaceDeleteView(
+    HasAdminPermissionMixin, RedirectQueryParamView, DeleteView
+):
     model = Place
     success_url = reverse_lazy("location:list")
 
@@ -32,7 +34,7 @@ class PlaceMapView(TemplateView):
     template_name = "location/place_list.html"
 
 
-class PlaceFormView(PermissionMixin):
+class PlaceFormView(HasAdminPermissionMixin):
     def form_valid(self, form):
         form.instance.organization = self.organization
         messages.success(self.request, self.success_message)
