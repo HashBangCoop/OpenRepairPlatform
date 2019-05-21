@@ -154,26 +154,41 @@ def test_anonymous_get_user_create(client, event_factory, organization):
     assert response.status_code == 200
 
 
-def test_user_update(client, custom_user):
+def test_user_update(client, custom_user_factory):
+    user1 = custom_user_factory()
+    user2 = custom_user_factory()
+    data = {
+        "first_name": "Test",
+        "last_name": "Test",
+        "email": "test@test.fr",
+        "street_address": "221 b Tester Street",
+    }
     response = client.post(
-        reverse("user:user_update", kwargs={"pk": custom_user.pk}),
-        {
-            "first_name": "Test",
-            "last_name": "Test",
-            "email": "test@test.fr",
-            "street_address": "221 b Tester Street",
-        },
+        reverse("user:user_update", kwargs={"pk": user1.pk}),
+        data,
     )
     assert response.status_code == 302
-    assert response.url == reverse(
-        "user:user_detail", kwargs={"pk": custom_user.pk}
+    client.login(email=user2.email, password=USER_PASSWORD)
+    response = client.post(
+        reverse("user:user_update", kwargs={"pk": user1.pk}),
+        data,
     )
-    custom_user.refresh_from_db()
-    assert custom_user.first_name == "Test"
+    assert response.status_code == 403
+    client.login(email=user1.email, password=USER_PASSWORD)
+    response = client.post(
+        reverse("user:user_update", kwargs={"pk": user1.pk}),
+        data,
+    )
+    assert response.url == reverse(
+        "user:user_detail", kwargs={"pk": user1.pk}
+    )
+    user1.refresh_from_db()
+    assert user1.first_name == "Test"
 
 
 def test_present_with_more_info(client, event, custom_user_factory):
     user = custom_user_factory(last_name="", first_name="", street_address="")
+    volunteer = custom_user_factory()
     response = client.post(
         reverse("user:present_with_more_info", args=[user.pk]) +
         f"?event={event.pk}",
@@ -186,24 +201,9 @@ def test_present_with_more_info(client, event, custom_user_factory):
     )
 
     assert response.status_code == 302
-    url_parsed = urlparse(response.url)
-    resolved = resolve(url_parsed.path)
-    event_from_token, new_user = _load_token(
-        resolved.kwargs["token"], "present"
-    )
-    assert new_user.pk == user.pk
-    assert event_from_token.pk == event.pk
-    assert new_user.first_name == "gfdsq"
-    assert new_user.last_name == "azerty"
-    assert new_user.street_address == "2, rue part-dieu"
-
-
-def test_present_with_more_info_existing_user(client, event,
-                                              custom_user_factory):
-    user = custom_user_factory(last_name="", first_name="",
-                               street_address="", bio="C'est moi")
+    client.login(email=volunteer.email, password=USER_PASSWORD)
     response = client.post(
-        reverse("user:present_with_more_info") +
+        reverse("user:present_with_more_info", args=[user.pk]) +
         f"?event={event.pk}",
         {
             "email": user.email,
@@ -212,8 +212,18 @@ def test_present_with_more_info_existing_user(client, event,
             "street_address": "2, rue part-dieu",
         },
     )
-
-    assert response.status_code == 302
+    assert response.status_code == 403
+    event.organization.volunteers.add(volunteer)
+    response = client.post(
+        reverse("user:present_with_more_info", args=[user.pk]) +
+        f"?event={event.pk}",
+        {
+            "email": user.email,
+            "last_name": "azerty",
+            "first_name": "gfdsq",
+            "street_address": "2, rue part-dieu",
+        },
+    )
     url_parsed = urlparse(response.url)
     resolved = resolve(url_parsed.path)
     event_from_token, new_user = _load_token(
@@ -224,7 +234,16 @@ def test_present_with_more_info_existing_user(client, event,
     assert new_user.first_name == "gfdsq"
     assert new_user.last_name == "azerty"
     assert new_user.street_address == "2, rue part-dieu"
-    assert new_user.bio == "C'est moi"
+    response = client.post(
+        reverse("user:present_with_more_info", args=[user.pk]) +
+        f"?event={event.pk}",
+        {
+            "last_name": "azerty",
+            "first_name": "gfdsq",
+            "street_address": "2, rue part-dieu",
+        },
+    )
+    assert response.status_code == 403
 
 
 def test_present_with_more_info_unknown_user(client, event):
@@ -246,6 +265,7 @@ def test_present_with_more_info_unknown_user(client, event):
     event_from_token, new_user = _load_token(
         resolved.kwargs["token"], "present"
     )
+    assert CustomUser.objects.count() == 1
     assert new_user.first_name == "gfdsq"
     assert new_user.last_name == "azerty"
     assert new_user.street_address == "2, rue part-dieu"

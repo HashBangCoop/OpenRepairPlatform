@@ -1,11 +1,14 @@
 from datetime import timedelta
 
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views.generic import (
     CreateView,
     DetailView,
@@ -15,10 +18,10 @@ from django.views.generic import (
     RedirectView,
 )
 
-from ateliersoude.event.mixins import PermissionAdminOrganizationMixin
 from ateliersoude.event.models import Event
 from ateliersoude.event.templatetags.app_filters import tokenize
-from ateliersoude.user.mixins import IsAdminMixin
+from ateliersoude.mixins import HasAdminPermissionMixin
+from ateliersoude.user.mixins import PermissionOrgaContextMixin
 from ateliersoude.user.models import CustomUser, Organization
 from ateliersoude.utils import get_future_published_events
 
@@ -31,7 +34,7 @@ from .forms import (
 )
 
 
-class UserUpdateView(UpdateView):
+class UserUpdateView(UserPassesTestMixin, UpdateView):
     model = CustomUser
     template_name = "user/user_form.html"
     form_class = UserUpdateForm
@@ -40,6 +43,9 @@ class UserUpdateView(UpdateView):
         res = super().form_valid(form)
         messages.success(self.request, "L'utilisateur a bien été mis à jour.")
         return res
+
+    def test_func(self):
+        return self.request.user == self.get_object()
 
 
 class UserCreateView(CreateView):
@@ -57,13 +63,13 @@ class UserCreateView(CreateView):
 class UserCreateAndBookView(CreateView):
     model = CustomUser
     form_class = CustomUserEmailForm
+    http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
-        existing_user = CustomUser.objects.filter(
-            email=request.POST.get("email", "invalid email")
+        self.object = CustomUser.objects.filter(
+            email=self.request.POST.get("email", "invalid email")
         ).first()
-        if existing_user:
-            self.object = existing_user
+        if self.object:
             return redirect(self.get_success_url())
         return super().post(request, *args, **kwargs)
 
@@ -78,20 +84,24 @@ class UserCreateAndBookView(CreateView):
         )
 
 
-class PresentMoreInfoView(UpdateView):
+class PresentMoreInfoView(UserPassesTestMixin, UpdateView):
     model = CustomUser
     form_class = MoreInfoCustomUserForm
     http_methods = ["post"]
 
     def get_success_url(self, *args, **kwargs):
-        params = self.request.GET
-        event = get_object_or_404(Event, pk=params.get("event"))
-        redirect_url = params.get("redirect")
-        token = tokenize(self.object, event, "present")
+        redirect_url = self.request.GET.get("redirect")
+        token = tokenize(self.object, self.event, "present")
         return (
             reverse("event:user_present", kwargs={"token": token})
             + f"?redirect={redirect_url}"
         )
+
+    def test_func(self):
+        self.event = get_object_or_404(Event, pk=self.request.GET.get("event"))
+        if self.get_object().first_name != "":
+            return False
+        return self.request.user in self.event.organization.volunteers_or_more
 
 
 class PresentCreateUserView(RedirectView):
@@ -155,7 +165,7 @@ class UserListView(ListView):
     queryset = CustomUser.objects.filter(is_superuser=False, is_visible=True)
 
 
-class OrganizationDetailView(IsAdminMixin, DetailView):
+class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
     model = Organization
     template_name = "user/organization/organization_detail.html"
 
@@ -180,6 +190,7 @@ class OrganizationListView(ListView):
     template_name = "user/organization/organization_list.html"
 
 
+@method_decorator(staff_member_required, name="dispatch")
 class OrganizationCreateView(CreateView):
     template_name = "user/organization/organization_form.html"
     model = Organization
@@ -187,13 +198,12 @@ class OrganizationCreateView(CreateView):
 
     def form_valid(self, form):
         res = super().form_valid(form)
-        # TODO : restriction user staff
         form.instance.admins.add(self.request.user)
         messages.success(self.request, "L'organisation a bien été créé.")
         return res
 
 
-class OrganizationUpdateView(UpdateView):
+class OrganizationUpdateView(HasAdminPermissionMixin, UpdateView):
     template_name = "user/organization/organization_form.html"
     model = Organization
     form_class = OrganizationForm
@@ -207,7 +217,7 @@ class OrganizationUpdateView(UpdateView):
         return res
 
 
-class OrganizationDeleteView(DeleteView):
+class OrganizationDeleteView(HasAdminPermissionMixin, DeleteView):
     template_name = "user/organization/confirmation_delete.html"
     model = Organization
     success_url = reverse_lazy("user:organization_list")
@@ -218,7 +228,9 @@ class OrganizationDeleteView(DeleteView):
         return delete
 
 
-class AddUserToOrganization(PermissionAdminOrganizationMixin, RedirectView):
+class AddUserToOrganization(HasAdminPermissionMixin, RedirectView):
+    model = Organization
+
     def get_redirect_url(self, *args, **kwargs):
         email = self.request.POST.get("email", "")
         user = (
@@ -267,9 +279,9 @@ class AddVolunteerToOrganization(AddUserToOrganization):
         orga.volunteers.add(user)
 
 
-class RemoveUserFromOrganization(
-    PermissionAdminOrganizationMixin, RedirectView
-):
+class RemoveUserFromOrganization(HasAdminPermissionMixin, RedirectView):
+    model = Organization
+
     def get_redirect_url(self, *args, **kwargs):
         user_pk = kwargs["user_pk"]
         user = get_object_or_404(CustomUser, pk=user_pk)

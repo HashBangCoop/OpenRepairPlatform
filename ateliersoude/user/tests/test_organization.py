@@ -1,6 +1,7 @@
 from os.path import join, dirname, abspath
 
 import pytest
+from django.contrib.auth import get_user
 
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -57,8 +58,10 @@ def test_organization_detail_admin(client, user_log, organization,
     assert unpublished_event.get_absolute_url() in html
 
 
-def test_organization_create(client_log, organization):
-    assert Organization.objects.count() == 1
+def test_organization_create(client_log, custom_user):
+    custom_user.is_staff = True
+    custom_user.save()
+    assert Organization.objects.count() == 0
     image_file = File(open(join(FILES_DIR, "test.png"), "rb"))
     upload_image = SimpleUploadedFile(
         "image.png", image_file.read(), content_type="multipart/form-data"
@@ -68,11 +71,28 @@ def test_organization_create(client_log, organization):
         {"name": "Test", "description": "Orga test", "picture": upload_image},
     )
     assert response.status_code == 302
+    assert "/admin/login/?next=" in response.url
+    client_log.login(email=custom_user.email, password=USER_PASSWORD)
+    image_file = File(open(join(FILES_DIR, "test.png"), "rb"))
+    upload_image = SimpleUploadedFile(
+        "image.png", image_file.read(), content_type="multipart/form-data"
+    )
+    response = client_log.post(
+        reverse("user:organization_create"),
+        {"name": "Test", "description": "Orga test", "picture": upload_image},
+    )
     assert "organization" in response.url
-    assert Organization.objects.count() == 2
+    assert Organization.objects.count() == 1
 
 
 def test_organization_update(client_log, organization):
+    response = client_log.post(
+        reverse("user:organization_update", kwargs={"pk": organization.pk}),
+        {"name": "Test Orga", "description": "Test"},
+    )
+    assert response.status_code == 403
+    user = get_user(client_log)
+    organization.admins.add(user)
     response = client_log.post(
         reverse("user:organization_update", kwargs={"pk": organization.pk}),
         {"name": "Test Orga", "description": "Test"},
@@ -91,6 +111,12 @@ def test_organization_delete(client_log, organization):
     response = client_log.post(
         reverse("user:organization_delete", kwargs={"pk": organization.pk})
     )
+    assert response.status_code == 403
+    user = get_user(client_log)
+    organization.admins.add(user)
+    response = client_log.post(
+        reverse("user:organization_delete", kwargs={"pk": organization.pk})
+    )
     assert response.status_code == 302
     assert response.url == reverse("user:organization_list")
     assert Organization.objects.count() == 0
@@ -100,7 +126,7 @@ def test_add_admin_to_organization_forbidden(client, user_log, organization):
     client.login(email=user_log.email, password=USER_PASSWORD)
     response = client.post(
         reverse(
-            "user:organization_add_admin", kwargs={"orga_pk": organization.pk}
+            "user:organization_add_admin", kwargs={"pk": organization.pk}
         ),
         {"email": user_log.email},
     )
@@ -115,7 +141,7 @@ def test_add_admin_to_organization(custom_user_factory, client, organization):
     assert organization.admins.count() == 1
     response = client.post(
         reverse(
-            "user:organization_add_admin", kwargs={"orga_pk": organization.pk}
+            "user:organization_add_admin", kwargs={"pk": organization.pk}
         ),
         {"email": user.email},
     )
@@ -135,7 +161,7 @@ def test_add_admin_to_organization_wrong_user(
     assert organization.admins.count() == 1
     response = client.post(
         reverse(
-            "user:organization_add_admin", kwargs={"orga_pk": organization.pk}
+            "user:organization_add_admin", kwargs={"pk": organization.pk}
         ),
         {"email": "unknown@something.org"},
     )
@@ -150,7 +176,7 @@ def test_add_volunteer_to_organization_forbidden(
     response = client.post(
         reverse(
             "user:organization_add_volunteer",
-            kwargs={"orga_pk": organization.pk},
+            kwargs={"pk": organization.pk},
         ),
         {"email": user_log.email},
     )
@@ -168,7 +194,7 @@ def test_add_volunteer_to_organization(
     response = client.post(
         reverse(
             "user:organization_add_volunteer",
-            kwargs={"orga_pk": organization.pk},
+            kwargs={"pk": organization.pk},
         ),
         {"email": user.email},
     )
@@ -194,7 +220,7 @@ def test_add_admin_to_volunteers_of_organization(
     response = client.post(
         reverse(
             "user:organization_add_volunteer",
-            kwargs={"orga_pk": organization.pk},
+            kwargs={"pk": organization.pk},
         ),
         {"email": user.email},
     )
@@ -219,7 +245,7 @@ def test_add_volunteer_to_admins_of_organization(
     response = client.post(
         reverse(
             "user:organization_add_admin",
-            kwargs={"orga_pk": organization.pk},
+            kwargs={"pk": organization.pk},
         ),
         {"email": user.email},
     )
@@ -240,7 +266,7 @@ def test_remove_volunteer_from_organization_forbidden(
         reverse(
             "user:remove_from_volunteers",
             kwargs={
-                "orga_pk": organization.pk,
+                "pk": organization.pk,
                 "user_pk": 123,  # we don't care, we'll get a 403 anyway
             },
         )
@@ -260,7 +286,7 @@ def test_remove_volunteer_from_organization(
     response = client.post(
         reverse(
             "user:remove_from_volunteers",
-            kwargs={"orga_pk": organization.pk, "user_pk": user.pk},
+            kwargs={"pk": organization.pk, "user_pk": user.pk},
         )
     )
     assert response.status_code == 302
@@ -283,7 +309,7 @@ def test_remove_admin_from_organization(
     response = client.post(
         reverse(
             "user:remove_from_admins",
-            kwargs={"orga_pk": organization.pk, "user_pk": user.pk},
+            kwargs={"pk": organization.pk, "user_pk": user.pk},
         )
     )
     assert response.status_code == 302

@@ -438,6 +438,8 @@ def test_user_absent_redirect(client, event, custom_user):
 
 
 def test_close_event(client, organization, event_factory, custom_user_factory):
+    volunteer = custom_user_factory()
+    organization.volunteers.add(volunteer)
     event = event_factory(organization=organization)
     member = custom_user_factory()
     visitor_present = custom_user_factory()
@@ -451,13 +453,18 @@ def test_close_event(client, organization, event_factory, custom_user_factory):
     event.presents.add(member)
     assert organization.members.count() == 0
     assert organization.visitors.count() == 0
-    assert CustomUser.objects.count() == 3
+    assert CustomUser.objects.count() == 4
     resp = client.post(reverse("event:close", args=[event.pk]))
     assert resp.status_code == 302
+    client.login(email=member.email, password=USER_PASSWORD)
+    resp = client.post(reverse("event:close", args=[event.pk]))
+    assert resp.status_code == 403
+    client.login(email=volunteer.email, password=USER_PASSWORD)
+    resp = client.post(reverse("event:close", args=[event.pk]))
     assert resp["Location"] == reverse(
         "event:detail", args=[event.id, event.slug]
     )
     organization.refresh_from_db()
     assert organization.members.count() == 1
     assert organization.visitors.count() == 1
-    assert CustomUser.objects.count() == 2
+    assert CustomUser.objects.count() == 3
