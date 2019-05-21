@@ -149,9 +149,7 @@ class EventListView(ListView):
                 organization=form.cleaned_data["organization"]
             )
         if form.cleaned_data["activity"]:
-            queryset = queryset.filter(
-                activity=form.cleaned_data["activity"]
-            )
+            queryset = queryset.filter(activity=form.cleaned_data["activity"])
         if form.cleaned_data["starts_before"]:
             queryset = queryset.filter(
                 date__lte=form.cleaned_data["starts_before"]
@@ -267,6 +265,7 @@ class AbsentView(RedirectView):
             )
             return reverse("event:list")
 
+        event.registered.add(user)
         event.presents.remove(user)
         messages.success(self.request, f"{user} a été marqué comme absent !")
 

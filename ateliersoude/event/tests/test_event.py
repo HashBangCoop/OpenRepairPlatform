@@ -140,7 +140,9 @@ def test_event_list_filter_start_time(client, published_event_factory):
     assert event3.activity.description not in html
 
 
-def test_event_detail_context(client, event):
+def test_event_detail_context(client, event, custom_user_factory):
+    anonymous_user = custom_user_factory(first_name="")
+    event.registered.add(anonymous_user)
     response = client.get(reverse("event:detail", args=[event.pk, event.slug]))
     assert response.status_code == 200
     assert isinstance(response.context_data["event"], Event)

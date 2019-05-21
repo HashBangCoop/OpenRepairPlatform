@@ -21,7 +21,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form action="{% url 'user:create_and_book' %}?redirect={% url 'event:detail' event.pk event.slug %}&event={{ event.pk }}" method="post">
+        <form action="{% url 'user:create_and_book' %}?event={{ event.pk }}" method="post">
           <div class="modal-body">
             {% csrf_token %}
             {% bootstrap_form form=register_form %}

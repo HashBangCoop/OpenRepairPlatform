@@ -27,7 +27,8 @@ from .forms import (
     UserCreateForm,
     OrganizationForm,
     CustomUserEmailForm,
-    MoreInfoCustomUserForm)
+    MoreInfoCustomUserForm,
+)
 
 
 class UserUpdateView(UpdateView):
@@ -93,6 +94,29 @@ class PresentMoreInfoView(UpdateView):
         )
 
 
+class PresentCreateUserView(RedirectView):
+    form_class = MoreInfoCustomUserForm
+    http_methods = ["post"]
+
+    def get_redirect_url(self, *args, **kwargs):
+        params = self.request.GET
+        event = get_object_or_404(Event, pk=params.get("event"))
+        redirect_url = params.get("redirect")
+        user = CustomUser.objects.filter(
+            email=self.request.POST["email"]
+        ).first()
+        if user:
+            form = MoreInfoCustomUserForm(self.request.POST, instance=user)
+        else:
+            form = MoreInfoCustomUserForm(self.request.POST)
+        user = form.save()
+        token = tokenize(user, event, "present")
+        return (
+            reverse("event:user_present", kwargs={"token": token})
+            + f"?redirect={redirect_url}"
+        )
+
+
 class UserDetailView(DetailView):
     model = CustomUser
     template_name = "user/user_detail.html"
@@ -115,8 +139,8 @@ class UserDetailView(DetailView):
                 user.admin_organizations.all()
             )
             can_see_users = CustomUser.objects.filter(
-                Q(registered_events__organization__in=list(organizations)) |
-                Q(presents_events__organization__in=list(organizations))
+                Q(registered_events__organization__in=list(organizations))
+                | Q(presents_events__organization__in=list(organizations))
             )
 
             if custom_user in can_see_users:

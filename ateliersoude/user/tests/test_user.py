@@ -178,6 +178,7 @@ def test_present_with_more_info(client, event, custom_user_factory):
         reverse("user:present_with_more_info", args=[user.pk]) +
         f"?event={event.pk}",
         {
+            "email": user.email,
             "last_name": "azerty",
             "first_name": "gfdsq",
             "street_address": "2, rue part-dieu",
@@ -195,3 +196,57 @@ def test_present_with_more_info(client, event, custom_user_factory):
     assert new_user.first_name == "gfdsq"
     assert new_user.last_name == "azerty"
     assert new_user.street_address == "2, rue part-dieu"
+
+
+def test_present_with_more_info_existing_user(client, event,
+                                              custom_user_factory):
+    user = custom_user_factory(last_name="", first_name="",
+                               street_address="", bio="C'est moi")
+    response = client.post(
+        reverse("user:present_with_more_info") +
+        f"?event={event.pk}",
+        {
+            "email": user.email,
+            "last_name": "azerty",
+            "first_name": "gfdsq",
+            "street_address": "2, rue part-dieu",
+        },
+    )
+
+    assert response.status_code == 302
+    url_parsed = urlparse(response.url)
+    resolved = resolve(url_parsed.path)
+    event_from_token, new_user = _load_token(
+        resolved.kwargs["token"], "present"
+    )
+    assert new_user.pk == user.pk
+    assert event_from_token.pk == event.pk
+    assert new_user.first_name == "gfdsq"
+    assert new_user.last_name == "azerty"
+    assert new_user.street_address == "2, rue part-dieu"
+    assert new_user.bio == "C'est moi"
+
+
+def test_present_with_more_info_unknown_user(client, event):
+    assert CustomUser.objects.count() == 0
+    response = client.post(
+        reverse("user:present_with_more_info") +
+        f"?event={event.pk}",
+        {
+            "email": "testitest@example.com",
+            "last_name": "azerty",
+            "first_name": "gfdsq",
+            "street_address": "2, rue part-dieu",
+        },
+    )
+
+    assert response.status_code == 302
+    url_parsed = urlparse(response.url)
+    resolved = resolve(url_parsed.path)
+    event_from_token, new_user = _load_token(
+        resolved.kwargs["token"], "present"
+    )
+    assert new_user.first_name == "gfdsq"
+    assert new_user.last_name == "azerty"
+    assert new_user.street_address == "2, rue part-dieu"
+    assert new_user.email == "testitest@example.com"
