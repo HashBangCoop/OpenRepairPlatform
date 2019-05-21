@@ -10,7 +10,7 @@
       {% endif %}
       <div class="card-body">
         <h5 class="card-title">{{ activity.name }}</h5>
-        <p class="card-text p-2">{{ activity.description }}</p>
+        <p class="card-text p-2">{{ activity.description | safe | truncatewords_html:10 }}</p>
         <footer class="blockquote-footer">
           Géré par
           <a href="{% url 'user:organization_detail' activity.organization.pk activity.organization.slug %}">

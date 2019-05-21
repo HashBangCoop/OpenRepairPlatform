@@ -6,6 +6,8 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
+from tinymce.models import HTMLField
+
 from ateliersoude.location.models import Place
 from ateliersoude.user.models import CustomUser, Organization
 from ateliersoude.utils import get_future_published_events, validate_image
@@ -13,7 +15,9 @@ from ateliersoude.utils import get_future_published_events, validate_image
 
 class Condition(models.Model):
     name = models.CharField(verbose_name=_("Condition Type"), max_length=100)
-    description = models.TextField(verbose_name=_("Condition description"))
+    description = HTMLField(
+        verbose_name=_("Condition description"), default=""
+    )
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="conditions"
     )
@@ -40,7 +44,7 @@ class Activity(models.Model):
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="activities"
     )
-    description = models.TextField(verbose_name=_("Activity description"))
+    description = HTMLField(verbose_name=_("Activity description"), default="")
     picture = models.ImageField(
         verbose_name=_("Image"),
         upload_to="activities/",

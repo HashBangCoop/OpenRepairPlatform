@@ -2,7 +2,7 @@
   <div class="card">
     <div class="card-body">
       <h5 class="card-title">{{ condition.name }}</h5>
-      <p>{{ condition.description }}</p>
+      <p>{{ condition.description | safe }}</p>
       <span class="badge badge-pill badge-secondary">{{ condition.price }}€</span>
     </div>
     <div class="card-footer">

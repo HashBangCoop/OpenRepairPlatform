@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "django_assets",
     "bootstrap4",
     "sorl.thumbnail",
+    "tinymce",
 ]
 
 
