@@ -36,6 +36,7 @@
 {% endblock %}
 
 {% block extra_js %}
+  {{ form.media }}
   {% assets "js_create_edit_user" %}
     <script src="{{ ASSET_URL }}"></script>
   {% endassets %}

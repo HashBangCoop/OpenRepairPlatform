@@ -27,7 +27,7 @@
       </h6>
   
       <p class="p-2">
-      {{ event.activity.description }}
+      {{ event.activity.description | safe | truncatewords_html:10 }}
       </p>
       <p>
       <a class="btn btn-info" href="{% url 'event:detail' event.pk event.slug %}">

@@ -19,6 +19,7 @@ urlpatterns = [
         "api/location/",
         include("ateliersoude.location.api_urls", namespace="api_location"),
     ),
+    path(r"tinymce/", include("tinymce.urls")),
 ]
 
 if settings.DEBUG:

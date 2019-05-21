@@ -40,7 +40,7 @@
 
     <h3>Description</h3>
     <div>
-      {{ organization.description }}
+      {{ organization.description | safe }}
     </div>
 
     <h3 class="mt-4">Locaux</h3>
@@ -53,7 +53,7 @@
                 <h4 class="card-title">{{ place.name }}</h4>
                 <h6 class="card-subtitle mb-2 text-muted">{{ place.address }}</h6>
                 <span class="badge badge-secondary">{{ place.category }}</span>
-                <p class="card-text">{{ place.description }}</p>
+                <p class="card-text">{{ place.description | safe | truncatewords_html:10 }}</p>
               </div>
               {% if is_admin %}
                 <div class="card-footer">
