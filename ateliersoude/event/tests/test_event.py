@@ -61,21 +61,16 @@ def test_event_list(client, event_factory, published_event_factory):
     html = response.content.decode()
     assert unpublished_event.activity.name not in html
     assert unpublished_event.activity.description not in html
-    assert event1.activity.name in html
-    assert event1.activity.description in html
-    assert event2.activity.name in html
-    assert event2.activity.description in html
+    assert event1 in response.context_data["object_list"]
+    assert event2 in response.context_data["object_list"]
 
 
 def test_event_list_invalid(client, published_event_factory):
     event1 = published_event_factory()
     event2 = published_event_factory()
     response = client.get(reverse("event:list") + "?activity=99")
-    html = response.content.decode()
-    assert event1.activity.name in html
-    assert event1.activity.description in html
-    assert event2.activity.name in html
-    assert event2.activity.description in html
+    assert event1 in response.context_data["object_list"]
+    assert event2 in response.context_data["object_list"]
 
 
 def test_event_list_filter_place(
@@ -86,9 +81,8 @@ def test_event_list_filter_place(
     event1 = published_event_factory(location=place1)
     event2 = published_event_factory(location=place2)
     response = client.get(reverse("event:list") + f"?place={place1.pk}")
-    html = response.content.decode()
-    assert event1.activity.description in html
-    assert event2.activity.description not in html
+    assert event1 in response.context_data["object_list"]
+    assert event2 not in response.context_data["object_list"]
 
 
 def test_event_list_filter_orga(
@@ -99,9 +93,8 @@ def test_event_list_filter_orga(
     event1 = published_event_factory(organization=orga1)
     event2 = published_event_factory(organization=orga2)
     response = client.get(reverse("event:list") + f"?organization={orga1.pk}")
-    html = response.content.decode()
-    assert event1.activity.description in html
-    assert event2.activity.description not in html
+    assert event1 in response.context_data["object_list"]
+    assert event2 not in response.context_data["object_list"]
 
 
 def test_event_list_filter_activity(
@@ -112,9 +105,8 @@ def test_event_list_filter_activity(
     event1 = published_event_factory(activity=activity1)
     event2 = published_event_factory(activity=activity2)
     response = client.get(reverse("event:list") + f"?activity={activity1.pk}")
-    html = response.content.decode()
-    assert event1.activity.description in html
-    assert event2.activity.description not in html
+    assert event1 in response.context_data["object_list"]
+    assert event2 not in response.context_data["object_list"]
 
 
 def test_event_list_filter_start_time(client, published_event_factory):

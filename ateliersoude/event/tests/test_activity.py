@@ -25,8 +25,7 @@ def test_activity_list(client, activity_factory):
     assert "Aucune activité trouvée" in response.content.decode()
     activity = activity_factory()
     response = client.get(reverse("event:activity_list"))
-    assert activity.name in response.content.decode()
-    assert activity.description in response.content.decode()
+    assert activity in response.context_data["object_list"]
 
 
 def test_activity_detail_context(client, activity_factory):
