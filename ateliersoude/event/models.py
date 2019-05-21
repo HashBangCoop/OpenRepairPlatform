@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
+from simple_history.models import HistoricalRecords
 
 from ateliersoude.location.models import Place
 from ateliersoude.user.models import CustomUser, Organization
@@ -18,6 +19,7 @@ class Condition(models.Model):
         Organization, on_delete=models.CASCADE, related_name="conditions"
     )
     price = models.FloatField(verbose_name=_("Price"), default=5)
+    history = HistoricalRecords()
 
     def get_absolute_url(self):
         return reverse(
@@ -48,6 +50,7 @@ class Activity(models.Model):
         null=True,
         validators=[validate_image],
     )
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -128,6 +131,7 @@ class Event(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.activity.name)

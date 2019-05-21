@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext as _
+from simple_history.admin import SimpleHistoryAdmin
 
 from .models import CustomUser, Organization
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 
 
-class CustomUserAdmin(UserAdmin):
+class CustomUserAdmin(UserAdmin, SimpleHistoryAdmin):
     form = CustomUserChangeForm
     add_form = CustomUserCreationForm
     fieldsets = (
@@ -46,4 +47,4 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
-admin.site.register(Organization)
+admin.site.register(Organization, SimpleHistoryAdmin)
