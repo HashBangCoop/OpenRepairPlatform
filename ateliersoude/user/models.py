@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
+from simple_history.models import HistoricalRecords
 
 from ateliersoude.utils import validate_image
 
@@ -87,6 +88,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             "Should people be able to see your profile?"
         )
     )
+    history = HistoricalRecords()
 
     objects = CustomUserManager()
 
@@ -135,6 +137,7 @@ class Organization(models.Model):
     admins = models.ManyToManyField(
         CustomUser, related_name="admin_organizations", blank=True
     )
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
