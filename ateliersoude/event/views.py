@@ -348,12 +348,21 @@ class BookView(RedirectView):
             )
             return reverse("event:list")
 
+        next_url = self.request.GET.get("redirect")
+        if not utils.is_valid_path(next_url):
+            next_url = reverse("event:detail", args=[event.id, event.slug])
+
+        if event.remaining_seats <= 0:
+            messages.error(self.request, "Désolé, il n'y a plus de place "
+                                         "disponibles pour cet évènement")
+            return next_url
+
         event.registered.add(user)
 
         unbook_token = tokenize(user, event, "cancel")
         cancel_url = reverse("event:cancel_reservation", args=[unbook_token])
         cancel_url = self.request.build_absolute_uri(cancel_url)
-        register_url = reverse("user:user_create")
+        register_url = reverse("password_reset")
         register_url = self.request.build_absolute_uri(register_url)
 
         event_url = reverse("event:detail", args=[event.id, event.slug])
@@ -374,13 +383,10 @@ class BookView(RedirectView):
         )
 
         messages.success(
-            self.request, "Vous êtes inscrit à cet évènement, à bientôt !"
+            self.request, f"'{user}' bien inscrit à l'évènement !"
         )
 
-        next_url = self.request.GET.get("redirect")
-        if utils.is_valid_path(next_url):
-            return next_url
-        return reverse("event:detail", args=[event.id, event.slug])
+        return next_url
 
 
 class CloseEventView(HasVolunteerPermissionMixin, RedirectView):

@@ -23,10 +23,13 @@
               Connexion
             </button>
             <div class="card-link mt-2 text-center">
-              <a href="{% url 'user:user_create' %}">Pas de compte ? </a>
+              <a href="{% url 'password_reset' %}">Vous avez déjà participé à un évènement ? Inscrivez-vous ici.</a>
             </div>
             <div class="card-link mt-2 text-center">
-              <a href="{% url 'password_reset' %}"> Mot de passe oublié ?</a>
+              <a href="{% url 'user:user_create' %}">Pas de compte ET vous n'avez jamais participé à un évènement sur ce site ? </a>
+            </div>
+            <div class="card-link mt-2 text-center">
+              <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
             </div>
           </form>
         </div>

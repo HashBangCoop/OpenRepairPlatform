@@ -134,6 +134,10 @@
     <h5 class="mt-4">Participant·e·s</h5>
     <hr>
 
+    {% if event.remaining_seats > 0 %}
+      {% include "event/register.html" with event=event admin_text="Inscrire qqun en participant" %}
+    {% endif %}
+
     <div class="row">
       {% for user in event.registered.all %}
         <div class="col-3 p-2">
@@ -165,7 +169,7 @@
     <hr>
 
     {% if event.has_started %}
-      {% include "event/modal_more_info.html" with form=present_form text="Marquer qqun en présent" %}
+      {% include "event/modal_more_info.html" with form=present_form admin_text="Marquer qqun en présent" %}
     {% endif %}
 
     <div class="row">

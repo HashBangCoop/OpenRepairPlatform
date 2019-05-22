@@ -1,4 +1,4 @@
-{{ user.first_name }} {{ user.last_name }},
+{{ user }},
 
 Vous avez réservé une place pour {{ event.activity.name }} du {{ event.date_interval_format }}.
 Nous vous donnons donc RDV à '{{ event.location.name }}' ({{ event.location.address }})
