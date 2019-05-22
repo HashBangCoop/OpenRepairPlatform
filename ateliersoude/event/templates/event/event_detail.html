@@ -135,7 +135,7 @@
     <hr>
 
     {% if event.remaining_seats > 0 %}
-      {% include "event/register.html" with event=event admin_text="Inscrire qqun en participant" %}
+      {% include "event/register.html" with event=event admin_text="Inscrire un participant" %}
     {% endif %}
 
     <div class="row">
@@ -169,7 +169,7 @@
     <hr>
 
     {% if event.has_started %}
-      {% include "event/modal_more_info.html" with form=present_form admin_text="Marquer qqun en présent" %}
+      {% include "event/modal_more_info.html" with form=present_form admin_text="Ajouter un présent" %}
     {% endif %}
 
     <div class="row">
