@@ -179,7 +179,8 @@ class EventFormView(HasAdminPermissionMixin):
     def form_valid(self, form):
         form.instance.organization = self.organization
         event = form.save()
-        event.organizers.add(self.request.user)
+        if not self.object:
+            event.organizers.add(self.request.user)
         messages.success(self.request, self.success_message)
         return HttpResponseRedirect(event.get_absolute_url())
 
