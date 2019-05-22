@@ -354,8 +354,18 @@ class BookView(RedirectView):
             next_url = reverse("event:detail", args=[event.id, event.slug])
 
         if event.remaining_seats <= 0:
-            messages.error(self.request, "Désolé, il n'y a plus de place "
-                                         "disponibles pour cet évènement")
+            messages.error(
+                self.request,
+                "Désolé, il n'y a plus de place "
+                "disponibles pour cet évènement",
+            )
+            return next_url
+
+        if user in event.presents.all().union(event.registered.all()):
+            messages.success(
+                self.request,
+                "Vous êtes déjà inscrit à cet évènement, à bientôt !",
+            )
             return next_url
 
         event.registered.add(user)
