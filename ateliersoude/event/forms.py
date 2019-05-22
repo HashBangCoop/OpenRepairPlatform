@@ -36,7 +36,7 @@ class EventForm(ModelForm):
             queryset=self.orga.activities
         )
         self.fields["condition"] = forms.ModelChoiceField(
-            queryset=self.orga.conditions
+            queryset=self.orga.conditions, required=False
         )
 
     class Meta:
