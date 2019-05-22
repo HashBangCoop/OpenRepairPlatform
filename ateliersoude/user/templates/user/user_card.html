@@ -20,6 +20,38 @@
         </div>
       </div>
     </a>
+    <ul class="list-group list-group-flush">
+      {% if user.member_organizations.all %}
+        <li class="list-group-item">
+          <small> 
+          <i>
+            est membre de : 
+            {{ user.member_organizations.all|join:", " }}
+          </i>
+          </small>
+        </li>
+      {% endif %}
+      {% if user.volunteer_organizations.all %}
+        <li class="list-group-item">
+          <small> 
+          <i>
+            est volontaire de : 
+            {{ user.volunteer_organizations.all|join:", " }}
+          </i>
+          </small>
+        </li>
+      {% endif %}
+      {% if user.admin_organizations.all %}
+        <li class="list-group-item">
+          <small> 
+          <i>
+            est administrateur de : 
+            {{ user.admin_organizations.all|join:", " }}
+          </i>
+          </small>
+        </li>
+      {% endif %}
+    </ul>
   </div>
 {% empty %}
   <div>No users yet.</div>  

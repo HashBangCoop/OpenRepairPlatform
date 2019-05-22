@@ -76,6 +76,7 @@ class Event(models.Model):
         (2, "Semaine 2"),
         (3, "Semaine 3"),
         (4, "Semaine 4"),
+        (5, "Semaine 5"),
     ]
     DAYS = [
         ("MO", "Lundi"),

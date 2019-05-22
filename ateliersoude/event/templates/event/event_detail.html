@@ -118,14 +118,23 @@
     <div class="row">
     {% for user in event.organizers.all %}
       <div class="col-3 p-2">
-        <div class="card">
-          <a href="{% url "user:user_detail" user.pk %}" class="card-link">
+        {% if not user.is_visible and not is_admin %}
+          <div class="card">
             <div class="card-body text-center p-4">
               <i class="fa fa-user fa-4x"></i><br>
               {{ user }}
             </div>
-          </a>
-        </div>
+          </div>
+        {% else %}
+          <div class="card">
+            <a href="{% url "user:user_detail" user.pk %}" class="card-link">
+              <div class="card-body text-center p-4">
+                <i class="fa fa-user fa-4x"></i><br>
+                {{ user }}
+              </div>
+            </a>
+          </div>
+        {% endif %}
       </div>
     {% endfor %}
     </div>

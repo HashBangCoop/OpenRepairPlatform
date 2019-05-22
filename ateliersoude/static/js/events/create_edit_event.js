@@ -53,10 +53,10 @@ let french = {
     toggleTitle: "Cliquer pour basculer"
 };
 
-// Django datetime field looks like this: 2019-05-23 16:43:16
+// Django datetime field looks like this: 23/05/2019 16:43:16
 let dateTimeOpts = {
     enableTime: true,
-    dateFormat: "Y-m-d H:i:s",
+    dateFormat: "d/m/Y H:i:s",
     altInput: true,
     locale: french,
     altFormat: "j F - H\\hi",

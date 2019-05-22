@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load app_filters %}
+{% load thumbnail %}
 
 {% block content %}
   {% url "user:user_list" as user_list_url %}
@@ -9,6 +10,12 @@
 <div class="jumbotron jumbotron-fluid">
   <div class="container">
     <h1>{{ object }}</h1>
+    {% if request.user.pk == object.pk and not object.first_name or not object.last_name or not object.street_address %}
+      <div class="alert alert-warning" role="alert">
+        Pour devenir membre d'une organisation, vous devez renseigner votre Nom, Prénom 
+        et Adresse postale.
+      </div>
+    {% endif %}
   </div>
 </div>
 
@@ -77,7 +84,13 @@
       <div class="card">
         <div class="card-header text-center">
           <div class="col-lg">
-            <i class="fa fa-user fa-4x"></i>
+            {% if object.avatar_img %}
+              {% thumbnail object.avatar_img "100x100" crop="center" format="PNG" as im %}
+                <img src="{{ im.url }}" class="m-2 rounded-circle"/>
+              {% endthumbnail %}
+            {% else %}
+              <i class="fa fa-user fa-4x m-4 text-primary"></i>
+            {% endif %}
           </div>
           <h5 class="mx-auto col-12">
             {{ object.first_name|capfirst }} {{ object.last_name|capfirst}}
@@ -114,8 +127,8 @@
           <ul class="list-group">
             {% for event in object.registered_events.all %}
               <li class="list-group-item">
-              {{ event.title }}
-              {{ event.starts_at|date:"d F Y" }}
+              {{ event.activity.name }}
+              {{ event.date|date:"d F Y" }}
               {% if object.pk == request.user.pk %}
                 {% tokenize user=object event=event action='unbook' as tok %}
                 <a class="btn btn-error" href="{% url 'event:cancel_reservation' tok %}">

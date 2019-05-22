@@ -32,6 +32,12 @@ class EventForm(ModelForm):
             widget=forms.CheckboxSelectMultiple,
             required=False,
         )
+        self.fields["activity"] = forms.ModelChoiceField(
+            queryset=self.orga.activities
+        )
+        self.fields["condition"] = forms.ModelChoiceField(
+            queryset=self.orga.conditions, required=False
+        )
 
     class Meta:
         model = Event
@@ -39,6 +45,7 @@ class EventForm(ModelForm):
             "activity",
             "location",
             "available_seats",
+            "date",
             "starts_at",
             "ends_at",
             "publish_at",
