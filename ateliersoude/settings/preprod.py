@@ -30,4 +30,5 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "mail.atelier-soude.fr"
 EMAIL_PORT = 25
 EMAIL_HOST_USER = "no-reply@atelier-soude.fr"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD")

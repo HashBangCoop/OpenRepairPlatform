@@ -25,6 +25,7 @@ def get_future_published_events(events_objects):
         .filter(publish_at__lte=timezone.now())
         .exclude(date__lt=date.today())
         .exclude(date=date.today(), ends_at__lte=timezone.now().time())
+        .order_by("date")
     )
 
 

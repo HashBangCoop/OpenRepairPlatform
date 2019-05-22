@@ -109,7 +109,7 @@ class Event(models.Model):
         verbose_name=_("Start time"), default=timezone.now
     )
     ends_at = models.TimeField(verbose_name=_("End time"))
-    available_seats = models.IntegerField(
+    available_seats = models.PositiveIntegerField(
         verbose_name=_("Available seats"), default=0
     )
     registered = models.ManyToManyField(
@@ -143,7 +143,8 @@ class Event(models.Model):
 
     @property
     def remaining_seats(self):
-        return self.available_seats - self.registered.count()
+        return self.available_seats - (self.registered.count() +
+                                       self.presents.count())
 
     def date_interval_format(self):
         date = self.date.strftime("%A %d %B")
