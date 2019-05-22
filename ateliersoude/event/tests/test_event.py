@@ -1,5 +1,4 @@
 import datetime
-
 import pytest
 from django.contrib.auth import get_user
 from django.core import signing
@@ -365,6 +364,7 @@ def test_book(client, event, custom_user):
     )
     nb_registered = Event.objects.first().registered.count()
     assert nb_registered == 1
+    resp = client.get(reverse("event:book", args=[token]))
 
 
 def test_book_redirect(client, event, custom_user):
