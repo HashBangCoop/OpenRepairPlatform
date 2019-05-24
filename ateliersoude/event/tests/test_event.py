@@ -394,7 +394,7 @@ def test_user_present(client, event, custom_user):
     assert resp.status_code == 302
     assert resp["Location"] == reverse(
         "event:detail", args=[event.id, event.slug]
-    )
+    ) + "#manage"
     nb_presents = Event.objects.first().presents.count()
     assert nb_presents == 1
 
@@ -408,7 +408,7 @@ def test_user_present_redirect(client, event, custom_user):
         reverse("event:user_present", args=[token]) + query_params
     )
     assert resp.status_code == 302
-    assert resp["Location"] == reverse("location:list")
+    assert resp["Location"] == reverse("location:list") + "#manage"
 
 
 def test_user_absent_wrong_token(client):
@@ -429,7 +429,7 @@ def test_user_absent(client, event, custom_user):
     assert resp.status_code == 302
     assert resp["Location"] == reverse(
         "event:detail", args=[event.id, event.slug]
-    )
+    ) + "#manage"
     nb_presents = Event.objects.first().presents.count()
     assert nb_presents == 0
 
@@ -443,7 +443,7 @@ def test_user_absent_redirect(client, event, custom_user):
         reverse("event:user_absent", args=[token]) + query_params
     )
     assert resp.status_code == 302
-    assert resp["Location"] == reverse("location:list")
+    assert resp["Location"] == reverse("location:list") + "#manage"
 
 
 def test_close_event(client, organization, event_factory, custom_user_factory):

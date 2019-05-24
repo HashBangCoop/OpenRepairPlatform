@@ -258,8 +258,8 @@ class PresentView(RedirectView):
 
         next_url = self.request.GET.get("redirect")
         if utils.is_valid_path(next_url):
-            return next_url
-        return reverse("event:detail", args=[event.id, event.slug])
+            return next_url + "#manage"
+        return reverse("event:detail", args=[event.id, event.slug]) + "#manage"
 
 
 class AbsentView(RedirectView):
@@ -280,8 +280,8 @@ class AbsentView(RedirectView):
 
         next_url = self.request.GET.get("redirect")
         if utils.is_valid_path(next_url):
-            return next_url
-        return reverse("event:detail", args=[event.id, event.slug])
+            return next_url + "#manage"
+        return reverse("event:detail", args=[event.id, event.slug]) + "#manage"
 
 
 class CancelReservationView(RedirectView):
