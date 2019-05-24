@@ -477,3 +477,46 @@ def test_close_event(client, organization, event_factory, custom_user_factory):
     assert organization.members.count() == 1
     assert organization.visitors.count() == 1
     assert CustomUser.objects.count() == 3
+
+
+def test_add_volunteer_event(client, organization, event_factory,
+                             custom_user_factory):
+    user = custom_user_factory()
+    volunteer = custom_user_factory()
+    organization.volunteers.add(volunteer)
+    event = event_factory(organization=organization)
+    assert event.organizers.count() == 0
+    resp = client.post(reverse("event:add_volunteer", args=[event.pk]))
+    assert resp.status_code == 302
+    client.login(email=user.email, password=USER_PASSWORD)
+    resp = client.post(reverse("event:add_volunteer", args=[event.pk]))
+    assert resp.status_code == 403
+    client.login(email=volunteer.email, password=USER_PASSWORD)
+    resp = client.post(reverse("event:add_volunteer", args=[event.pk]))
+    assert resp["Location"] == reverse(
+        "event:detail", args=[event.id, event.slug]
+    )
+    event.refresh_from_db()
+    assert event.organizers.count() == 1
+
+
+def test_remove_volunteer_event(client, organization, event_factory,
+                                custom_user_factory):
+    user = custom_user_factory()
+    volunteer = custom_user_factory()
+    organization.volunteers.add(volunteer)
+    event = event_factory(organization=organization)
+    event.organizers.add(volunteer)
+    assert event.organizers.count() == 1
+    resp = client.post(reverse("event:remove_volunteer", args=[event.pk]))
+    assert resp.status_code == 302
+    client.login(email=user.email, password=USER_PASSWORD)
+    resp = client.post(reverse("event:remove_volunteer", args=[event.pk]))
+    assert resp.status_code == 403
+    client.login(email=volunteer.email, password=USER_PASSWORD)
+    resp = client.post(reverse("event:remove_volunteer", args=[event.pk]))
+    assert resp["Location"] == reverse(
+        "event:detail", args=[event.id, event.slug]
+    )
+    event.refresh_from_db()
+    assert event.organizers.count() == 0
