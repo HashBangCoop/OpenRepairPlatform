@@ -130,7 +130,7 @@
               {{ event.activity.name }}
               {{ event.date|date:"d F Y" }}
               {% if object.pk == request.user.pk %}
-                {% tokenize user=object event=event action='unbook' as tok %}
+                {% tokenize user=object event=event action='cancel' as tok %}
                 <a class="btn btn-error" href="{% url 'event:cancel_reservation' tok %}">
                   Annuler ma présence
                 </a>

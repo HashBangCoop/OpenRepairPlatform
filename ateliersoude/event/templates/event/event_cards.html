@@ -30,7 +30,7 @@
       {{ event.activity.description | safe | truncatewords_html:10 }}
       </p>
       <p>
-      <a class="btn btn-info" href="{% url 'event:detail' event.pk event.slug %}">
+      <a class="btn btn-info btn-sm" href="{% url 'event:detail' event.pk event.slug %}">
         <i class="fa fa-eye"></i>
         Voir l'évènement
       </a>

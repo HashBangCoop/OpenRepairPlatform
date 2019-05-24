@@ -418,3 +418,29 @@ class CloseEventView(HasVolunteerPermissionMixin, RedirectView):
         messages.success(self.request, "L'évènement a été clôturé avec succès")
 
         return reverse("event:detail", args=[event.id, event.slug])
+
+
+class AddVolunteerEventView(HasVolunteerPermissionMixin, RedirectView):
+    http_method_names = ["post"]
+    model = Event
+
+    def get_redirect_url(self, *args, **kwargs):
+        event_pk = kwargs["pk"]
+        event = get_object_or_404(Event, pk=event_pk)
+        event.organizers.add(self.request.user)
+        messages.success(self.request, "Ajouté aux organisateurs !")
+
+        return reverse("event:detail", args=[event.id, event.slug])
+
+
+class RemoveVolunteerEventView(HasVolunteerPermissionMixin, RedirectView):
+    http_method_names = ["post"]
+    model = Event
+
+    def get_redirect_url(self, *args, **kwargs):
+        event_pk = kwargs["pk"]
+        event = get_object_or_404(Event, pk=event_pk)
+        event.organizers.remove(self.request.user)
+        messages.success(self.request, "Retiré des organisateurs !")
+
+        return reverse("event:detail", args=[event.id, event.slug])
