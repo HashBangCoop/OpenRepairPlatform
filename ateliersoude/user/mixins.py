@@ -17,7 +17,12 @@ class PermissionOrgaContextMixin:
         context["is_volunteer"] = (
             user.is_authenticated
             and user in organization.volunteers.all()
-            or user in organization.actives.all()
+            or context["is_admin"]
+        )
+        context["is_active"] = (
+            user.is_authenticated
+            and user in organization.actives.all()
+            or user in organization.volunteers.all()
             or context["is_admin"]
         )
         return context

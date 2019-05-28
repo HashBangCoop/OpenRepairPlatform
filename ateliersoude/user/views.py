@@ -171,7 +171,7 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if context["is_admin"]:
+        if context["is_admin"] or context["is_volunteer"]:
             context["events"] = self.object.events.filter(
                 date__gte=timezone.now() - timedelta(weeks=1)
             ).order_by("date")
