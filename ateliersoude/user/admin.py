@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext as _
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import CustomUser, Organization
+from .models import CustomUser, Organization, Membership
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 
 
@@ -48,3 +48,4 @@ class CustomUserAdmin(UserAdmin, SimpleHistoryAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Organization, SimpleHistoryAdmin)
+admin.site.register(Membership, SimpleHistoryAdmin)

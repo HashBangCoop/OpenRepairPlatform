@@ -18,9 +18,14 @@ from django.views.generic import (
     RedirectView,
 )
 
+from ateliersoude import utils
 from ateliersoude.event.models import Event
 from ateliersoude.event.templatetags.app_filters import tokenize
-from ateliersoude.mixins import HasAdminPermissionMixin
+from ateliersoude.event.views import add_present
+from ateliersoude.mixins import (
+    HasAdminPermissionMixin,
+    HasVolunteerPermissionMixin,
+)
 from ateliersoude.user.mixins import PermissionOrgaContextMixin
 from ateliersoude.user.models import CustomUser, Organization
 from ateliersoude.utils import get_future_published_events
@@ -89,29 +94,31 @@ class PresentMoreInfoView(UserPassesTestMixin, UpdateView):
     form_class = MoreInfoCustomUserForm
     http_methods = ["post"]
 
+    def form_valid(self, form):
+        user = form.save()
+        add_present(self.event, user, form.cleaned_data["amount_paid"])
+        return super().form_valid(form)
+
     def get_success_url(self, *args, **kwargs):
-        redirect_url = self.request.GET.get("redirect")
-        token = tokenize(self.object, self.event, "present")
-        return (
-            reverse("event:user_present", kwargs={"token": token})
-            + f"?redirect={redirect_url}"
-        )
+        next_url = self.request.GET.get("redirect")
+        if utils.is_valid_path(next_url):
+            return next_url
+        return reverse(
+            "event:detail", args=[self.event.id, self.event.slug]
+        ) + "#manage"
 
     def test_func(self):
-        self.event = get_object_or_404(Event, pk=self.request.GET.get("event"))
-        if self.get_object().first_name != "":
-            return False
+        self.event = get_object_or_404(Event, pk=self.kwargs.get("event_pk"))
         return self.request.user in self.event.organization.volunteers_or_more
 
 
-class PresentCreateUserView(RedirectView):
+class PresentCreateUserView(HasVolunteerPermissionMixin, RedirectView):
+    model = Event
     form_class = MoreInfoCustomUserForm
     http_methods = ["post"]
 
     def get_redirect_url(self, *args, **kwargs):
-        params = self.request.GET
-        event = get_object_or_404(Event, pk=params.get("event"))
-        redirect_url = params.get("redirect")
+        event = get_object_or_404(Event, pk=kwargs.get("pk"))
         user = CustomUser.objects.filter(
             email=self.request.POST["email"]
         ).first()
@@ -120,11 +127,11 @@ class PresentCreateUserView(RedirectView):
         else:
             form = MoreInfoCustomUserForm(self.request.POST)
         user = form.save()
-        token = tokenize(user, event, "present")
-        return (
-            reverse("event:user_present", kwargs={"token": token})
-            + f"?redirect={redirect_url}"
-        )
+        add_present(event, user, form.cleaned_data["amount_paid"])
+        next_url = self.request.GET.get("redirect")
+        if utils.is_valid_path(next_url):
+            return next_url
+        return reverse("event:detail", args=[event.id, event.slug]) + "#manage"
 
 
 class UserDetailView(DetailView):

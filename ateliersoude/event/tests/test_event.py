@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from ateliersoude.event.models import Event
 from ateliersoude.user.factories import USER_PASSWORD
-from ateliersoude.user.models import CustomUser
+from ateliersoude.user.models import CustomUser, Membership
 
 pytestmark = pytest.mark.django_db
 
@@ -377,40 +377,6 @@ def test_book_redirect(client, event, custom_user):
     assert resp["Location"] == reverse("location:list")
 
 
-def test_user_present_wrong_token(client):
-    token = signing.dumps({"user_id": 1, "event_id": 2}, salt="unknown")
-    resp = client.get(reverse("event:user_present", args=[token]))
-    assert resp.status_code == 302
-    assert resp["Location"] == reverse("event:list")
-
-
-def test_user_present(client, event, custom_user):
-    nb_presents = Event.objects.first().presents.count()
-    assert nb_presents == 0
-    token = signing.dumps(
-        {"user_id": custom_user.id, "event_id": event.id}, salt="present"
-    )
-    resp = client.get(reverse("event:user_present", args=[token]))
-    assert resp.status_code == 302
-    assert resp["Location"] == reverse(
-        "event:detail", args=[event.id, event.slug]
-    ) + "#manage"
-    nb_presents = Event.objects.first().presents.count()
-    assert nb_presents == 1
-
-
-def test_user_present_redirect(client, event, custom_user):
-    token = signing.dumps(
-        {"user_id": custom_user.id, "event_id": event.id}, salt="present"
-    )
-    query_params = "?redirect=/location/"
-    resp = client.get(
-        reverse("event:user_present", args=[token]) + query_params
-    )
-    assert resp.status_code == 302
-    assert resp["Location"] == reverse("location:list") + "#manage"
-
-
 def test_user_absent_wrong_token(client):
     token = signing.dumps({"user_id": 1, "event_id": 2}, salt="unknown")
     resp = client.get(reverse("event:user_absent", args=[token]))
@@ -434,6 +400,25 @@ def test_user_absent(client, event, custom_user):
     assert nb_presents == 0
 
 
+def test_user_absent_remove_contribution(
+    client, event, custom_user, participation_factory, membership_factory
+):
+    participation_factory(event=event, user=custom_user, amount=10, saved=True)
+    membership = membership_factory(
+        organization=event.organization, user=custom_user, amount=10
+    )
+    nb_presents = Event.objects.first().presents.count()
+    assert nb_presents == 1
+    token = signing.dumps(
+        {"user_id": custom_user.id, "event_id": event.id}, salt="absent"
+    )
+    _ = client.get(reverse("event:user_absent", args=[token]))
+    nb_presents = Event.objects.first().presents.count()
+    assert nb_presents == 0
+    membership.refresh_from_db()
+    assert membership.amount == 0
+
+
 def test_user_absent_redirect(client, event, custom_user):
     token = signing.dumps(
         {"user_id": custom_user.id, "event_id": event.id}, salt="absent"
@@ -443,14 +428,22 @@ def test_user_absent_redirect(client, event, custom_user):
         reverse("event:user_absent", args=[token]) + query_params
     )
     assert resp.status_code == 302
-    assert resp["Location"] == reverse("location:list") + "#manage"
+    assert resp["Location"] == reverse("location:list")
 
 
-def test_close_event(client, organization, event_factory, custom_user_factory):
+def test_close_event(
+    client,
+    organization,
+    event_factory,
+    custom_user_factory,
+    participation_factory,
+    membership_factory,
+):
     volunteer = custom_user_factory()
     organization.volunteers.add(volunteer)
     event = event_factory(organization=organization)
     member = custom_user_factory()
+    member2 = custom_user_factory()
     visitor_present = custom_user_factory()
     visitor_absent = custom_user_factory()
     visitor_present.first_name = ""
@@ -458,11 +451,22 @@ def test_close_event(client, organization, event_factory, custom_user_factory):
     visitor_present.save()
     visitor_absent.save()
     event.registered.add(visitor_absent)
-    event.presents.add(visitor_present)
-    event.presents.add(member)
-    assert organization.members.count() == 0
-    assert organization.visitors.count() == 0
-    assert CustomUser.objects.count() == 4
+    first_participation = participation_factory(
+        event=event, user=visitor_present, amount=20
+    )
+    participation_factory(event=event, user=member, amount=10, saved=True)
+    participation_factory(event=event, user=member2, amount=10)
+    membership_member = membership_factory(
+        user=member, organization=event.organization, amount=15
+    )
+    membership_member2 = membership_factory(
+        user=member2,
+        organization=event.organization,
+        amount=50,
+        first_payment=timezone.now() - datetime.timedelta(days=400),
+    )
+    assert organization.members.count() == 2
+    assert CustomUser.objects.count() == 5
     resp = client.post(reverse("event:close", args=[event.pk]))
     assert resp.status_code == 302
     client.login(email=member.email, password=USER_PASSWORD)
@@ -474,13 +478,23 @@ def test_close_event(client, organization, event_factory, custom_user_factory):
         "event:detail", args=[event.id, event.slug]
     )
     organization.refresh_from_db()
-    assert organization.members.count() == 1
-    assert organization.visitors.count() == 1
-    assert CustomUser.objects.count() == 3
+    first_participation.refresh_from_db()
+    membership_member.refresh_from_db()
+    membership_member2.refresh_from_db()
+    visitor_membership = Membership.objects.filter(
+        user=visitor_present
+    ).first()
+    assert first_participation.saved
+    assert visitor_membership.amount == 20
+    assert membership_member.amount == 15
+    assert membership_member2.amount == 10
+    assert organization.members.count() == 3
+    assert CustomUser.objects.count() == 4
 
 
-def test_add_volunteer_event(client, organization, event_factory,
-                             custom_user_factory):
+def test_add_volunteer_event(
+    client, organization, event_factory, custom_user_factory
+):
     user = custom_user_factory()
     volunteer = custom_user_factory()
     organization.volunteers.add(volunteer)
@@ -500,8 +514,9 @@ def test_add_volunteer_event(client, organization, event_factory,
     assert event.organizers.count() == 1
 
 
-def test_remove_volunteer_event(client, organization, event_factory,
-                                custom_user_factory):
+def test_remove_volunteer_event(
+    client, organization, event_factory, custom_user_factory
+):
     user = custom_user_factory()
     volunteer = custom_user_factory()
     organization.volunteers.add(volunteer)

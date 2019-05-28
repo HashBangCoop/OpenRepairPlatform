@@ -55,7 +55,7 @@
                 <h4 class="card-title">{{ place.name }}</h4>
                 <h6 class="card-subtitle mb-2 text-muted">{{ place.address }}</h6>
                 <span class="badge badge-secondary">{{ place.category }}</span>
-                <p class="card-text">{{ place.description | safe | truncatewords_html:10 }}</p>
+                {{ place.description | safe | truncatewords_html:10 }}
               </div>
               {% if is_admin %}
                 <div class="card-footer">
@@ -80,21 +80,28 @@
 
     <h3 class="mt-4">Membres actif·ve·s</h3>
 
-    
+
     {% include 'user/organization/manage_user.html' %}
-    
+
     <div class="row mt-4">
       <div class="col-sm">
         <div class="card">
           <div class="card-body">
             <h4 class="card-title">Les membres</h4>
             <ul class="list-group list-group-flush">
-              {% for user in organization.members.all %}
-                {% if user.is_visible or is_active %}
+              {% for membership in organization.memberships.all %}
+                {% if membership.user.is_visible or is_active %}
                 <li class="list-group-item">
-                  <a href="{% url 'user:user_detail' user.pk %}">
-                    {{ user }}
+                  <a href="{% url 'user:user_detail' membership.user.pk %}">
+                    {{ membership.user }}
                   </a>
+                  {% if membership.current_contribution > 0 %}
+                    (A donné
+                      <span class="badge badge-pill badge-secondary">
+                      {{ membership.current_contribution }}€
+                      </span>
+                    depuis le {{ membership.first_payment|date:"d F Y" }})
+                  {% endif %}
                 </li>
                 {% endif %}
                 {% empty %}

@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 from django.contrib import messages
 from django.core import signing
@@ -7,6 +8,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views.generic import (
     CreateView,
     DetailView,
@@ -25,7 +27,7 @@ from ateliersoude.event.forms import (
     EventSearchForm,
     RecurrentEventForm,
 )
-from ateliersoude.event.models import Activity, Condition, Event
+from ateliersoude.event.models import Activity, Condition, Event, Participation
 from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.mixins import (
     RedirectQueryParamView,
@@ -34,7 +36,7 @@ from ateliersoude.mixins import (
 )
 from ateliersoude.user.mixins import PermissionOrgaContextMixin
 from ateliersoude.user.forms import CustomUserEmailForm, MoreInfoCustomUserForm
-from ateliersoude.user.models import CustomUser
+from ateliersoude.user.models import CustomUser, Membership
 
 logger = logging.getLogger(__name__)
 
@@ -130,6 +132,9 @@ class EventView(PermissionOrgaContextMixin, DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx["register_form"] = CustomUserEmailForm
         ctx["present_form"] = MoreInfoCustomUserForm
+        ctx["total_fees"] = sum(
+            [fee.amount for fee in self.get_object().participations.all()]
+        )
         return ctx
 
 
@@ -240,26 +245,9 @@ def _load_token(token, salt):
     return Event.objects.get(pk=event_id), CustomUser.objects.get(pk=user_id)
 
 
-class PresentView(RedirectView):
-    def get_redirect_url(self, *args, **kwargs):
-        token = kwargs["token"]
-        try:
-            event, user = _load_token(token, "present")
-        except Exception:
-            logger.exception(f"Error loading token {token} during present")
-            messages.error(
-                self.request, "Une erreur est survenue lors de votre requête"
-            )
-            return reverse("event:list")
-
-        event.registered.remove(user)
-        event.presents.add(user)
-        messages.success(self.request, f"{user} est présent !")
-
-        next_url = self.request.GET.get("redirect")
-        if utils.is_valid_path(next_url):
-            return next_url + "#manage"
-        return reverse("event:detail", args=[event.id, event.slug]) + "#manage"
+def add_present(event: Event, user: CustomUser, paid: int):
+    event.registered.remove(user)
+    Participation.objects.create(event=event, user=user, amount=paid)
 
 
 class AbsentView(RedirectView):
@@ -275,12 +263,20 @@ class AbsentView(RedirectView):
             return reverse("event:list")
 
         event.registered.add(user)
+        participation = event.participations.filter(user=user).first()
+        if participation and participation.saved:
+            contribution = Membership.objects.filter(
+                user=participation.user, organization=event.organization
+            ).first()
+            if contribution:
+                contribution.amount -= participation.amount
+                contribution.save()
         event.presents.remove(user)
         messages.success(self.request, f"{user} a été marqué comme absent !")
 
         next_url = self.request.GET.get("redirect")
         if utils.is_valid_path(next_url):
-            return next_url + "#manage"
+            return next_url
         return reverse("event:detail", args=[event.id, event.slug]) + "#manage"
 
 
@@ -407,15 +403,37 @@ class CloseEventView(HasVolunteerPermissionMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         event_pk = kwargs["pk"]
         event = get_object_or_404(Event, pk=event_pk)
+        nb_deleted, nb_new_members = 0, 0
         for temp_user in event.registered.filter(first_name=""):
             temp_user.delete()
-        for present in event.presents.all():
-            if present.first_name == "":
-                event.organization.visitors.add(present)
+            nb_deleted += 1
+        for participation in event.participations.all():
+            contribution, created = Membership.objects.get_or_create(
+                user=participation.user, organization=event.organization
+            )
+            if participation.saved:
+                amount = 0
             else:
-                event.organization.members.add(present)
+                amount = participation.amount
 
-        messages.success(self.request, "L'évènement a été clôturé avec succès")
+            if contribution.first_payment < timezone.now() - timedelta(
+                days=365
+            ):
+                contribution.first_payment = timezone.now()
+                contribution.amount = amount
+            else:
+                contribution.amount += amount
+            participation.saved = True
+            participation.save()
+            contribution.save()
+            if created:
+                nb_new_members += 1
+
+        messages.success(
+            self.request,
+            f"{nb_deleted} visiteurs temporaires "
+            f"supprimés, {nb_new_members} nouveaux membres !",
+        )
 
         return reverse("event:detail", args=[event.id, event.slug])
 

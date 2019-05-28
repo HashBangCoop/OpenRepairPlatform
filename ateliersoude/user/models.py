@@ -1,5 +1,6 @@
 import logging
 
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -128,7 +129,10 @@ class Organization(models.Model):
         CustomUser, related_name="visitor_organizations", blank=True
     )
     members = models.ManyToManyField(
-        CustomUser, related_name="member_organizations", blank=True
+        CustomUser,
+        related_name="member_organizations",
+        blank=True,
+        through="Membership",
     )
     actives = models.ManyToManyField(
         CustomUser, related_name="active_organizations", blank=True
@@ -138,6 +142,12 @@ class Organization(models.Model):
     )
     admins = models.ManyToManyField(
         CustomUser, related_name="admin_organizations", blank=True
+    )
+    min_fee = models.PositiveIntegerField(
+        verbose_name=_("Minimum contribution"), default=0, blank=True
+    )
+    advised_fee = models.PositiveIntegerField(
+        verbose_name=_("Advised contribution"), default=0, blank=True
     )
     history = HistoricalRecords()
 
@@ -157,3 +167,27 @@ class Organization(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Membership(models.Model):
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="memberships"
+    )
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name="memberships"
+    )
+    first_payment = models.DateTimeField(default=timezone.now)
+    amount = models.PositiveIntegerField(
+        verbose_name=_("Amount paid"), default=0, blank=True
+    )
+    history = HistoricalRecords()
+
+    @property
+    def current_contribution(self):
+        if self.first_payment < timezone.now() - relativedelta(years=1):
+            self.amount = 0
+            self.save()
+        return self.amount
+
+    class Meta:
+        unique_together = (("user", "organization"),)
