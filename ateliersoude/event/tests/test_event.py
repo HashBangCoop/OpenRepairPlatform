@@ -189,14 +189,14 @@ def test_get_event_create_403(client, user_log, organization):
     response = client.get(reverse("event:create", args=[organization.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas administrateur" in html
+    assert "pas volontaire" in html
 
 
 def test_get_event_create_403_not_in_orga(client_log, organization):
     response = client_log.get(reverse("event:create", args=[organization.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas administrateur" in html
+    assert "pas volontaire" in html
 
 
 def test_event_create(client, user_log, event_data):
@@ -263,14 +263,14 @@ def test_get_event_update_403(client, user_log, organization, event):
     response = client.get(reverse("event:edit", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas administrateur" in html
+    assert "pas volontaire" in html
 
 
 def test_get_event_update_403_not_in_orga(client_log, organization, event):
     response = client_log.get(reverse("event:edit", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas administrateur" in html
+    assert "pas volontaire" in html
 
 
 def test_cancel_reservation_wrong_token(client):

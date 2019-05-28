@@ -51,9 +51,19 @@ urlpatterns = [
         name="organization_add_volunteer",
     ),
     path(
+        "organization/<int:pk>/add-active",
+        views.AddActiveToOrganization.as_view(),
+        name="organization_add_active",
+    ),
+    path(
         "organization/<int:pk>/<int:user_pk>/remove-from-volunteers",
         views.RemoveVolunteerFromOrganization.as_view(),
         name="remove_from_volunteers",
+    ),
+    path(
+        "organization/<int:pk>/<int:user_pk>/remove-from-actives",
+        views.RemoveActiveFromOrganization.as_view(),
+        name="remove_from_actives",
     ),
     path(
         "organization/<int:pk>/<int:user_pk>/remove-from-admins",
@@ -61,11 +71,13 @@ urlpatterns = [
         name="remove_from_admins",
     ),
     path(
-        "present/", views.PresentCreateUserView.as_view(),
-        name="present_with_more_info"
+        "present/",
+        views.PresentCreateUserView.as_view(),
+        name="present_with_more_info",
     ),
     path(
-        "present/<int:pk>/", views.PresentMoreInfoView.as_view(),
-        name="present_with_more_info"
+        "present/<int:pk>/",
+        views.PresentMoreInfoView.as_view(),
+        name="present_with_more_info",
     ),
 ]

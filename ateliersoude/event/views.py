@@ -167,7 +167,7 @@ class EventListView(ListView):
         return queryset
 
 
-class EventFormView(HasAdminPermissionMixin):
+class EventFormView(HasVolunteerPermissionMixin):
     model = Event
     form_class = EventForm
 
@@ -209,7 +209,7 @@ class EventDeleteView(
         return super().delete(request, *args, **kwargs)
 
 
-class RecurrentEventCreateView(HasAdminPermissionMixin, FormView):
+class RecurrentEventCreateView(HasVolunteerPermissionMixin, FormView):
     form_class = RecurrentEventForm
     success_url = reverse_lazy("event:list")
     template_name = "event/recurrent_event_form.html"

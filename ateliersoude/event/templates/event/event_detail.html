@@ -20,9 +20,15 @@
         </a>
       </p>
       <div class="lead">
+      {% if is_volunteer %}
+        <a href="{% url 'event:edit' event.pk %}" class="btn btn-warning btn-sm">
+          <i class="fa fa-pencil-alt"></i> Éditer
+        </a>
+      {% endif %}
       {% if is_admin %}
-        <a href="{% url 'event:edit' event.pk %}" class="btn btn-warning btn-sm"><i class="fa fa-pencil-alt"></i> Éditer</a>
-        <a href="{% url 'event:delete' event.pk %}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</a>
+        <a href="{% url 'event:delete' event.pk %}" class="btn btn-danger btn-sm">
+          <i class="fa fa-trash"></i> Supprimer
+        </a>
       {% endif %}
       {% if is_volunteer %}
         <form action="{% url 'event:close' event.pk %}" method="post" class="d-inline">
@@ -161,67 +167,70 @@
     {% endfor %}
     </div>
 
-    {% if is_volunteer %}
-    <h5 class="mt-4" id="manage">Participant·e·s</h5>
-    <hr>
+    {% if is_active %}
+      <h5 class="mt-4" id="manage">Participant·e·s</h5>
+      <hr>
 
-    {% if event.remaining_seats > 0 %}
-      {% include "event/register.html" with event=event admin_text="Inscrire un participant" %}
-    {% endif %}
+      {% if event.remaining_seats > 0 and is_volunteer %}
+        {% include "event/register.html" with event=event admin_text="Inscrire un participant" %}
+      {% endif %}
 
-    <div class="row">
-      {% for user in event.registered.all %}
-        <div class="col-3 p-2">
-          <div class="card">
-            <div class="card-body text-center p-4">
-              <a href="{% url "user:user_detail" user.pk %}" class="card-link">
-                <i class="fa fa-user fa-4x"></i><br>
-                {{ user }}<br>
-              </a>
-              {% if event.has_started %}
-              {% if user.first_name %}
-                {% tokenize user=user event=event action='present' as tok %}
-                <a href="{% url 'event:user_present' tok %}" class="btn btn-success btn-sm">
-                  <i class="fa fa-plus"></i>
-                  Marquer en présent
+      <div class="row">
+        {% for user in event.registered.all %}
+          <div class="col-3 p-2">
+            <div class="card">
+              <div class="card-body text-center p-4">
+                <a href="{% url "user:user_detail" user.pk %}" class="card-link">
+                  <i class="fa fa-user fa-4x"></i><br>
+                  {{ user }}<br>
                 </a>
-              {% else %}
-                {# user has registered using only its email address, we need to ask you some more information #}
-                {% include "event/modal_more_info.html" with anonymous_user=user form=present_form|initial:user %}
-              {% endif %}
-              {% endif %}
+                
+                {% if event.has_started and is_volunteer %}
+                {% if user.first_name %}
+                  {% tokenize user=user event=event action='present' as tok %}
+                  <a href="{% url 'event:user_present' tok %}" class="btn btn-success btn-sm">
+                    <i class="fa fa-plus"></i>
+                    Marquer en présent
+                  </a>
+                {% else %}
+                  {# user has registered using only its email address, we need to ask you some more information #}
+                  {% include "event/modal_more_info.html" with anonymous_user=user form=present_form|initial:user %}
+                {% endif %}
+                {% endif %}
+              </div>
             </div>
           </div>
-        </div>
-      {% endfor %}
-    </div>
+        {% endfor %}
+      </div>
 
-    <h5 class="mt-4">Présent·e·s</h5>
-    <hr>
+      <h5 class="mt-4">Présent·e·s</h5>
+      <hr>
 
-    {% if event.has_started %}
-      {% include "event/modal_more_info.html" with form=present_form admin_text="Ajouter un présent" %}
-    {% endif %}
+      {% if event.has_started and is_volunteer %}
+        {% include "event/modal_more_info.html" with form=present_form admin_text="Ajouter un présent" %}
+      {% endif %}
 
-    <div class="row">
-      {% for user in event.presents.all %}
-        <div class="col-3 p-2">
-          <div class="card">
-            <div class="card-body text-center p-4">
-              <a href="{% url "user:user_detail" user.pk %}" class="card-link">
-                <i class="fa fa-user fa-4x"></i><br>
-                {{ user }}<br>
-              </a>
-              {% tokenize user=user event=event action='absent' as tok %}
-              <a href="{% url 'event:user_absent' tok %}" class="btn btn-danger btn-sm">
-                <i class="fa fa-minus"></i>
-                Marquer en absent
-              </a>
+      <div class="row">
+        {% for user in event.presents.all %}
+          <div class="col-3 p-2">
+            <div class="card">
+              <div class="card-body text-center p-4">
+                <a href="{% url "user:user_detail" user.pk %}" class="card-link">
+                  <i class="fa fa-user fa-4x"></i><br>
+                  {{ user }}<br>
+                </a>
+                {% if is_volunteer %}
+                  {% tokenize user=user event=event action='absent' as tok %}
+                  <a href="{% url 'event:user_absent' tok %}" class="btn btn-danger btn-sm">
+                    <i class="fa fa-minus"></i>
+                    Marquer en absent
+                  </a>
+                {% endif %}
+              </div>
             </div>
           </div>
-        </div>
-      {% endfor %}
-    </div>
+        {% endfor %}
+      </div>
 
     {% endif %}
 

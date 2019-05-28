@@ -47,7 +47,7 @@ def event_recurrent_data(
             .strftime("%H:%M")
         ),
         "end_date": (
-            (timezone.now() + datetime.timedelta(days=100))
+            (timezone.now() + datetime.timedelta(days=90))
             .date()
             .strftime("%Y-%m-%d")
         ),
@@ -77,7 +77,7 @@ def test_get_event_recurrent_create_403(client, user_log, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas administrateur" in html
+    assert "pas volontaire" in html
 
 
 def test_get_event_recurrent_create_403_not_in_orga(client_log, organization):
@@ -86,7 +86,7 @@ def test_get_event_recurrent_create_403_not_in_orga(client_log, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas administrateur" in html
+    assert "pas volontaire" in html
 
 
 def test_event_create(client, user_log, event_recurrent_data):
