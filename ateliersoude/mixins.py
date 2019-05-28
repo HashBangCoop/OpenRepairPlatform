@@ -33,9 +33,7 @@ class HasOrganizationPermission(UserPassesTestMixin):
         if orga_pk:
             orga = get_object_or_404(Organization, pk=orga_pk)
         elif self.model == Organization:
-            orga = get_object_or_404(
-                Organization, pk=self.kwargs.get("pk")
-            )
+            orga = get_object_or_404(Organization, pk=self.kwargs.get("pk"))
         else:
             orga = get_object_or_404(
                 self.model, pk=self.kwargs.get("pk")
@@ -57,9 +55,7 @@ class HasAdminPermissionMixin(HasOrganizationPermission):
 
 
 class HasVolunteerPermissionMixin(HasOrganizationPermission):
-    permission_denied_message = (
-        "Vous n'êtes pas volontaire de l'organisation."
-    )
+    permission_denied_message = "Vous n'êtes pas volontaire de l'organisation."
 
     def get_authorized_users(self):
         return self.organization.volunteers_or_more
