@@ -146,7 +146,7 @@ class UserDetailView(DetailView):
                 return custom_user
 
             organizations = user.volunteer_organizations.all().union(
-                user.admin_organizations.all()
+                user.active_organizations.all(), user.admin_organizations.all()
             )
             can_see_users = CustomUser.objects.filter(
                 Q(registered_events__organization__in=list(organizations))
@@ -181,6 +181,9 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
         context["add_admin_form"] = CustomUserEmailForm(auto_id="id_admin_%s")
         context["add_volunteer_form"] = CustomUserEmailForm(
             auto_id="id_volunteer_%s"
+        )
+        context["add_active_form"] = CustomUserEmailForm(
+            auto_id="id_active_%s"
         )
         return context
 
@@ -270,13 +273,22 @@ class AddAdminToOrganization(AddUserToOrganization):
     @staticmethod
     def add_user_to_orga(orga, user):
         orga.volunteers.remove(user)
+        orga.actives.remove(user)
         orga.admins.add(user)
 
 
 class AddVolunteerToOrganization(AddUserToOrganization):
     @staticmethod
     def add_user_to_orga(orga, user):
+        orga.actives.remove(user)
         orga.volunteers.add(user)
+
+
+class AddActiveToOrganization(AddUserToOrganization):
+    @staticmethod
+    def add_user_to_orga(orga, user):
+        orga.volunteers.remove(user)
+        orga.actives.add(user)
 
 
 class RemoveUserFromOrganization(HasAdminPermissionMixin, RedirectView):
@@ -310,3 +322,9 @@ class RemoveVolunteerFromOrganization(RemoveUserFromOrganization):
     @staticmethod
     def remove_user_from_orga(orga, user):
         orga.volunteers.remove(user)
+
+
+class RemoveActiveFromOrganization(RemoveUserFromOrganization):
+    @staticmethod
+    def remove_user_from_orga(orga, user):
+        orga.actives.remove(user)

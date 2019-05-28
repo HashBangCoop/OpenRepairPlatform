@@ -12,12 +12,12 @@ class PermissionOrgaContextMixin:
             organization = self.object
         user = self.request.user
         context["is_admin"] = (
-                user.is_authenticated
-                and user in organization.admins.all()
+            user.is_authenticated and user in organization.admins.all()
         )
         context["is_volunteer"] = (
-                user.is_authenticated
-                and user in organization.volunteers.all()
-                or context["is_admin"]
+            user.is_authenticated
+            and user in organization.volunteers.all()
+            or user in organization.actives.all()
+            or context["is_admin"]
         )
         return context

@@ -130,6 +130,9 @@ class Organization(models.Model):
     members = models.ManyToManyField(
         CustomUser, related_name="member_organizations", blank=True
     )
+    actives = models.ManyToManyField(
+        CustomUser, related_name="active_organizations", blank=True
+    )
     volunteers = models.ManyToManyField(
         CustomUser, related_name="volunteer_organizations", blank=True
     )
@@ -150,9 +153,7 @@ class Organization(models.Model):
 
     @property
     def volunteers_or_more(self):
-        return self.volunteers.union(
-            self.admins.all()
-        )
+        return self.volunteers.union(self.admins.all())
 
     def __str__(self):
         return self.name
