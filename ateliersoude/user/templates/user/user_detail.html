@@ -119,23 +119,49 @@
     
     </section>   
 
-    {% if object.registered_events.all %}
+    {% if object.registered_events.all or object.presents_events.all %}
       
       <section class="col-md-6">
-        <h5 class="border-bottom border-gray pb-2">Rendez-vous</h5>
+      {% if object.registered_events.all %}
+        <h5 class="border-bottom border-gray pb-2">Rendez-vous à venir</h5>
         <div class="row">
           <ul class="list-group">
             {% for event in object.registered_events.all %}
+              {% if not event.has_ended %}
+                <li class="list-group-item">
+                {{ event.activity.name }}
+                {{ event.date|date:"d F Y" }}
+                {% if object.pk == request.user.pk %}
+                  {% tokenize user=object event=event action='cancel' as tok %}
+                  <a class="btn btn-error" href="{% url 'event:cancel_reservation' tok %}">
+                    Annuler ma présence
+                  </a>
+                {% endif %}
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <hr>
+        {% endif %}
+        <h5 class="border-bottom border-gray pb-2">Rendez-vous passés</h5>
+        <div class="row">
+          <ul class="list-group">
+            {% for event in object.presents_events.all %}
               <li class="list-group-item">
               {{ event.activity.name }}
               {{ event.date|date:"d F Y" }}
-              {% if object.pk == request.user.pk %}
-                {% tokenize user=object event=event action='cancel' as tok %}
-                <a class="btn btn-error" href="{% url 'event:cancel_reservation' tok %}">
-                  Annuler ma présence
-                </a>
-              {% endif %}  
+              <span class="badge badge-pill badge-info">A participé</span>
               </li>
+            {% endfor %}
+            {% for event in object.registered_events.all %}
+              {% if event.has_ended %}
+                <li class="list-group-item">
+                {{ event.activity.name }}
+                {{ event.date|date:"d F Y" }}
+                <span class="badge badge-pill badge-secondary">Absent</span>
+                </li>
+              {% endif %}
             {% endfor %}
           </ul>
         </div>
