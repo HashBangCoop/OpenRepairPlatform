@@ -6,9 +6,9 @@ from django.utils import timezone
 from factory.django import DjangoModelFactory
 from faker import Factory
 
-from ateliersoude.event.models import Activity, Event, Condition
+from ateliersoude.event.models import Activity, Event, Condition, Participation
 from ateliersoude.location.factories import PlaceFactory
-from ateliersoude.user.factories import OrganizationFactory
+from ateliersoude.user.factories import OrganizationFactory, CustomUserFactory
 
 faker = Factory.create()
 
@@ -60,3 +60,11 @@ class PublishedEventFactory(EventFactory):
         datetime_start=_in_hours(-5), datetime_end=_in_hours(-2)
     )
     ends_at = datetime.time(hour=23, minute=59)
+
+
+class ParticipationFactory(DjangoModelFactory):
+    user = factory.SubFactory(CustomUserFactory)
+    event = factory.SubFactory(EventFactory)
+
+    class Meta:
+        model = Participation

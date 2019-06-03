@@ -12,5 +12,10 @@ def tokenize(user, event, action):
 
 @register.filter
 def initial(form, user):
-    form.fields["email"].initial = user.email
+    form.initial.update(user.__dict__)
     return form
+
+
+@register.simple_tag
+def filter_orga(queryset, organization):
+    return queryset.filter(organization=organization).first()

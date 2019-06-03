@@ -2,7 +2,12 @@ import pytest
 from django.core import signing
 
 from ateliersoude import settings
-from ateliersoude.event.templatetags.app_filters import tokenize, initial
+from ateliersoude.event.models import Event
+from ateliersoude.event.templatetags.app_filters import (
+    tokenize,
+    initial,
+    filter_orga,
+)
 from ateliersoude.user.forms import MoreInfoCustomUserForm
 
 pytestmark = pytest.mark.django_db
@@ -23,6 +28,14 @@ def test_token():
 
 def test_initial(custom_user):
     form = MoreInfoCustomUserForm()
-    assert form.fields["email"].initial is None
+    assert form.initial.get("email") is None
     form = initial(form, custom_user)
-    assert form.fields["email"].initial == custom_user.email
+    assert form.initial["email"] == custom_user.email
+
+
+def test_filter_orga(organization, event_factory):
+    _ = event_factory()
+    event1 = event_factory(organization=organization)
+    _ = event_factory()
+    a = filter_orga(Event.objects, organization)
+    assert a.pk == event1.pk

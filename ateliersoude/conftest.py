@@ -9,12 +9,14 @@ from ateliersoude.event.factories import (
     ConditionFactory,
     EventFactory,
     PublishedEventFactory,
+    ParticipationFactory,
 )
 
 from ateliersoude.user.factories import (
     USER_PASSWORD,
     CustomUserFactory,
     OrganizationFactory,
+    MembershipFactory,
 )
 
 register(CustomUserFactory)
@@ -24,6 +26,8 @@ register(ActivityFactory)
 register(ConditionFactory)
 register(EventFactory)
 register(PublishedEventFactory)
+register(MembershipFactory)
+register(ParticipationFactory)
 
 
 @pytest.fixture

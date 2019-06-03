@@ -50,6 +50,8 @@ class CustomUserEmailForm(forms.ModelForm):
 
 
 class MoreInfoCustomUserForm(forms.ModelForm):
+    amount_paid = forms.IntegerField(min_value=0, initial=0)
+
     class Meta:
         model = CustomUser
         fields = ["email", "first_name", "last_name", "street_address"]

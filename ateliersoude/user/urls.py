@@ -71,13 +71,13 @@ urlpatterns = [
         name="remove_from_admins",
     ),
     path(
-        "present/",
+        "present/<int:pk>",
         views.PresentCreateUserView.as_view(),
-        name="present_with_more_info",
+        name="present_create_user"
     ),
     path(
-        "present/<int:pk>/",
+        "present/<int:event_pk>/<int:pk>/",
         views.PresentMoreInfoView.as_view(),
-        name="present_with_more_info",
+        name="present_with_more_info"
     ),
 ]

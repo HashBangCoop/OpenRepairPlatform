@@ -7,7 +7,7 @@ from factory.django import DjangoModelFactory, ImageField
 
 from faker import Factory
 
-from ateliersoude.user.models import Organization, CustomUser
+from ateliersoude.user.models import Organization, CustomUser, Membership
 
 faker = Factory.create()
 USER_PASSWORD = "hackmeplease2048"
@@ -39,3 +39,11 @@ class CustomUserFactory(DjangoModelFactory):
     def set_password(self, create, extracted, **kwargs):
         self.set_password(USER_PASSWORD)
         self.save()
+
+
+class MembershipFactory(DjangoModelFactory):
+    organization = factory.SubFactory(OrganizationFactory)
+    user = factory.SubFactory(CustomUserFactory)
+
+    class Meta:
+        model = Membership

@@ -124,6 +124,7 @@ class Event(models.Model):
         related_name="presents_events",
         verbose_name=_("Presents"),
         blank=True,
+        through="Participation",
     )
     organizers = models.ManyToManyField(
         CustomUser,
@@ -144,8 +145,9 @@ class Event(models.Model):
 
     @property
     def remaining_seats(self):
-        return self.available_seats - (self.registered.count() +
-                                       self.presents.count())
+        return self.available_seats - (
+            self.registered.count() + self.presents.count()
+        )
 
     def date_interval_format(self):
         date = self.date.strftime("%A %d %B")
@@ -182,3 +184,18 @@ class Event(models.Model):
             self.date.strftime("%d %B"),
         )
         return full_title
+
+
+class Participation(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name="participations"
+    )
+    saved = models.BooleanField(default=False)
+    amount = models.PositiveIntegerField(
+        verbose_name=_("Amount paid"), default=0, blank=True
+    )
+    history = HistoricalRecords()
+
+    class Meta:
+        unique_together = (("user", "event"),)

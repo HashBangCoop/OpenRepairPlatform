@@ -16,6 +16,10 @@ class EventForm(ModelForm):
     )
     starts_at = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time"}))
     ends_at = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time"}))
+    publish_at = forms.DateTimeField(
+        initial=dt.today(),
+        widget=forms.DateTimeInput(format="%Y-%m-%d %H:%M:%S"),
+    )
 
     def __init__(self, *args, **kwargs):
         self.orga = kwargs.pop("orga")
@@ -34,9 +38,6 @@ class EventForm(ModelForm):
         )
         self.fields["activity"] = forms.ModelChoiceField(
             queryset=self.orga.activities
-        )
-        self.fields["condition"] = forms.ModelChoiceField(
-            queryset=self.orga.conditions, required=False
         )
 
     class Meta:
