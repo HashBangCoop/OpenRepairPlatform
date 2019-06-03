@@ -64,4 +64,6 @@ class OrganizationForm(forms.ModelForm):
 
     class Meta:
         model = Organization
-        exclude = ["visitors", "members", "volunteers", "admins", "slug"]
+        exclude = [
+            "visitors", "members", "actives", "volunteers", "admins", "slug"
+        ]

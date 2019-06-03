@@ -31,12 +31,12 @@
           </small>
         </li>
       {% endif %}
-      {% if user.volunteer_organizations.all %}
+      {% if user.active_organizations.all %}
         <li class="list-group-item">
           <small> 
           <i>
             est volontaire de : 
-            {{ user.volunteer_organizations.all|join:", " }}
+            {{ user.active_organizations.all|join:", " }}
           </i>
           </small>
         </li>

@@ -24,7 +24,7 @@ from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.event.views import add_present
 from ateliersoude.mixins import (
     HasAdminPermissionMixin,
-    HasVolunteerPermissionMixin,
+    HasActivePermissionMixin,
 )
 from ateliersoude.user.mixins import PermissionOrgaContextMixin
 from ateliersoude.user.models import CustomUser, Organization
@@ -109,10 +109,10 @@ class PresentMoreInfoView(UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         self.event = get_object_or_404(Event, pk=self.kwargs.get("event_pk"))
-        return self.request.user in self.event.organization.volunteers_or_more
+        return self.request.user in self.event.organization.actives_or_more
 
 
-class PresentCreateUserView(HasVolunteerPermissionMixin, RedirectView):
+class PresentCreateUserView(HasActivePermissionMixin, RedirectView):
     model = Event
     form_class = MoreInfoCustomUserForm
     http_methods = ["post"]
@@ -152,8 +152,9 @@ class UserDetailView(DetailView):
             if user.pk == custom_user.pk:
                 return custom_user
 
-            organizations = user.volunteer_organizations.all().union(
-                user.active_organizations.all(), user.admin_organizations.all()
+            organizations = user.active_organizations.all().union(
+                user.volunteer_organizations.all(),
+                user.admin_organizations.all(),
             )
             can_see_users = CustomUser.objects.filter(
                 Q(registered_events__organization__in=list(organizations))
@@ -178,7 +179,7 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if context["is_admin"] or context["is_volunteer"]:
+        if context["is_active"]:
             context["events"] = self.object.events.filter(
                 date__gte=timezone.now() - timedelta(weeks=1)
             ).order_by("date")
@@ -186,11 +187,11 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
             context["events"] = get_future_published_events(self.object.events)
         context["register_form"] = CustomUserEmailForm
         context["add_admin_form"] = CustomUserEmailForm(auto_id="id_admin_%s")
-        context["add_volunteer_form"] = CustomUserEmailForm(
-            auto_id="id_volunteer_%s"
-        )
         context["add_active_form"] = CustomUserEmailForm(
             auto_id="id_active_%s"
+        )
+        context["add_volunteer_form"] = CustomUserEmailForm(
+            auto_id="id_volunteer_%s"
         )
         return context
 
@@ -279,16 +280,9 @@ class AddUserToOrganization(HasAdminPermissionMixin, RedirectView):
 class AddAdminToOrganization(AddUserToOrganization):
     @staticmethod
     def add_user_to_orga(orga, user):
+        orga.actives.remove(user)
         orga.volunteers.remove(user)
-        orga.actives.remove(user)
         orga.admins.add(user)
-
-
-class AddVolunteerToOrganization(AddUserToOrganization):
-    @staticmethod
-    def add_user_to_orga(orga, user):
-        orga.actives.remove(user)
-        orga.volunteers.add(user)
 
 
 class AddActiveToOrganization(AddUserToOrganization):
@@ -296,6 +290,13 @@ class AddActiveToOrganization(AddUserToOrganization):
     def add_user_to_orga(orga, user):
         orga.volunteers.remove(user)
         orga.actives.add(user)
+
+
+class AddVolunteerToOrganization(AddUserToOrganization):
+    @staticmethod
+    def add_user_to_orga(orga, user):
+        orga.actives.remove(user)
+        orga.volunteers.add(user)
 
 
 class RemoveUserFromOrganization(HasAdminPermissionMixin, RedirectView):
@@ -325,13 +326,13 @@ class RemoveAdminFromOrganization(RemoveUserFromOrganization):
         orga.admins.remove(user)
 
 
-class RemoveVolunteerFromOrganization(RemoveUserFromOrganization):
-    @staticmethod
-    def remove_user_from_orga(orga, user):
-        orga.volunteers.remove(user)
-
-
 class RemoveActiveFromOrganization(RemoveUserFromOrganization):
     @staticmethod
     def remove_user_from_orga(orga, user):
         orga.actives.remove(user)
+
+
+class RemoveVolunteerFromOrganization(RemoveUserFromOrganization):
+    @staticmethod
+    def remove_user_from_orga(orga, user):
+        orga.volunteers.remove(user)

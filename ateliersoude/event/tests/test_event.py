@@ -26,7 +26,7 @@ def event_data(
     user2 = custom_user_factory()
     user3 = custom_user_factory()
     user4 = custom_user_factory()
-    organization.volunteers.add(user1, user2, user3, user4)
+    organization.actives.add(user1, user2, user3, user4)
     return {
         "organization": organization,
         "conditions": [cond1.pk, cond2.pk],
@@ -189,14 +189,14 @@ def test_get_event_create_403(client, user_log, organization):
     response = client.get(reverse("event:create", args=[organization.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas volontaire" in html
+    assert "pas actif" in html
 
 
 def test_get_event_create_403_not_in_orga(client_log, organization):
     response = client_log.get(reverse("event:create", args=[organization.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas volontaire" in html
+    assert "pas actif" in html
 
 
 def test_event_create(client, user_log, event_data):
@@ -263,14 +263,14 @@ def test_get_event_update_403(client, user_log, organization, event):
     response = client.get(reverse("event:edit", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas volontaire" in html
+    assert "pas actif" in html
 
 
 def test_get_event_update_403_not_in_orga(client_log, organization, event):
     response = client_log.get(reverse("event:edit", args=[event.pk]))
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas volontaire" in html
+    assert "pas actif" in html
 
 
 def test_cancel_reservation_wrong_token(client):
@@ -393,9 +393,10 @@ def test_user_absent(client, event, custom_user):
     )
     resp = client.get(reverse("event:user_absent", args=[token]))
     assert resp.status_code == 302
-    assert resp["Location"] == reverse(
-        "event:detail", args=[event.id, event.slug]
-    ) + "#manage"
+    assert (
+        resp["Location"]
+        == reverse("event:detail", args=[event.id, event.slug]) + "#manage"
+    )
     nb_presents = Event.objects.first().presents.count()
     assert nb_presents == 0
 
@@ -439,8 +440,8 @@ def test_close_event(
     participation_factory,
     membership_factory,
 ):
-    volunteer = custom_user_factory()
-    organization.volunteers.add(volunteer)
+    active = custom_user_factory()
+    organization.actives.add(active)
     event = event_factory(organization=organization)
     member = custom_user_factory()
     member2 = custom_user_factory()
@@ -472,7 +473,7 @@ def test_close_event(
     client.login(email=member.email, password=USER_PASSWORD)
     resp = client.post(reverse("event:close", args=[event.pk]))
     assert resp.status_code == 403
-    client.login(email=volunteer.email, password=USER_PASSWORD)
+    client.login(email=active.email, password=USER_PASSWORD)
     resp = client.post(reverse("event:close", args=[event.pk]))
     assert resp["Location"] == reverse(
         "event:detail", args=[event.id, event.slug]
@@ -492,21 +493,21 @@ def test_close_event(
     assert CustomUser.objects.count() == 4
 
 
-def test_add_volunteer_event(
+def test_add_active_event(
     client, organization, event_factory, custom_user_factory
 ):
     user = custom_user_factory()
-    volunteer = custom_user_factory()
-    organization.volunteers.add(volunteer)
+    active = custom_user_factory()
+    organization.actives.add(active)
     event = event_factory(organization=organization)
     assert event.organizers.count() == 0
-    resp = client.post(reverse("event:add_volunteer", args=[event.pk]))
+    resp = client.post(reverse("event:add_active", args=[event.pk]))
     assert resp.status_code == 302
     client.login(email=user.email, password=USER_PASSWORD)
-    resp = client.post(reverse("event:add_volunteer", args=[event.pk]))
+    resp = client.post(reverse("event:add_active", args=[event.pk]))
     assert resp.status_code == 403
-    client.login(email=volunteer.email, password=USER_PASSWORD)
-    resp = client.post(reverse("event:add_volunteer", args=[event.pk]))
+    client.login(email=active.email, password=USER_PASSWORD)
+    resp = client.post(reverse("event:add_active", args=[event.pk]))
     assert resp["Location"] == reverse(
         "event:detail", args=[event.id, event.slug]
     )
@@ -514,22 +515,22 @@ def test_add_volunteer_event(
     assert event.organizers.count() == 1
 
 
-def test_remove_volunteer_event(
+def test_remove_active_event(
     client, organization, event_factory, custom_user_factory
 ):
     user = custom_user_factory()
-    volunteer = custom_user_factory()
-    organization.volunteers.add(volunteer)
+    active = custom_user_factory()
+    organization.actives.add(active)
     event = event_factory(organization=organization)
-    event.organizers.add(volunteer)
+    event.organizers.add(active)
     assert event.organizers.count() == 1
-    resp = client.post(reverse("event:remove_volunteer", args=[event.pk]))
+    resp = client.post(reverse("event:remove_active", args=[event.pk]))
     assert resp.status_code == 302
     client.login(email=user.email, password=USER_PASSWORD)
-    resp = client.post(reverse("event:remove_volunteer", args=[event.pk]))
+    resp = client.post(reverse("event:remove_active", args=[event.pk]))
     assert resp.status_code == 403
-    client.login(email=volunteer.email, password=USER_PASSWORD)
-    resp = client.post(reverse("event:remove_volunteer", args=[event.pk]))
+    client.login(email=active.email, password=USER_PASSWORD)
+    resp = client.post(reverse("event:remove_active", args=[event.pk]))
     assert resp["Location"] == reverse(
         "event:detail", args=[event.id, event.slug]
     )

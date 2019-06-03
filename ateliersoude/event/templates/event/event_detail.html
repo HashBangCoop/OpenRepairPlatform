@@ -20,7 +20,7 @@
         </a>
       </p>
       <div class="lead">
-      {% if is_volunteer %}
+      {% if is_active %}
         <a href="{% url 'event:edit' event.pk %}" class="btn btn-warning btn-sm">
           <i class="fa fa-pencil-alt"></i> Éditer
         </a>
@@ -30,7 +30,7 @@
           <i class="fa fa-trash"></i> Supprimer
         </a>
       {% endif %}
-      {% if is_volunteer %}
+      {% if is_active %}
         <form action="{% url 'event:close' event.pk %}" method="post" class="d-inline">
           {% csrf_token %}
           <button class="btn btn-sm btn-info btn-sm" type="submit" onclick="return confirm('Êtes-vous sûrs de vouloir clôturer l\'évènement?')">
@@ -91,12 +91,12 @@
             En savoir plus sur l'activité
           </a>
           {% include "event/register.html" with event=event %}
-          {% if is_volunteer and user not in event.registered.all %}
+          {% if is_active and user not in event.registered.all %}
             <form
                 {% if user in event.organizers.all %}
-                action="{% url 'event:remove_volunteer' event.pk %}"
+                action="{% url 'event:remove_active' event.pk %}"
                 {% else %}
-                action="{% url 'event:add_volunteer' event.pk %}"
+                action="{% url 'event:add_active' event.pk %}"
                 {% endif %}
                 method="post"
                 class="d-inline">
@@ -169,11 +169,11 @@
     {% endfor %}
     </div>
 
-    {% if is_active %}
+    {% if is_volunteer %}
       <h5 class="mt-4" id="manage">Participant·e·s</h5>
       <hr>
 
-      {% if event.remaining_seats > 0 and is_volunteer %}
+      {% if event.remaining_seats > 0 and is_active %}
         {% include "event/register.html" with event=event admin_text="Inscrire un participant" %}
       {% endif %}
 
@@ -186,7 +186,7 @@
                 <i class="fa fa-user fa-4x"></i><br>
                 {{ user }}<br>
               </a>
-              {% if event.has_started and is_volunteer %}
+              {% if event.has_started and is_active %}
               {% include "event/modal_more_info.html" with anonymous_user=user form=present_form|initial:user %}
               {% endif %}
             </div>
@@ -198,7 +198,7 @@
       <h5 class="mt-4">Présent·e·s</h5>
       <hr>
 
-      {% if event.has_started and is_volunteer %}
+      {% if event.has_started and is_active %}
         {% include "event/modal_more_info.html" with form=present_form admin_text="Ajouter un présent" %}
       {% endif %}
 
@@ -217,7 +217,7 @@
                 {% endif %}
                 <br>
               </a>
-              {% if is_volunteer %}
+              {% if is_active %}
                 {% tokenize user=participation.user event=event action='absent' as tok %}
                 <a href="{% url 'event:user_absent' tok %}" class="btn btn-danger btn-sm">
                   <i class="fa fa-minus"></i>

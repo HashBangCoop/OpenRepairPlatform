@@ -97,13 +97,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
 
     def get_organizations(self):
-        member_orgas, visitor_orgas, volunteer_orgas, admin_orgas = (
-            self.member_organizations.all(),
+        return self.member_organizations.all().union(
             self.visitor_organizations.all(),
+            self.active_organizations.all(),
             self.volunteer_organizations.all(),
             self.admin_organizations.all(),
         )
-        return member_orgas.union(visitor_orgas, volunteer_orgas, admin_orgas)
 
     def get_absolute_url(self):
         return reverse("user:user_detail", kwargs={"pk": self.pk})
@@ -134,11 +133,11 @@ class Organization(models.Model):
         blank=True,
         through="Membership",
     )
-    actives = models.ManyToManyField(
-        CustomUser, related_name="active_organizations", blank=True
-    )
     volunteers = models.ManyToManyField(
         CustomUser, related_name="volunteer_organizations", blank=True
+    )
+    actives = models.ManyToManyField(
+        CustomUser, related_name="active_organizations", blank=True
     )
     admins = models.ManyToManyField(
         CustomUser, related_name="admin_organizations", blank=True
@@ -162,8 +161,8 @@ class Organization(models.Model):
         )
 
     @property
-    def volunteers_or_more(self):
-        return self.volunteers.union(self.admins.all())
+    def actives_or_more(self):
+        return self.actives.union(self.admins.all())
 
     def __str__(self):
         return self.name

@@ -26,7 +26,7 @@ class EventForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["organizers"] = forms.ModelMultipleChoiceField(
             queryset=(
-                self.orga.volunteers.all() | self.orga.admins.all()
+                self.orga.actives.all() | self.orga.admins.all()
             ).distinct(),
             widget=forms.CheckboxSelectMultiple,
             required=False,
@@ -100,7 +100,7 @@ class RecurrentEventForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["organizers"] = forms.ModelMultipleChoiceField(
             queryset=(
-                self.orga.volunteers.all() | self.orga.admins.all()
+                self.orga.actives.all() | self.orga.admins.all()
             ).distinct(),
             widget=forms.CheckboxSelectMultiple,
             required=False,

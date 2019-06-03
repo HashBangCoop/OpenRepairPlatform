@@ -32,7 +32,7 @@ from ateliersoude.event.templatetags.app_filters import tokenize
 from ateliersoude.mixins import (
     RedirectQueryParamView,
     HasAdminPermissionMixin,
-    HasVolunteerPermissionMixin,
+    HasActivePermissionMixin,
 )
 from ateliersoude.user.mixins import PermissionOrgaContextMixin
 from ateliersoude.user.forms import CustomUserEmailForm, MoreInfoCustomUserForm
@@ -172,7 +172,7 @@ class EventListView(ListView):
         return queryset
 
 
-class EventFormView(HasVolunteerPermissionMixin):
+class EventFormView(HasActivePermissionMixin):
     model = Event
     form_class = EventForm
 
@@ -214,7 +214,7 @@ class EventDeleteView(
         return super().delete(request, *args, **kwargs)
 
 
-class RecurrentEventCreateView(HasVolunteerPermissionMixin, FormView):
+class RecurrentEventCreateView(HasActivePermissionMixin, FormView):
     form_class = RecurrentEventForm
     success_url = reverse_lazy("event:list")
     template_name = "event/recurrent_event_form.html"
@@ -396,7 +396,7 @@ class BookView(RedirectView):
         return next_url
 
 
-class CloseEventView(HasVolunteerPermissionMixin, RedirectView):
+class CloseEventView(HasActivePermissionMixin, RedirectView):
     http_method_names = ["post"]
     model = Event
 
@@ -438,7 +438,7 @@ class CloseEventView(HasVolunteerPermissionMixin, RedirectView):
         return reverse("event:detail", args=[event.id, event.slug])
 
 
-class AddVolunteerEventView(HasVolunteerPermissionMixin, RedirectView):
+class AddActiveEventView(HasActivePermissionMixin, RedirectView):
     http_method_names = ["post"]
     model = Event
 
@@ -451,7 +451,7 @@ class AddVolunteerEventView(HasVolunteerPermissionMixin, RedirectView):
         return reverse("event:detail", args=[event.id, event.slug])
 
 
-class RemoveVolunteerEventView(HasVolunteerPermissionMixin, RedirectView):
+class RemoveActiveEventView(HasActivePermissionMixin, RedirectView):
     http_method_names = ["post"]
     model = Event
 

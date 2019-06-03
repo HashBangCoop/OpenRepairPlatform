@@ -26,7 +26,7 @@
           <i class="fa fa-plus-circle"></i> Ajouter un local
         </a>
       {% endif %}
-      {% if is_volunteer %}
+      {% if is_active %}
         <a class="btn btn-primary btn-sm{% if not organization.activities.all %} disabled{% endif %}" href="{% url 'event:create' organization.id %}">
           <i class="fa fa-plus-circle"></i> Créer un évènement
         </a>
@@ -78,7 +78,7 @@
     {% endif %}
 
 
-    <h3 class="mt-4">Membres actif·ve·s</h3>
+    <h3 class="mt-4">Membres volontaires</h3>
 
 
     {% include 'user/organization/manage_user.html' %}
@@ -90,7 +90,7 @@
             <h4 class="card-title">Les membres</h4>
             <ul class="list-group list-group-flush">
               {% for membership in organization.memberships.all %}
-                {% if membership.user.is_visible or is_active %}
+                {% if membership.user.is_visible or is_volunteer %}
                 <li class="list-group-item">
                   <a href="{% url 'user:user_detail' membership.user.pk %}">
                     {{ membership.user }}
