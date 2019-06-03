@@ -53,11 +53,8 @@ def test_organization_detail_admin(
             kwargs={"pk": organization.pk, "slug": organization.slug},
         )
     )
-    html = response.content.decode()
-    assert html.count("Organisé par") == 2
+    assert response.context["page"] == 1
     assert user_log.email in response.context_data["users"]
-    assert published_event.get_absolute_url() in html
-    assert unpublished_event.get_absolute_url() in html
 
 
 def test_organization_create(client_log, custom_user):
@@ -426,3 +423,20 @@ def test_remove_volunteer_from_organization(
         kwargs={"pk": organization.pk, "slug": organization.slug},
     )
     assert organization.volunteers.count() == 0
+
+
+def test_extended_event_list(client, custom_user, event_factory, organization):
+    for _ in range(13):
+        event_factory(organization=organization)
+    path = reverse("user:organization_all_events", kwargs={
+        "orga_pk": organization.pk, "slug": organization.slug, "page": 1,
+    })
+    resp = client.get(path)
+    assert resp.status_code == 302
+    assert "/accounts/login" in resp.url
+    organization.volunteers.add(custom_user)
+    assert client.login(email=custom_user.email, password=USER_PASSWORD)
+    resp = client.get(path)
+    assert resp.status_code == 200
+    assert len(resp.context["event_list"]) == 6
+    assert resp.context["paginator"].num_pages == 3

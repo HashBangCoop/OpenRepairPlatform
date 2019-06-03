@@ -123,8 +123,14 @@
       </div>
     </div>
 
-    {% if events %}
+    {% if events or has_hidden_events %}
       <h3 class="mt-4">Prochains évènements</h3>
+      {% if is_volunteer %}
+        <a href="{% url 'user:organization_all_events' organization.pk organization.slug page %}" class="btn btn-sm btn-info">
+          <i class="fa fa-search"></i>
+          Voir tous les évènements
+        </a>
+      {% endif %}
       <div class="card-columns">
         {% include "event/event_cards.html" with event_list=events %}
       </div>

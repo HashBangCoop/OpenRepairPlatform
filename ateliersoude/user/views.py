@@ -1,5 +1,5 @@
-from datetime import timedelta
 
+from datetime import date
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -7,7 +7,6 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import (
     CreateView,
@@ -25,6 +24,7 @@ from ateliersoude.event.views import add_present
 from ateliersoude.mixins import (
     HasAdminPermissionMixin,
     HasActivePermissionMixin,
+    HasVolunteerPermissionMixin,
 )
 from ateliersoude.user.mixins import PermissionOrgaContextMixin
 from ateliersoude.user.models import CustomUser, Organization
@@ -37,6 +37,8 @@ from .forms import (
     CustomUserEmailForm,
     MoreInfoCustomUserForm,
 )
+
+EVENTS_PER_PAGE = 6
 
 
 class UserUpdateView(UserPassesTestMixin, UpdateView):
@@ -183,12 +185,15 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
         context["users"] = list(
             CustomUser.objects.all().values_list("email", flat=True)
         )
-        if context["is_active"]:
-            context["events"] = self.object.events.filter(
-                date__gte=timezone.now() - timedelta(weeks=1)
-            ).order_by("date")
-        else:
-            context["events"] = get_future_published_events(self.object.events)
+        all_events = self.object.events.all()
+        context["events"] = list(
+            get_future_published_events(all_events)
+        )
+        if context["is_volunteer"]:
+            context["has_hidden_events"] = all_events.count() > 0
+            past_events = all_events.filter(date__lt=date.today()).order_by(
+                "date")
+            context["page"] = past_events.count() // EVENTS_PER_PAGE + 1
         context["register_form"] = CustomUserEmailForm
         context["add_admin_form"] = CustomUserEmailForm(auto_id="id_admin_%s")
         context["add_active_form"] = CustomUserEmailForm(
@@ -198,6 +203,23 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
             auto_id="id_volunteer_%s"
         )
         return context
+
+
+class OrganizationEventsListView(HasVolunteerPermissionMixin, ListView):
+    model = Event
+    paginate_by = EVENTS_PER_PAGE
+    template_name = "user/organization/organization_event_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        organization = Organization.objects.get(pk=self.kwargs.get("orga_pk"))
+        context["organization"] = organization
+        return context
+
+    def get_queryset(self):
+        orga_pk = self.kwargs.get("orga_pk")
+        organization = get_object_or_404(Organization, pk=orga_pk)
+        return organization.events.order_by("date")
 
 
 class OrganizationListView(ListView):
@@ -225,7 +247,6 @@ class OrganizationUpdateView(HasAdminPermissionMixin, UpdateView):
 
     def form_valid(self, form):
         res = super().form_valid(form)
-        # TODO : restriction user staff
         messages.success(
             self.request, "L'organisation a bien été mise à jour."
         )
