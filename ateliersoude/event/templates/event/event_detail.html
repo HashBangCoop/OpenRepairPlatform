@@ -46,7 +46,6 @@
     <div class="card">
       <div class="row pl-3 pr-3">
         <div class="card-body col-lg-6">
-
           <h6 class="card-subtitle text-muted pb-3">
             {% if event.remaining_seats == 0 %}
               <span class="badge badge-warning badge-pill">Complet</span>
@@ -245,6 +244,7 @@
 {% endblock %}
 
 {% block extra_js %}
+  {{ users|json_script:"users-data" }}
   <script>
       const longitude = {{ event.location.longitude|unlocalize }};
       const latitude = {{ event.location.latitude|unlocalize }};
