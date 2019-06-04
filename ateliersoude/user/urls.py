@@ -31,6 +31,11 @@ urlpatterns = [
         name="organization_update",
     ),
     path(
+        "organization/<int:orga_pk>/<slug>/events/<int:page>/",
+        views.OrganizationEventsListView.as_view(),
+        name="organization_all_events",
+    ),
+    path(
         "organization/<int:pk>/<slug>/",
         views.OrganizationDetailView.as_view(),
         name="organization_detail",

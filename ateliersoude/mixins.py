@@ -59,3 +59,12 @@ class HasActivePermissionMixin(HasOrganizationPermission):
 
     def get_authorized_users(self):
         return self.organization.actives_or_more
+
+
+class HasVolunteerPermissionMixin(HasOrganizationPermission):
+    permission_denied_message = "Vous n'êtes pas volontaire de l'organisation."
+
+    def get_authorized_users(self):
+        return self.organization.actives_or_more.union(
+            self.organization.volunteers.all()
+        )

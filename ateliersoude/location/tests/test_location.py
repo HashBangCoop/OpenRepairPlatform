@@ -175,6 +175,3 @@ def test_location_update(client_log, place_factory, location_data):
     assert response_ok["Location"] == reverse(
         "location:detail", args=[places[0].pk, places[0].slug]
     )
-
-
-# TODO: test create/update activity with organization where user isn't admin
