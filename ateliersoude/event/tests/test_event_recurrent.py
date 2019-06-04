@@ -24,7 +24,7 @@ def event_recurrent_data(
     user2 = custom_user_factory()
     user3 = custom_user_factory()
     user4 = custom_user_factory()
-    organization.volunteers.add(user1, user2, user3, user4)
+    organization.actives.add(user1, user2, user3, user4)
     return {
         "activity": activity.pk,
         "available_seats": 12,
@@ -77,7 +77,7 @@ def test_get_event_recurrent_create_403(client, user_log, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas volontaire" in html
+    assert "pas actif" in html
 
 
 def test_get_event_recurrent_create_403_not_in_orga(client_log, organization):
@@ -86,7 +86,7 @@ def test_get_event_recurrent_create_403_not_in_orga(client_log, organization):
     )
     html = response.content.decode()
     assert response.status_code == 403
-    assert "pas volontaire" in html
+    assert "pas actif" in html
 
 
 def test_event_create(client, user_log, event_recurrent_data):

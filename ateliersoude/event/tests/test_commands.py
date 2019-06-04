@@ -29,7 +29,7 @@ def test_command_publish_events(event_factory, custom_user_factory):
         publish_at=timezone.now() - timezone.timedelta(hours=1),
     )
     event1.organization.admins.add(custom_user_factory())
-    event1.organization.volunteers.add(custom_user_factory())
+    event1.organization.actives.add(custom_user_factory())
     call_command("publish_events", "https://example.com")
     event1.refresh_from_db()
     assert len(mail.outbox) == 2

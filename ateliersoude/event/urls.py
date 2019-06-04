@@ -55,14 +55,14 @@ urlpatterns = [
     path("<int:pk>/delete/", views.EventDeleteView.as_view(), name="delete"),
     path("<int:pk>/close/", views.CloseEventView.as_view(), name="close"),
     path(
-        "<int:pk>/add_volunteer/",
-        views.AddVolunteerEventView.as_view(),
-        name="add_volunteer"
+        "<int:pk>/add_active/",
+        views.AddActiveEventView.as_view(),
+        name="add_active",
     ),
     path(
-        "<int:pk>/remove_volunteer/",
-        views.RemoveVolunteerEventView.as_view(),
-        name="remove_volunteer"
+        "<int:pk>/remove_active/",
+        views.RemoveActiveEventView.as_view(),
+        name="remove_active",
     ),
     path("<int:pk>/close/", views.CloseEventView.as_view(), name="close"),
     path("<int:pk>/<slug>/", views.EventView.as_view(), name="detail"),

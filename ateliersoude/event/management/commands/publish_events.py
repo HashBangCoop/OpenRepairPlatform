@@ -24,7 +24,7 @@ class Command(BaseCommand):
             event.published = True
             event.save()
             orga = event.organization
-            for user in orga.volunteers.all() | orga.admins.all():
+            for user in orga.actives.all() | orga.admins.all():
                 event_url = base_url + reverse(
                     "event:detail", kwargs={"pk": event.id, "slug": event.slug}
                 )

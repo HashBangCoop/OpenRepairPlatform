@@ -1,7 +1,7 @@
 class PermissionOrgaContextMixin:
     """
-    Adds two context variables: `is_admin` and `is_volunteer`
-    telling us which information the current user can see in templates
+    Adds some context variables: telling us which information the current user
+    can see in templates
     """
 
     def get_context_data(self, **kwargs):
@@ -12,10 +12,10 @@ class PermissionOrgaContextMixin:
             organization = self.object
         user = self.request.user
         context["is_admin"] = user in organization.admins.all()
-        context["is_volunteer"] = (
-            user in organization.volunteers.all() or context["is_admin"]
-        )
         context["is_active"] = (
-            user in organization.actives.all() or context["is_volunteer"]
+            user in organization.actives.all() or context["is_admin"]
+        )
+        context["is_volunteer"] = (
+            user in organization.volunteers.all() or context["is_active"]
         )
         return context

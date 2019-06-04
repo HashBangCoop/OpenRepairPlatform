@@ -164,151 +164,6 @@ def test_add_admin_to_organization_wrong_user(
     assert organization.admins.count() == 1
 
 
-def test_add_volunteer_to_organization_forbidden(
-    client, user_log, organization
-):
-    client.login(email=user_log.email, password=USER_PASSWORD)
-    response = client.post(
-        reverse(
-            "user:organization_add_volunteer", kwargs={"pk": organization.pk}
-        ),
-        {"email": user_log.email},
-    )
-    assert response.status_code == 403
-
-
-def test_add_volunteer_to_organization(
-    custom_user_factory, client, organization
-):
-    user = custom_user_factory()
-    admin = custom_user_factory()
-    organization.admins.add(admin)
-    assert client.login(email=admin.email, password=USER_PASSWORD)
-    assert organization.volunteers.count() == 0
-    response = client.post(
-        reverse(
-            "user:organization_add_volunteer", kwargs={"pk": organization.pk}
-        ),
-        {"email": user.email},
-    )
-    assert response.status_code == 302
-    assert response.url == reverse(
-        "user:organization_detail",
-        kwargs={"pk": organization.pk, "slug": organization.slug},
-    )
-    volunteers = organization.volunteers.all()
-    assert len(volunteers) == 1
-    assert volunteers[0].pk == user.pk
-
-
-def test_add_admin_to_volunteers_of_organization(
-    custom_user_factory, client, organization
-):
-    user = custom_user_factory()
-    admin = custom_user_factory()
-    organization.admins.add(admin)
-    organization.admins.add(user)
-    assert client.login(email=admin.email, password=USER_PASSWORD)
-    assert organization.volunteers.count() == 0
-    response = client.post(
-        reverse(
-            "user:organization_add_volunteer", kwargs={"pk": organization.pk}
-        ),
-        {"email": user.email},
-    )
-    assert response.status_code == 302
-    assert response.url == reverse(
-        "user:organization_detail",
-        kwargs={"pk": organization.pk, "slug": organization.slug},
-    )
-    assert organization.volunteers.count() == 0
-
-
-def test_add_volunteer_to_admins_of_organization(
-    custom_user_factory, client, organization
-):
-    user = custom_user_factory()
-    admin = custom_user_factory()
-    organization.admins.add(admin)
-    organization.volunteers.add(user)
-    assert client.login(email=admin.email, password=USER_PASSWORD)
-    assert organization.volunteers.count() == 1
-    assert organization.admins.count() == 1
-    response = client.post(
-        reverse("user:organization_add_admin", kwargs={"pk": organization.pk}),
-        {"email": user.email},
-    )
-    assert response.status_code == 302
-    assert response.url == reverse(
-        "user:organization_detail",
-        kwargs={"pk": organization.pk, "slug": organization.slug},
-    )
-    assert organization.volunteers.count() == 0
-    assert organization.admins.count() == 2
-
-
-def test_remove_volunteer_from_organization_forbidden(
-    client, user_log, organization
-):
-    client.login(email=user_log.email, password=USER_PASSWORD)
-    response = client.post(
-        reverse(
-            "user:remove_from_volunteers",
-            kwargs={
-                "pk": organization.pk,
-                "user_pk": 123,  # we don't care, we'll get a 403 anyway
-            },
-        )
-    )
-    assert response.status_code == 403
-
-
-def test_remove_volunteer_from_organization(
-    custom_user_factory, client, organization
-):
-    user = custom_user_factory()
-    admin = custom_user_factory()
-    organization.volunteers.add(user)
-    organization.admins.add(admin)
-    assert client.login(email=admin.email, password=USER_PASSWORD)
-    assert organization.volunteers.count() == 1
-    response = client.post(
-        reverse(
-            "user:remove_from_volunteers",
-            kwargs={"pk": organization.pk, "user_pk": user.pk},
-        )
-    )
-    assert response.status_code == 302
-    assert response.url == reverse(
-        "user:organization_detail",
-        kwargs={"pk": organization.pk, "slug": organization.slug},
-    )
-    assert organization.volunteers.count() == 0
-
-
-def test_remove_admin_from_organization(
-    custom_user_factory, client, organization
-):
-    user = custom_user_factory()
-    admin = custom_user_factory()
-    organization.admins.add(admin)
-    organization.admins.add(user)
-    assert client.login(email=admin.email, password=USER_PASSWORD)
-    assert organization.admins.count() == 2
-    response = client.post(
-        reverse(
-            "user:remove_from_admins",
-            kwargs={"pk": organization.pk, "user_pk": user.pk},
-        )
-    )
-    assert response.status_code == 302
-    assert response.url == reverse(
-        "user:organization_detail",
-        kwargs={"pk": organization.pk, "slug": organization.slug},
-    )
-    assert organization.admins.count() == 1
-
-
 def test_add_active_to_organization_forbidden(client, user_log, organization):
     client.login(email=user_log.email, password=USER_PASSWORD)
     response = client.post(
@@ -325,7 +180,7 @@ def test_add_active_to_organization(custom_user_factory, client, organization):
     admin = custom_user_factory()
     organization.admins.add(admin)
     assert client.login(email=admin.email, password=USER_PASSWORD)
-    assert organization.volunteers.count() == 0
+    assert organization.actives.count() == 0
     response = client.post(
         reverse(
             "user:organization_add_active", kwargs={"pk": organization.pk}
@@ -350,7 +205,7 @@ def test_add_admin_to_actives_of_organization(
     organization.admins.add(admin)
     organization.admins.add(user)
     assert client.login(email=admin.email, password=USER_PASSWORD)
-    assert organization.volunteers.count() == 0
+    assert organization.actives.count() == 0
     response = client.post(
         reverse(
             "user:organization_add_active", kwargs={"pk": organization.pk}
@@ -425,3 +280,148 @@ def test_remove_active_from_organization(
         kwargs={"pk": organization.pk, "slug": organization.slug},
     )
     assert organization.actives.count() == 0
+
+
+def test_remove_admin_from_organization(
+    custom_user_factory, client, organization
+):
+    user = custom_user_factory()
+    admin = custom_user_factory()
+    organization.admins.add(admin)
+    organization.admins.add(user)
+    assert client.login(email=admin.email, password=USER_PASSWORD)
+    assert organization.admins.count() == 2
+    response = client.post(
+        reverse(
+            "user:remove_from_admins",
+            kwargs={"pk": organization.pk, "user_pk": user.pk},
+        )
+    )
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "user:organization_detail",
+        kwargs={"pk": organization.pk, "slug": organization.slug},
+    )
+    assert organization.admins.count() == 1
+
+
+def test_add_volunteer_to_organization_forbidden(
+    client, user_log, organization
+):
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.post(
+        reverse(
+            "user:organization_add_volunteer", kwargs={"pk": organization.pk}
+        ),
+        {"email": user_log.email},
+    )
+    assert response.status_code == 403
+
+
+def test_add_volunteer_to_organization(
+    custom_user_factory, client, organization
+):
+    user = custom_user_factory()
+    admin = custom_user_factory()
+    organization.admins.add(admin)
+    assert client.login(email=admin.email, password=USER_PASSWORD)
+    assert organization.actives.count() == 0
+    response = client.post(
+        reverse(
+            "user:organization_add_volunteer", kwargs={"pk": organization.pk}
+        ),
+        {"email": user.email},
+    )
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "user:organization_detail",
+        kwargs={"pk": organization.pk, "slug": organization.slug},
+    )
+    volunteers = organization.volunteers.all()
+    assert len(volunteers) == 1
+    assert volunteers[0].pk == user.pk
+
+
+def test_add_admin_to_volunteers_of_organization(
+    custom_user_factory, client, organization
+):
+    user = custom_user_factory()
+    admin = custom_user_factory()
+    organization.admins.add(admin)
+    organization.admins.add(user)
+    assert client.login(email=admin.email, password=USER_PASSWORD)
+    assert organization.actives.count() == 0
+    response = client.post(
+        reverse(
+            "user:organization_add_volunteer", kwargs={"pk": organization.pk}
+        ),
+        {"email": user.email},
+    )
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "user:organization_detail",
+        kwargs={"pk": organization.pk, "slug": organization.slug},
+    )
+    assert organization.volunteers.count() == 0
+
+
+def test_add_volunteer_to_admins_of_organization(
+    custom_user_factory, client, organization
+):
+    user = custom_user_factory()
+    admin = custom_user_factory()
+    organization.admins.add(admin)
+    organization.volunteers.add(user)
+    assert client.login(email=admin.email, password=USER_PASSWORD)
+    assert organization.volunteers.count() == 1
+    assert organization.admins.count() == 1
+    response = client.post(
+        reverse("user:organization_add_admin", kwargs={"pk": organization.pk}),
+        {"email": user.email},
+    )
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "user:organization_detail",
+        kwargs={"pk": organization.pk, "slug": organization.slug},
+    )
+    assert organization.volunteers.count() == 0
+    assert organization.admins.count() == 2
+
+
+def test_remove_volunteer_from_organization_forbidden(
+    client, user_log, organization
+):
+    client.login(email=user_log.email, password=USER_PASSWORD)
+    response = client.post(
+        reverse(
+            "user:remove_from_volunteers",
+            kwargs={
+                "pk": organization.pk,
+                "user_pk": 123,  # we don't care, we'll get a 403 anyway
+            },
+        )
+    )
+    assert response.status_code == 403
+
+
+def test_remove_volunteer_from_organization(
+    custom_user_factory, client, organization
+):
+    user = custom_user_factory()
+    admin = custom_user_factory()
+    organization.volunteers.add(user)
+    organization.admins.add(admin)
+    assert client.login(email=admin.email, password=USER_PASSWORD)
+    assert organization.volunteers.count() == 1
+    response = client.post(
+        reverse(
+            "user:remove_from_volunteers",
+            kwargs={"pk": organization.pk, "user_pk": user.pk},
+        )
+    )
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "user:organization_detail",
+        kwargs={"pk": organization.pk, "slug": organization.slug},
+    )
+    assert organization.volunteers.count() == 0

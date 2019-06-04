@@ -50,7 +50,7 @@
       <div class="card-body">
         <h4 class="card-title">Les volontaires</h4>
         <ul class="list-group list-group-flush">
-          {% for user in organization.volunteers.all %}
+          {% for user in organization.actives.all %}
           <li class="list-group-item">
           {% if not user.is_visible and not is_admin %}
           {{ user }}
@@ -60,7 +60,7 @@
           </a>
           {% endif %}
           {% if is_admin %}
-          <form action="{% url 'user:remove_from_volunteers' organization.pk user.pk %}" class="d-inline">
+          <form action="{% url 'user:remove_from_actives' organization.pk user.pk %}" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn badge badge-pill badge-danger" onclick="return confirm('Êtes-vous sûr ?')">&times;</button>
           </form>
@@ -73,9 +73,9 @@
           {% endfor %}
         </ul>
         {% if is_admin %}
-        <form class="mt-2" action="{% url 'user:organization_add_volunteer' organization.pk %}" method="post">
+        <form class="mt-2" action="{% url 'user:organization_add_active' organization.pk %}" method="post">
           {% csrf_token %}
-          {% bootstrap_form add_volunteer_form %}
+          {% bootstrap_form add_active_form %}
           <div class="form-group">
             <button type="submit" class="btn btn-success btn-block">
               <i class="fa fa-plus"></i>
@@ -91,9 +91,9 @@
   <div class="col-sm">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">Les actifs</h4>
+        <h4 class="card-title">Les volontaires</h4>
         <ul class="list-group list-group-flush">
-          {% for user in organization.actives.all %}
+          {% for user in organization.volunteers.all %}
           <li class="list-group-item">
           {% if not user.is_visible and not is_admin %}
             {{ user }}
@@ -103,7 +103,7 @@
           </a>
           {% endif %}
           {% if is_admin %}
-          <form action="{% url 'user:remove_from_actives' organization.pk user.pk %}" class="d-inline">
+          <form action="{% url 'user:remove_from_volunteers' organization.pk user.pk %}" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn badge badge-pill badge-danger" onclick="return confirm('Êtes-vous sûr ?')">&times;</button>
           </form>
@@ -111,18 +111,18 @@
           </li>
           {% empty %}
           <li class="list-group-item">
-          Il n'y a pas de membre actif associé à cette organisation.
+          Il n'y a pas de membre volontaire associé à cette organisation.
           </li>
           {% endfor %}
         </ul>
         {% if is_admin %}
-        <form class="mt-2" action="{% url 'user:organization_add_active' organization.pk %}" method="post">
+        <form class="mt-2" action="{% url 'user:organization_add_volunteer' organization.pk %}" method="post">
           {% csrf_token %}
-          {% bootstrap_form add_active_form %}
+          {% bootstrap_form add_volunteer_form %}
           <div class="form-group">
             <button type="submit" class="btn btn-success btn-block">
               <i class="fa fa-plus"></i>
-              Ajouter ce membre actif
+              Ajouter ce membre volontaire
             </button>
           </div>
         </form>

@@ -75,10 +75,11 @@ def test_user_detail_not_visible_but_same(client, custom_user):
     assert response.status_code == 200
 
 
-def test_user_detail_not_visible_but_volunteer(client_log, custom_user,
-                                               event_factory, organization):
+def test_user_detail_not_visible_but_active(
+    client_log, custom_user, event_factory, organization
+):
     user = get_user(client_log)
-    organization.volunteers.add(user)
+    organization.actives.add(user)
     event = event_factory(organization=organization)
     event.registered.add(custom_user)
     response = client_log.get(
@@ -164,24 +165,19 @@ def test_user_update(client, custom_user_factory):
         "street_address": "221 b Tester Street",
     }
     response = client.post(
-        reverse("user:user_update", kwargs={"pk": user1.pk}),
-        data,
+        reverse("user:user_update", kwargs={"pk": user1.pk}), data
     )
     assert response.status_code == 302
     client.login(email=user2.email, password=USER_PASSWORD)
     response = client.post(
-        reverse("user:user_update", kwargs={"pk": user1.pk}),
-        data,
+        reverse("user:user_update", kwargs={"pk": user1.pk}), data
     )
     assert response.status_code == 403
     client.login(email=user1.email, password=USER_PASSWORD)
     response = client.post(
-        reverse("user:user_update", kwargs={"pk": user1.pk}),
-        data,
+        reverse("user:user_update", kwargs={"pk": user1.pk}), data
     )
-    assert response.url == reverse(
-        "user:user_detail", kwargs={"pk": user1.pk}
-    )
+    assert response.url == reverse("user:user_detail", kwargs={"pk": user1.pk})
     user1.refresh_from_db()
     assert user1.first_name == "Test"
 
@@ -189,7 +185,7 @@ def test_user_update(client, custom_user_factory):
 def test_present_with_more_info(client, event, custom_user_factory):
     assert event.presents.count() == 0
     user = custom_user_factory(last_name="", first_name="", street_address="")
-    volunteer = custom_user_factory()
+    active = custom_user_factory()
     response = client.post(
         reverse("user:present_with_more_info", args=[event.pk, user.pk]),
         {
@@ -202,7 +198,7 @@ def test_present_with_more_info(client, event, custom_user_factory):
     )
 
     assert response.status_code == 302
-    client.login(email=volunteer.email, password=USER_PASSWORD)
+    client.login(email=active.email, password=USER_PASSWORD)
     response = client.post(
         reverse("user:present_with_more_info", args=[event.pk, user.pk]),
         {
@@ -214,7 +210,7 @@ def test_present_with_more_info(client, event, custom_user_factory):
         },
     )
     assert response.status_code == 403
-    event.organization.volunteers.add(volunteer)
+    event.organization.actives.add(active)
     response = client.post(
         reverse("user:present_with_more_info", args=[event.pk, user.pk]),
         {
@@ -244,7 +240,7 @@ def test_present_with_more_info_unknown_user(client, event, custom_user):
     )
     assert response.status_code == 302
     assert "/accounts/login/" in response.url
-    event.organization.volunteers.add(custom_user)
+    event.organization.actives.add(custom_user)
     client.login(email=custom_user.email, password=USER_PASSWORD)
     response = client.post(
         reverse("user:present_create_user", args=[event.pk]),
@@ -268,7 +264,7 @@ def test_present_with_more_info_unknown_user(client, event, custom_user):
 
 
 def test_present_with_more_info_existing_user(client, event, custom_user):
-    event.organization.volunteers.add(custom_user)
+    event.organization.actives.add(custom_user)
     event.registered.add(custom_user)
     assert event.presents.count() == 0
     assert event.registered.count() == 1

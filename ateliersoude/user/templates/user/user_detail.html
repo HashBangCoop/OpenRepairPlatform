@@ -40,9 +40,9 @@
             </a>
             </li>
             {% endfor %}
-            {% for organization in object.volunteer_organizations.all %}
+            {% for organization in object.active_organizations.all %}
             <li class="list-group-item">
-              Membre actif
+              Membre volontaire
             <a href="{% url 'user:organization_detail' organization.pk organization.slug %}">
               {{ organization.name }}
             </a>
