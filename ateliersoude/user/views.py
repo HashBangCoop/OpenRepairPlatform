@@ -103,9 +103,10 @@ class PresentMoreInfoView(UserPassesTestMixin, UpdateView):
         next_url = self.request.GET.get("redirect")
         if utils.is_valid_path(next_url):
             return next_url
-        return reverse(
-            "event:detail", args=[self.event.id, self.event.slug]
-        ) + "#manage"
+        return (
+            reverse("event:detail", args=[self.event.id, self.event.slug])
+            + "#manage"
+        )
 
     def test_func(self):
         self.event = get_object_or_404(Event, pk=self.kwargs.get("event_pk"))
@@ -179,6 +180,9 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["users"] = list(
+            CustomUser.objects.all().values_list("email", flat=True)
+        )
         if context["is_active"]:
             context["events"] = self.object.events.filter(
                 date__gte=timezone.now() - timedelta(weeks=1)

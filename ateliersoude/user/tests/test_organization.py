@@ -55,6 +55,7 @@ def test_organization_detail_admin(
     )
     html = response.content.decode()
     assert html.count("Organisé par") == 2
+    assert user_log.email in response.context_data["users"]
     assert published_event.get_absolute_url() in html
     assert unpublished_event.get_absolute_url() in html
 

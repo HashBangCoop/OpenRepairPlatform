@@ -26,12 +26,17 @@ scss_detail_event = Bundle(
     "scss/lib/auto-complete.scss",
     "scss/lib/leaflet.scss",
     filters="scss",
-    output="css/detail_event.css"
+    output="css/detail_event.css",
 )
 sss_create_edit_event = Bundle(
     "scss/lib/flatpickr.scss",
     filters="scss",
     output="css/create_edit_event.css",
+)
+scss_detail_organization = Bundle(
+    "scss/lib/auto-complete.scss",
+    filters="scss",
+    output="css/detail_organization.css",
 )
 
 # CSS minify
@@ -63,6 +68,12 @@ css_create_edit_event = Bundle(
     filters="cssrewrite,cssmin",
     output="css/create_edit_event.min.css",
 )
+css_detail_organization = Bundle(
+    scss_detail_organization,
+    filters="cssrewrite,cssmin",
+    output="css/deatil_organization.min.css",
+)
+
 
 # JS minify
 js_places = Bundle(
@@ -99,6 +110,7 @@ js_detail_event = Bundle(
     "js/lib/auto-complete.js",
     "js/user/create_edit.js",
     "js/lib/gov_addresses.js",
+    "js/user/autocomplete.js",
     filters="jsmin",
     output="js/events/detail_event.min.js",
 )
@@ -113,7 +125,12 @@ js_recurrent_event = Bundle(
     filters="jsmin",
     output="js/events/recurrent_event.min.js",
 )
-
+js_detail_organization = Bundle(
+    "js/lib/auto-complete.js",
+    "js/user/autocomplete.js",
+    filters="jsmin",
+    output="js/user/detail_organization.min.js",
+)
 
 register("css_ateliersoude", css_atelier_soude)
 register("css_places", css_places)
@@ -121,6 +138,7 @@ register("css_autocomplete", css_auto_complete)
 register("css_detail_place", css_detail_place)
 register("css_detail_event", css_detail_event)
 register("css_create_edit_event", css_create_edit_event)
+register("css_detail_organization", css_detail_organization)
 
 register("js_places", js_places)
 register("js_create_edit_place", js_create_edit_place)
@@ -129,3 +147,4 @@ register("js_detail_place", js_detail_place)
 register("js_detail_event", js_detail_event)
 register("js_create_edit_event", js_create_edit_event)
 register("js_recurrent_event", js_recurrent_event)
+register("js_detail_organization", js_detail_organization)
