@@ -13,7 +13,7 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
 
-from tinymce.models import HTMLField
+from ateliersoude.fields import CleanHTMLField
 
 from ateliersoude.utils import validate_image
 
@@ -67,7 +67,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         null=True,
         blank=True,
     )
-    bio = HTMLField(_("bio"), blank=True, default="")
+    bio = CleanHTMLField(_("bio"), blank=True, default="")
 
     is_staff = models.BooleanField(
         _("staff status"),
@@ -117,7 +117,9 @@ class Organization(models.Model):
     name = models.CharField(
         max_length=100, default="", verbose_name=_("Organization name")
     )
-    description = HTMLField(verbose_name=_("Activity description"), default="")
+    description = CleanHTMLField(
+        verbose_name=_("Activity description"), default=""
+    )
     picture = models.ImageField(
         verbose_name=_("Image"),
         upload_to="organizations/",

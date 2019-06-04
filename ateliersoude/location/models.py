@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
 
-from tinymce.models import HTMLField
+from ateliersoude.fields import CleanHTMLField
 
 from ateliersoude.user.models import Organization
 from ateliersoude.utils import validate_image, get_future_published_events
@@ -19,7 +19,9 @@ class Place(models.Model):
         blank=True,
         related_name="places",
     )
-    description = HTMLField(default="", verbose_name=_("Place description"))
+    description = CleanHTMLField(
+        default="", verbose_name=_("Place description")
+    )
     category = models.CharField(max_length=100, default="Other")
     slug = models.SlugField(default="", blank=True)
     address = models.CharField(

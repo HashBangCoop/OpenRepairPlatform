@@ -17,7 +17,7 @@ function popup_message(place){
     message += htmlEscape(place.category);
     message += "<br> <a href=\"" + place.orga_url + "\">" + htmlEscape(place.orga_name) + "</a> - ";
     message += htmlEscape(place.address);
-    message += "<hr class='mt-2 mb-2'>" + htmlEscape(place.description);
+    message += "<hr class='mt-2 mb-2'>" + place.description;
     return message;
 }
 
