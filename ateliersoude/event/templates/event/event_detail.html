@@ -169,11 +169,11 @@
     </div>
 
     {% if is_volunteer %}
-      <h5 class="mt-4" id="manage">Participant·e·s</h5>
+      <h5 class="mt-4" id="manage">Pré-inscrit·e·s</h5>
       <hr>
 
       {% if event.remaining_seats > 0 and is_active %}
-        {% include "event/register.html" with event=event admin_text="Inscrire un participant" %}
+        {% include "event/register.html" with event=event admin_text="Préinscrire une personne" %}
       {% endif %}
 
     <div class="row">
