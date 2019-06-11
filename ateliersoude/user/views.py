@@ -168,6 +168,32 @@ class UserDetailView(DetailView):
 
         raise Http404("Utilisateur introuvable")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = context["object"]
+        registered = list(user.registered_events.all())
+        context["passed_rendezvous"] = (
+            [(event, "present") for event in user.presents_events.all()]
+            + [(event, "absent") for event in registered if event.has_ended]
+            + [
+                (event, "organizer")
+                for event in user.organizers_events.all()
+                if event.has_ended
+            ]
+        )
+        context["future_rendezvous"] = [
+            (event, "") for event in registered if not event.has_ended
+        ] + [
+            (event, "organizer")
+            for event in user.organizers_events.all()
+            if not event.has_ended
+        ]
+        context["passed_rendezvous"].sort(
+            key=lambda evt: evt[0].date, reverse=True
+        )
+        context["future_rendezvous"].sort(key=lambda evt: evt[0].date)
+        return context
+
 
 class UserListView(ListView):
     model = CustomUser
