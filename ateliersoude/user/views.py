@@ -1,4 +1,3 @@
-
 from datetime import date
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -188,13 +187,12 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
             for user in CustomUser.objects.all()
         ]
         all_events = self.object.events.all()
-        context["events"] = list(
-            get_future_published_events(all_events)
-        )
+        context["events"] = list(get_future_published_events(all_events))
         if context["is_volunteer"]:
             context["has_hidden_events"] = all_events.count() > 0
             past_events = all_events.filter(date__lt=date.today()).order_by(
-                "date")
+                "date"
+            )
             context["page"] = past_events.count() // EVENTS_PER_PAGE + 1
         context["register_form"] = CustomUserEmailForm
         context["add_admin_form"] = CustomUserEmailForm(auto_id="id_admin_%s")
@@ -312,14 +310,16 @@ class AddAdminToOrganization(AddUserToOrganization):
         orga.admins.add(user)
 
 
-class AddActiveToOrganization(AddUserToOrganization):
+class AddActiveToOrganization(HasActivePermissionMixin, AddUserToOrganization):
     @staticmethod
     def add_user_to_orga(orga, user):
         orga.volunteers.remove(user)
         orga.actives.add(user)
 
 
-class AddVolunteerToOrganization(AddUserToOrganization):
+class AddVolunteerToOrganization(
+    HasActivePermissionMixin, AddUserToOrganization
+):
     @staticmethod
     def add_user_to_orga(orga, user):
         orga.actives.remove(user)
