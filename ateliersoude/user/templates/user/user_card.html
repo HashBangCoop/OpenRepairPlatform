@@ -35,8 +35,10 @@
         <li class="list-group-item">
           <small> 
           <i>
-            est volontaire de : 
+            est volontaire de :
             {{ user.active_organizations.all|join:", " }}
+            {% if user.active_organizations.all and user.volunteer_organizations.all %}, {% endif %}
+            {{ user.volunteer_organizations.all|join:", " }}
           </i>
           </small>
         </li>
