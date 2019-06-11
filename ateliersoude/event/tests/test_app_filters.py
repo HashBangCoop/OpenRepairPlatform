@@ -1,5 +1,6 @@
 import pytest
 from django.core import signing
+from django.http import HttpRequest
 
 from ateliersoude import settings
 from ateliersoude.event.models import Event
@@ -7,6 +8,7 @@ from ateliersoude.event.templatetags.app_filters import (
     tokenize,
     initial,
     filter_orga,
+    query_transform,
 )
 from ateliersoude.user.forms import MoreInfoCustomUserForm
 
@@ -39,3 +41,12 @@ def test_filter_orga(organization, event_factory):
     _ = event_factory()
     a = filter_orga(Event.objects, organization)
     assert a.pk == event1.pk
+
+
+def test_query_transform():
+    request = HttpRequest()
+    request.GET["test"] = "coucou"
+    request.GET["page"] = 10
+    assert query_transform(
+        request, page=11, add="3&",
+    ) == "test=coucou&page=11&add=3%26"

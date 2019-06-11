@@ -13,29 +13,29 @@
     </div>
 
     {% if is_paginated %}
-    <nav aria-label="Event navigation" class="mt-4">
-      <ul class="pagination justify-content-center">
-        <li class="page-item{% if paginator.has_previous %} disabled{% endif %}">
-          <a class="page-link" href="{% url 'user:organization_all_events' organization.pk organization.slug page_obj.number|add:-1 %}" tabindex="-1">
-            Previous
-          </a>
-        </li>
+      <nav aria-label="Event navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+          <li class="page-item{% if paginator.has_previous %} disabled{% endif %}">
+            <a class="page-link" href="{% url 'user:organization_all_events' organization.pk organization.slug page_obj.number|add:-1 %}" tabindex="-1">
+              Previous
+            </a>
+          </li>
 
-        {% for page in paginator.page_range %}
-        <li class="page-item{% if page == page_obj.number %} active{% endif %}">
-          <a class="page-link" href="{% url 'user:organization_all_events' organization.pk organization.slug page %}">
-            {{ page }}
-          </a>
-        </li>
-        {% endfor %}
+          {% for page in paginator.page_range %}
+            <li class="page-item{% if page == page_obj.number %} active{% endif %}">
+              <a class="page-link" href="{% url 'user:organization_all_events' organization.pk organization.slug page %}">
+                {{ page }}
+              </a>
+            </li>
+          {% endfor %}
 
-        <li class="page-item{% if paginator.has_next %} disabled{% endif %}">
-          <a class="page-link" href="{% url 'user:organization_all_events' organization.pk organization.slug page_obj.number|add:1 %}">
-            Next
-          </a>
-        </li>
-      </ul>
-    </nav>
+          <li class="page-item{% if paginator.has_next %} disabled{% endif %}">
+            <a class="page-link" href="{% url 'user:organization_all_events' organization.pk organization.slug page_obj.number|add:1 %}">
+              Next
+            </a>
+          </li>
+        </ul>
+      </nav>
+    {% endif %}
   </div>
-  {% endif %}
 {% endblock %}

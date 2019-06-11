@@ -19,3 +19,11 @@ def initial(form, user):
 @register.simple_tag
 def filter_orga(queryset, organization):
     return queryset.filter(organization=organization).first()
+
+
+@register.simple_tag
+def query_transform(request, **kwargs):
+    updated = request.GET.copy()
+    for k, v in kwargs.items():
+        updated[k] = v
+    return updated.urlencode()
