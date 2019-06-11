@@ -130,9 +130,11 @@ class EventView(PermissionOrgaContextMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["users"] = list(
-            CustomUser.objects.all().values_list("email", flat=True)
-        )
+        ctx["users"] = [
+            (f"{user.email} ({user.first_name} {user.last_name})",
+             user.email)
+            for user in CustomUser.objects.all()
+        ]
         ctx["register_form"] = CustomUserEmailForm
         ctx["present_form"] = MoreInfoCustomUserForm
         ctx["total_fees"] = sum(

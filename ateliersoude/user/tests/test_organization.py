@@ -54,7 +54,9 @@ def test_organization_detail_admin(
         )
     )
     assert response.context["page"] == 1
-    assert user_log.email in response.context_data["users"]
+    assert user_log.email in {
+        user[1] for user in response.context_data["users"]
+    }
 
 
 def test_organization_create(client_log, custom_user):

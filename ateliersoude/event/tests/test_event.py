@@ -136,7 +136,9 @@ def test_event_detail_context(client, event, custom_user_factory, user_log):
     event.registered.add(anonymous_user)
     response = client.get(reverse("event:detail", args=[event.pk, event.slug]))
     assert response.status_code == 200
-    assert user_log.email in response.context_data["users"]
+    assert user_log.email in {
+        user[1] for user in response.context_data["users"]
+    }
     assert isinstance(response.context_data["event"], Event)
     assert event.pk == response.context_data["event"].pk
     assert event.activity.name in str(response.context_data["event"])
