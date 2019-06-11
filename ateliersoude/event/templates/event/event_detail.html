@@ -183,7 +183,17 @@
             <div class="card-body text-center p-4">
               <a href="{% url "user:user_detail" user.pk %}" class="card-link">
                 <i class="fa fa-user fa-4x"></i><br>
-                {{ user }}<br>
+                {{ user }}
+                <span class="badge badge-pill badge-primary">
+                  {% filter_orga queryset=user.memberships organization=event.organization as membership %}
+                  {% if membership %}
+                    {{ membership.current_contribution }}
+                  {% else %}
+                    0
+                  {% endif %}
+                  €
+                </span>
+                <br>
               </a>
               {% if event.has_started and is_active %}
               {% include "event/modal_more_info.html" with anonymous_user=user form=present_form|initial:user %}
@@ -209,9 +219,18 @@
               <a href="{% url "user:user_detail" participation.user.pk %}" class="card-link">
                 <i class="fa fa-user fa-4x"></i><br>
                 {{ participation.user }}
+                <span class="badge badge-pill badge-primary">
+                  {% filter_orga queryset=participation.user.memberships organization=event.organization as membership %}
+                  {% if membership %}
+                    {{ membership.current_contribution }}
+                  {% else %}
+                    0
+                  {% endif %}
+                  €
+                </span>
                 {% if participation.amount > 0 %}
                   <span class="badge badge-pill badge-secondary">
-                  {{ participation.amount }}€
+                  + {{ participation.amount }}€
                   </span>
                 {% endif %}
                 <br>

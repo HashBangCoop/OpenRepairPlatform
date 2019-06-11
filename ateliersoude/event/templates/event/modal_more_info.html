@@ -48,7 +48,7 @@
               <br>
               {% filter_orga queryset=user.memberships organization=event.organization as membership %}
               {% if membership %}
-                {{ anonymous_user }} a payé <b>{{ membership.current_contribution }}€</b> depuis le {{ membership.first_payment|date:"d F Y" }}
+                {{ anonymous_user }} a payé <span class="badge badge-pill badge-primary">{{ membership.current_contribution }}€</span> depuis le {{ membership.first_payment|date:"d F Y" }}
               {% else %}
                 {{ anonymous_user }} n'a pas encore contribué pour <b>{{ event.organization }}</b>
               {% endif %}
