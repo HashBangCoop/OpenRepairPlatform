@@ -150,6 +150,11 @@ class Organization(models.Model):
     advised_fee = models.PositiveIntegerField(
         verbose_name=_("Advised contribution"), default=0, blank=True
     )
+    fee_description = models.TextField(
+        verbose_name=_("Explain how the contribution system works"),
+        default="",
+        blank=True,
+    )
     history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
