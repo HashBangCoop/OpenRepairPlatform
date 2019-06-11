@@ -182,9 +182,11 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["users"] = list(
-            CustomUser.objects.all().values_list("email", flat=True)
-        )
+        context["users"] = [
+            (f"{user.email} ({user.first_name} {user.last_name})",
+             user.email)
+            for user in CustomUser.objects.all()
+        ]
         all_events = self.object.events.all()
         context["events"] = list(
             get_future_published_events(all_events)
