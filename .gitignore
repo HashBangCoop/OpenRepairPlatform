@@ -148,6 +148,7 @@ tmp
 *.min.js
 *.min.css
 ateliersoude/static/css
-
-# cpdb
+ateliersoude_static/
+ateliersoude_media/
+postgres_data/
 cpdb.sh
