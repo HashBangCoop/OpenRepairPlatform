@@ -26,7 +26,7 @@ from ateliersoude.mixins import (
     HasVolunteerPermissionMixin,
 )
 from ateliersoude.user.mixins import PermissionOrgaContextMixin
-from ateliersoude.user.models import CustomUser, Organization
+from ateliersoude.user.models import CustomUser, Organization, Membership
 from ateliersoude.utils import get_future_published_events
 
 from .forms import (
@@ -136,6 +136,65 @@ class PresentCreateUserView(HasActivePermissionMixin, RedirectView):
         return reverse("event:detail", args=[event.id, event.slug]) + "#manage"
 
 
+class AddMemberToOrganization(HasActivePermissionMixin, RedirectView):
+    model = Organization
+    form_class = MoreInfoCustomUserForm
+    http_methods = ["post"]
+
+    def get_redirect_url(self, *args, **kwargs):
+        user = CustomUser.objects.filter(
+            email=self.request.POST["email"]
+        ).first()
+        url = reverse(
+            "user:organization_detail",
+            kwargs={
+                "pk": self.organization.pk,
+                "slug": self.organization.slug,
+            },
+        )
+        if user in self.organization.members.all():
+            messages.warning(self.request, "L'utilisateur est déjà membre.")
+            return url
+        if user:
+            form = MoreInfoCustomUserForm(self.request.POST, instance=user)
+        else:
+            form = MoreInfoCustomUserForm(self.request.POST)
+        user = form.save()
+        paid = form.cleaned_data["amount_paid"]
+        Membership.objects.create(
+            organization=self.organization, user=user, amount=paid
+        )
+        messages.success(self.request, f"Vous avez ajouté {user} avec succes.")
+        return url
+
+
+class UpdateMemberView(HasActivePermissionMixin, UpdateView):
+    model = CustomUser
+    form_class = MoreInfoCustomUserForm
+    http_methods = ["post"]
+
+    def form_valid(self, form):
+        user = form.save()
+        membership = Membership.objects.get(
+            organization=self.organization, user=user
+        )
+        membership.amount += form.cleaned_data["amount_paid"]
+        membership.save()
+        return super().form_valid(form)
+
+    def get_success_url(self, *args, **kwargs):
+        messages.success(
+            self.request, f"Vous avez mis à jour {self.object} avec succes."
+        )
+        return reverse(
+            "user:organization_detail",
+            kwargs={
+                "pk": self.organization.pk,
+                "slug": self.organization.slug,
+            },
+        )
+
+
 class UserDetailView(DetailView):
     model = CustomUser
     template_name = "user/user_detail.html"
@@ -208,8 +267,7 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["users"] = [
-            (f"{user.email} ({user.first_name} {user.last_name})",
-             user.email)
+            (f"{user.email} ({user.first_name} {user.last_name})", user.email)
             for user in CustomUser.objects.all()
         ]
         all_events = self.object.events.all()
@@ -228,6 +286,7 @@ class OrganizationDetailView(PermissionOrgaContextMixin, DetailView):
         context["add_volunteer_form"] = CustomUserEmailForm(
             auto_id="id_volunteer_%s"
         )
+        context["add_member_form"] = MoreInfoCustomUserForm
         return context
 
 

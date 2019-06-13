@@ -430,9 +430,14 @@ def test_remove_volunteer_from_organization(
 def test_extended_event_list(client, custom_user, event_factory, organization):
     for _ in range(13):
         event_factory(organization=organization)
-    path = reverse("user:organization_all_events", kwargs={
-        "orga_pk": organization.pk, "slug": organization.slug, "page": 1,
-    })
+    path = reverse(
+        "user:organization_all_events",
+        kwargs={
+            "orga_pk": organization.pk,
+            "slug": organization.slug,
+            "page": 1,
+        },
+    )
     resp = client.get(path)
     assert resp.status_code == 302
     assert "/accounts/login" in resp.url
@@ -442,3 +447,92 @@ def test_extended_event_list(client, custom_user, event_factory, organization):
     assert resp.status_code == 200
     assert len(resp.context["event_list"]) == 6
     assert resp.context["paginator"].num_pages == 3
+
+
+def test_add_member_to_organization(custom_user_factory, client, organization):
+    user = custom_user_factory()
+    admin = custom_user_factory()
+    organization.admins.add(admin)
+    assert client.login(email=admin.email, password=USER_PASSWORD)
+    assert organization.admins.count() == 1
+    response = client.post(
+        reverse(
+            "user:organization_add_member", kwargs={"pk": organization.pk}
+        ),
+        {
+            "email": user.email,
+            "first_name": "Michel",
+            "last_name": "Miche",
+            "street_address": "11 rue du test",
+            "amount_paid": 5,
+        },
+    )
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "user:organization_detail",
+        kwargs={"pk": organization.pk, "slug": organization.slug},
+    )
+    assert organization.members.count() == 1
+
+
+def test_re_add_member_to_organization(
+    custom_user_factory, client, organization, membership_factory
+):
+    user = custom_user_factory()
+    admin = custom_user_factory()
+    membership_factory(user=user, organization=organization)
+    organization.admins.add(admin)
+    assert client.login(email=admin.email, password=USER_PASSWORD)
+    assert organization.admins.count() == 1
+    response = client.post(
+        reverse(
+            "user:organization_add_member", kwargs={"pk": organization.pk}
+        ),
+        {
+            "email": user.email,
+            "first_name": "Michel",
+            "last_name": "Miche",
+            "street_address": "11 rue du test",
+            "amount_paid": 5,
+        },
+    )
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "user:organization_detail",
+        kwargs={"pk": organization.pk, "slug": organization.slug},
+    )
+    assert user.first_name != "Michel"
+    assert organization.members.count() == 1
+
+
+def test_update_member_to_organization(
+    custom_user_factory, client, organization, membership_factory
+):
+    admin = custom_user_factory()
+    organization.admins.add(admin)
+    user = custom_user_factory()
+    membership_factory(user=user, organization=organization, amount=1)
+    assert client.login(email=admin.email, password=USER_PASSWORD)
+    assert organization.admins.count() == 1
+    response = client.post(
+        reverse(
+            "user:organization_update_member",
+            kwargs={"orga_pk": organization.pk, "pk": user.pk},
+        ),
+        {
+            "email": user.email,
+            "first_name": "Michel",
+            "last_name": "Miche",
+            "street_address": "11 rue du test",
+            "amount_paid": 5,
+        },
+    )
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "user:organization_detail",
+        kwargs={"pk": organization.pk, "slug": organization.slug},
+    )
+    user.refresh_from_db()
+    assert user.first_name == "Michel"
+    assert user.memberships.first().amount == 6
+    assert organization.members.count() == 1
