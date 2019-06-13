@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% load bootstrap4 %}
-{% load assets %}
 
-
+{% load assets l10n app_filters %}
 
 {% block extra_css %}
   {% assets "css_detail_organization" %}
@@ -110,13 +109,27 @@
                       </span>
                     depuis le {{ membership.first_payment|date:"d F Y" }})
                   {% endif %}
+                  <button class="btn btn-success btn-sm" 
+                          data-toggle="modal" 
+                          data-target="#more-info-{{ membership.user.pk }}">
+                    <i class="fa fa-plus"></i>
+                    Mettre à jour le membre
+                  </button>
                 </li>
+                {% include "user/organization/modal_more_info.html" with anonymous_user=membership.user form=add_member_form|initial:membership.user %}
                 {% endif %}
                 {% empty %}
                 <li class="list-group-item">
                   Il n'y a pas de membre visible dans cette organisation
                 </li>
               {% endfor %}
+              <button class="btn btn-success btn-sm" 
+                      data-toggle="modal" 
+                      data-target="#more-info-">
+                <i class="fa fa-plus"></i>
+                Ajouter un membre
+              </button>
+              {% include "user/organization/modal_more_info.html" with form=add_member_form %}
             </ul>
           </div>
         </div>

@@ -137,6 +137,8 @@ js_recurrent_event = Bundle(
 )
 js_detail_organization = Bundle(
     "js/lib/auto-complete.js",
+    "js/user/create_edit.js",
+    "js/lib/gov_addresses.js",
     "js/user/autocomplete.js",
     filters="jsmin",
     output="js/user/detail_organization.min.js",

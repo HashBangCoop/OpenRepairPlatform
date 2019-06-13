@@ -78,11 +78,21 @@ urlpatterns = [
     path(
         "present/<int:pk>",
         views.PresentCreateUserView.as_view(),
-        name="present_create_user"
+        name="present_create_user",
     ),
     path(
         "present/<int:event_pk>/<int:pk>/",
         views.PresentMoreInfoView.as_view(),
-        name="present_with_more_info"
+        name="present_with_more_info",
+    ),
+    path(
+        "organization/<int:pk>/add-member",
+        views.AddMemberToOrganization.as_view(),
+        name="organization_add_member",
+    ),
+    path(
+        "organization/<int:orga_pk>/update-member/<int:pk>",
+        views.UpdateMemberView.as_view(),
+        name="organization_update_member",
     ),
 ]
