@@ -511,7 +511,7 @@ def test_update_member_to_organization(
     admin = custom_user_factory()
     organization.admins.add(admin)
     user = custom_user_factory()
-    membership_factory(user=user, organization=organization)
+    membership_factory(user=user, organization=organization, amount=1)
     assert client.login(email=admin.email, password=USER_PASSWORD)
     assert organization.admins.count() == 1
     response = client.post(
@@ -534,5 +534,5 @@ def test_update_member_to_organization(
     )
     user.refresh_from_db()
     assert user.first_name == "Michel"
-    assert user.memberships.first().amount == 5
+    assert user.memberships.first().amount == 6
     assert organization.members.count() == 1
