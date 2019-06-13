@@ -61,9 +61,15 @@ class OrganizationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["picture"].widget.attrs.update({"class": "form-control"})
+        self.fields["fee_description"].widget = forms.TextInput()
 
     class Meta:
         model = Organization
         exclude = [
-            "visitors", "members", "actives", "volunteers", "admins", "slug"
+            "visitors",
+            "members",
+            "actives",
+            "volunteers",
+            "admins",
+            "slug",
         ]
