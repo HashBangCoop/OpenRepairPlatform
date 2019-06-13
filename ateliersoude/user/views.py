@@ -62,7 +62,7 @@ class UserCreateView(CreateView):
 
     def form_valid(self, form):
         res = super().form_valid(form)
-        messages.success(self.request, "L'utilisateur a bien été créé.")
+        messages.success(self.request, "L'utilisateur a bien été créé")
         return res
 
 
@@ -321,7 +321,7 @@ class OrganizationCreateView(CreateView):
     def form_valid(self, form):
         res = super().form_valid(form)
         form.instance.admins.add(self.request.user)
-        messages.success(self.request, "L'organisation a bien été créé.")
+        messages.success(self.request, "L'organisation a bien été créée")
         return res
 
 
