@@ -28,6 +28,11 @@ scss_detail_event = Bundle(
     filters="scss",
     output="css/detail_event.css",
 )
+scss_detail_user = Bundle(
+    "scss/user/detail.scss",
+    filters="scss",
+    output="css/detail_user.css",
+)
 sss_create_edit_event = Bundle(
     "scss/lib/flatpickr.scss",
     filters="scss",
@@ -62,6 +67,11 @@ css_detail_event = Bundle(
     scss_detail_event,
     filters="cssrewrite,cssmin",
     output="css/detail_event.min.css",
+)
+css_detail_user = Bundle(
+    scss_detail_user,
+    filters="cssrewrite,cssmin",
+    output="css/detail_user.min.css",
 )
 css_create_edit_event = Bundle(
     sss_create_edit_event,
@@ -137,6 +147,7 @@ register("css_places", css_places)
 register("css_autocomplete", css_auto_complete)
 register("css_detail_place", css_detail_place)
 register("css_detail_event", css_detail_event)
+register("css_detail_user", css_detail_user)
 register("css_create_edit_event", css_create_edit_event)
 register("css_detail_organization", css_detail_organization)
 
