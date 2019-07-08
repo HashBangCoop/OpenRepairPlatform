@@ -99,7 +99,7 @@ def test_event_create(client, user_log, event_recurrent_data):
     )
     events = Event.objects.all()
     assert response.status_code == 302
-    assert len(events) == 11
+    assert len(events) == 10
     assert response["Location"] == reverse("event:list")
 
 
